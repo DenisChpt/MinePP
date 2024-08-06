@@ -8,7 +8,7 @@
 #include "Renderer.hpp"
 #include "Shader.hpp"
 #include "World.hpp"
-#include "Camera.hpp"
+#include "Character.hpp"
 
 const GLchar *vertexSource = R"glsl(
 	#version 330 core
@@ -48,16 +48,16 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 	projection = glm::perspective(glm::radians(45.0f), static_cast<float>(width) / height, 0.1f, 100.0f);
 }
 
-void processInput(GLFWwindow *window, Camera &camera, float deltaTime, double &lastSpacePressTime, bool &spacePressedOnce)
+void processInput(GLFWwindow *window, Character &character, float deltaTime, double &lastSpacePressTime, bool &spacePressedOnce)
 {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.processKeyboard(0, deltaTime); // forward
+		character.processKeyboard(0, deltaTime); // forward
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.processKeyboard(1, deltaTime); // backward
+		character.processKeyboard(1, deltaTime); // backward
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.processKeyboard(2, deltaTime); // left
+		character.processKeyboard(2, deltaTime); // left
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.processKeyboard(3, deltaTime); // right
+		character.processKeyboard(3, deltaTime); // right
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
@@ -66,19 +66,19 @@ void processInput(GLFWwindow *window, Camera &camera, float deltaTime, double &l
 			double currentTime = glfwGetTime();
 			if (currentTime - lastSpacePressTime < 0.3)
 			{
-				camera.setFlying(!camera.getFlying());
+				character.setFlying(!character.getFlying());
 				spacePressedOnce = true;
 			}
 			else
 			{
-				camera.jump();
+				character.jump();
 				lastSpacePressTime = currentTime;
 				spacePressedOnce = true;
 			}
 		}
-		if (camera.getFlying())
+		if (character.getFlying())
 		{
-			camera.processKeyboard(4, deltaTime);
+			character.processKeyboard(4, deltaTime);
 		}
 	}
 	else
@@ -88,9 +88,9 @@ void processInput(GLFWwindow *window, Camera &camera, float deltaTime, double &l
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
-		if (camera.getFlying())
+		if (character.getFlying())
 		{
-			camera.processKeyboard(5, deltaTime); // down in flying mode
+			character.processKeyboard(5, deltaTime); // down in flying mode
 		}
 	}
 }
@@ -157,8 +157,8 @@ int main()
 	// Création du monde
 	World world;
 
-	// Initialisation de la caméra
-	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+	// Initialisation du personnage
+	Character character(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
 
 	// Initialisation de la matrice de projection
 	int width, height;
@@ -198,20 +198,20 @@ int main()
 		// Gestion des entrées
 		glfwPollEvents();
 		inputManager.update();
-		processInput(window, camera, deltaTime, lastSpacePressTime, spacePressedOnce);
+		processInput(window, character, deltaTime, lastSpacePressTime, spacePressedOnce);
 
 		// Récupère les décalages de la souris
 		double xoffset, yoffset;
 		inputManager.getMouseDelta(xoffset, yoffset);
-		camera.processMouseMovement(static_cast<float>(xoffset), static_cast<float>(yoffset));
+		character.processMouseMovement(static_cast<float>(xoffset), static_cast<float>(yoffset));
 
 		// Mise à jour de la caméra (gravité et saut)
-		camera.update(world, deltaTime);
+		character.update(world, deltaTime);
 
 		// Rendu
 		renderer.clear();
 
-		glm::mat4 view = camera.getViewMatrix();
+		glm::mat4 view = character.getViewMatrix();
 
 		shader.use();
 		shader.setMatrix4("view", view);
@@ -219,6 +219,9 @@ int main()
 
 		// Rendu du monde
 		world.render(shader);
+
+		// Rendu du personnage
+		character.render(shader);
 		// Échange des buffers
 		glfwSwapBuffers(window);
 	}

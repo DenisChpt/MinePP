@@ -12,12 +12,14 @@ public:
 
 	glm::mat4 getViewMatrix() const;
 
-	void processKeyboard(int direction, float deltaTime);
 	void processMouseMovement(float xoffset, float yoffset);
 	void update(World &world, float deltaTime);
-	void jump();
-	void setFlying(bool flying);
+	void setPosition(const glm::vec3 &position);
 	bool getFlying() { return isFlying; };
+	glm::vec3 getFront() { return front; };
+	glm::vec3 getRight() { return right; };
+	glm::vec3 getWorldUp() { return worldUp; };
+
 
 private:
 	glm::vec3 position;

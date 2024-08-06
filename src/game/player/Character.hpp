@@ -2,8 +2,10 @@
 #define CHARACTER_HPP
 
 #include <glm/glm.hpp>
+#include <GL/glew.h>
 #include "Camera.hpp"
 #include "World.hpp"
+#include "Physics.hpp"
 #include "Texture.hpp"
 
 class Character
@@ -20,6 +22,7 @@ public:
 	void setFlying(bool flying);
 	bool getFlying() const;
 	void setupMesh();
+	void setTextureCoords();
 
 	glm::vec3 getPosition() const;
 	glm::mat4 getViewMatrix() const;
@@ -28,9 +31,11 @@ private:
 	glm::vec3 position;
 	glm::vec3 size;
 	Camera camera;
-	// Texture texture;
+	Texture* texture;
+	std::array<std::array<std::array<glm::vec2, 4>, 6>, 6> textureCoords;
 	float verticalVelocity;
 	bool isFlying;
+	bool isJumping;
 	bool canGoUp;
 	bool canGoDown;
 	float movementSpeed;

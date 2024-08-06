@@ -156,11 +156,11 @@ void Block::setupMesh() {
 	glBindVertexArray(0);
 }
 
-void Block::render(const Shader &shader, const glm::mat4 &modelMatrix) const
+void Block::render(const Shader &shader)
 {
 	texture->bind();
 	shader.use();
-	glm::mat4 model = glm::translate(modelMatrix, position);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
 	shader.setMatrix4("model", model);
 
 	glBindVertexArray(VAO);

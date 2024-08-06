@@ -16,7 +16,7 @@ public:
 
 	const std::array<std::array<glm::vec2, 4>, 6>& getTextureCoords() const;
 	BlockType getType() const;
-	void render(const Shader& shader, const glm::mat4& modelMatrix) const;
+	void render(const Shader& shader);
 	Texture* getTexture() const { return texture; }
 	glm::vec3 getPosition() const { return position; }
 	bool isUnder(const glm::vec3& position) const;

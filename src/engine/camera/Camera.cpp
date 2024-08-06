@@ -17,27 +17,6 @@ glm::mat4 Camera::getViewMatrix() const
 	return glm::lookAt(position, position + front, up);
 }
 
-void Camera::processKeyboard(int direction, float deltaTime)
-{
-	float velocity = movementSpeed * deltaTime;
-	glm::vec3 horizontalFront = glm::normalize(glm::vec3(front.x, 0.0f, front.z));
-
-	if (direction == 0) // forward
-		position += horizontalFront * velocity;
-	if (direction == 1) // backward
-		position -= horizontalFront * velocity;
-	if (direction == 2) // left
-		position -= right * velocity;
-	if (direction == 3) // right
-		position += right * velocity;
-	if (isFlying)
-	{
-		if (direction == 4 && canGoUp) // up
-			position += worldUp * velocity;
-		if (direction == 5 && canGoDown) // down
-			position -= worldUp * velocity;
-	}
-}
 
 void Camera::processMouseMovement(float xoffset, float yoffset)
 {
@@ -55,23 +34,9 @@ void Camera::processMouseMovement(float xoffset, float yoffset)
 	updateCameraVectors();
 }
 
-void Camera::update(World &world, float deltaTime)
+void Camera::setPosition(const glm::vec3 &position)
 {
-	Physics::applyGravity(world, position, verticalVelocity, deltaTime, isFlying, isJumping, canGoUp, canGoDown);
-	movementSpeed = isFlying ? flySpeed : walkSpeed;
-}
-
-void Camera::jump()
-{
-	if (!isFlying && verticalVelocity == 0.0f)
-	{
-		verticalVelocity = 9.0f;
-		isJumping = true;
-	}
-}
-void Camera::setFlying(bool flying)
-{
-	isFlying = flying;
+	this->position = position;
 }
 
 void Camera::updateCameraVectors()

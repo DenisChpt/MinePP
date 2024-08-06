@@ -32,7 +32,7 @@ void Chunk::generate() {
 
 void Chunk::render(const Shader& shader) {
 	for (size_t i = 0; i < blocks.size(); ++i) {
-		blocks[i]->render(shader, glm::mat4(1.0f));
+		blocks[i]->render(shader);
 	}
 }
 
