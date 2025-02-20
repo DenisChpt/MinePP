@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <chrono>
+#include <GL/freeglut.h>
 
 namespace {
 	Application* appInstance = nullptr;
@@ -37,6 +38,10 @@ Application::~Application() {
 }
 
 bool Application::initialize() {
+	int argc = 1;
+	char* argv[1] = { (char*)"Something" }; // Fake arguments pour glutInit
+	glutInit(&argc, argv);
+	
 	if (!glfwInit()) {
 		std::cerr << "Erreur: Échec de l'initialisation de GLFW." << std::endl;
 		return false;

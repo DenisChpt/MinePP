@@ -32,9 +32,9 @@ void World::update() {
 	// lancer le culling, ou encore mettre à jour des animations
 }
 
-void World::render() const {
-	for (auto chunk : chunks) {
-		if (chunk)
-			chunk->render();
-	}
-}
+// void World::render() const {
+// 	for (auto chunk : chunks) {
+// 		if (chunk)
+// 			chunk->render();
+// 	}
+// }

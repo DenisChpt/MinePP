@@ -52,7 +52,7 @@ bool PostProcessor::initialize(int screenWidth, int screenHeight) {
 
 	// Charge le shader de post‑traitement (doit être placé dans shaders/postprocess.vert et .frag)
 	postShader = std::make_unique<Shader>();
-	if (!postShader->loadFromFiles("shaders/postprocess.vert", "shaders/postprocess.frag")) {
+	if (!postShader->loadFromFiles("../shaders/postprocess.vert", "../shaders/postprocess.frag")) {
 		std::cerr << "Erreur lors du chargement du shader de post‑traitement." << std::endl;
 		return false;
 	}

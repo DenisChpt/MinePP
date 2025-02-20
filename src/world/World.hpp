@@ -15,7 +15,7 @@ public:
 	void update();
 
 	// Rendu de tous les chunks
-	void render() const;
+	// void render() const;
 
 	int getWidthInChunks() const { return width; }
 	int getDepthInChunks() const { return depth; }
