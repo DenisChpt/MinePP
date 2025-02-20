@@ -9,7 +9,7 @@ public:
 	~World();
 
 	// Renvoie le chunk situé aux coordonnées données (en unités de chunk)
-	Chunk* getChunk(int chunkX, int chunkZ) const;
+	world::Chunk* getChunk(int chunkX, int chunkZ) const;
 
 	// Met à jour le monde (par exemple, génération ou mises à jour de chunks)
 	void update();
@@ -23,7 +23,7 @@ public:
 private:
 	int width;
 	int depth;
-	std::vector<Chunk*> chunks;
+	std::vector<world::Chunk*> chunks;
 };
 
 #endif // WORLD_HPP

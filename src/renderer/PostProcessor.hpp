@@ -1,7 +1,6 @@
 #ifndef POST_PROCESSOR_HPP
 #define POST_PROCESSOR_HPP
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <memory>
 #include "Shader.hpp"

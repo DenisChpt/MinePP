@@ -117,8 +117,8 @@ bool TextureManager::loadTextureAtlas(const std::vector<std::pair<std::string, s
 	// Gestion de l'anisotropie si disponible.
 	if (GLAD_GL_EXT_texture_filter_anisotropic) {
 		GLfloat maxAnisotropy = 0.0f;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropy);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);

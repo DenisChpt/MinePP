@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "../external/nlohmann/json.hpp"
+#include <json.hpp>
 
 namespace asset {
 

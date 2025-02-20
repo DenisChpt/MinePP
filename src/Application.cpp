@@ -1,125 +1,160 @@
+#include <glad/glad.h>
 #include "Application.hpp"
+#include "renderer/Renderer.hpp"
+#include "renderer/PostProcessor.hpp"
+#include "camera/Camera.hpp"
+#include "ui/ChatWindow.hpp"
+#include "ui/DebugOverlay.hpp"
+#include "input/InputManager.hpp"
+#include <GLFW/glfw3.h>
 #include <iostream>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <chrono>
 
-Application* Application::instance = nullptr;
+namespace {
+	Application* appInstance = nullptr;
+}
 
-Application::Application(int windowWidth, int windowHeight)
-	: windowWidth(windowWidth), windowHeight(windowHeight),
-	  // Position initiale et cible pour la caméra
-	  camera(glm::vec3(0.0f, 20.0f, 50.0f), glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0,1,0))
+Application::Application(int width, int height, const std::string &title)
+	: screenWidth(width), screenHeight(height), windowTitle(title), window(nullptr),
+	  renderer(new renderer::Renderer()),
+	  postProcessor(new renderer::PostProcessor()),
+	  camera(new Camera(glm::vec3(0.0f, 50.0f, 100.0f))),
+	  chatWindow(new ui::ChatWindow()),
+	  debugOverlay(new ui::DebugOverlay()),
+	  inputManager(new input::InputManager())
 {
-	// Par exemple, créer un monde de 8x8 chunks
-	world = new World(8, 8);
-	instance = this;
-	memset(keys, 0, sizeof(keys));
+	appInstance = this;
 }
 
 Application::~Application() {
-	delete world;
-	glfwDestroyWindow(window);
+	delete renderer;
+	delete postProcessor;
+	delete camera;
+	delete chatWindow;
+	delete debugOverlay;
+	delete inputManager;
 	glfwTerminate();
 }
 
-bool Application::init() {
+bool Application::initialize() {
 	if (!glfwInit()) {
-		std::cerr << "Échec d'initialisation de GLFW" << std::endl;
+		std::cerr << "Erreur: Échec de l'initialisation de GLFW." << std::endl;
 		return false;
 	}
-	// Création d'une fenêtre OpenGL 3.3 Core
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	window = glfwCreateWindow(windowWidth, windowHeight, "Mon Projet", nullptr, nullptr);
+	window = glfwCreateWindow(screenWidth, screenHeight, windowTitle.c_str(), nullptr, nullptr);
 	if (!window) {
-		std::cerr << "Échec de création de la fenêtre" << std::endl;
+		std::cerr << "Erreur: Échec de la création de la fenêtre GLFW." << std::endl;
 		glfwTerminate();
 		return false;
 	}
 	glfwMakeContextCurrent(window);
-
-	// Initialisation de GLAD
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cerr << "Échec d'initialisation de GLAD" << std::endl;
+	glfwSetKeyCallback(window, keyCallbackStatic);
+	glfwSetCursorPosCallback(window, mouseCallbackStatic);
+	glfwSetScrollCallback(window, scrollCallbackStatic);
+	if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
+		std::cerr << "Erreur: Échec de l'initialisation de GLAD." << std::endl;
 		return false;
 	}
-
-	// Définir les callbacks d'entrée
-	glfwSetKeyCallback(window, keyCallback);
-	glfwSetCursorPosCallback(window, cursorPosCallback);
-
-	// Masquer le curseur et activer le mode capture (pour la rotation de la caméra)
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-	// Initialiser le renderer
-	if (!renderer.init()) {
-		std::cerr << "Échec de l'initialisation du renderer" << std::endl;
-		return false;
-	}
-
+	glViewport(0, 0, screenWidth, screenHeight);
 	glEnable(GL_DEPTH_TEST);
 
+	if (!renderer->initialize()) {
+		std::cerr << "Erreur: Échec de l'initialisation du renderer." << std::endl;
+		return false;
+	}
+	if (!postProcessor->initialize(screenWidth, screenHeight)) {
+		std::cerr << "Erreur: Échec de l'initialisation du post processor." << std::endl;
+		return false;
+	}
 	return true;
 }
 
 void Application::run() {
-	float lastFrame = 0.0f;
-
+	auto lastTime = std::chrono::high_resolution_clock::now();
 	while (!glfwWindowShouldClose(window)) {
-		float currentFrame = glfwGetTime();
-		float deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
+		lastTime = currentTime;
 
-		glfwPollEvents();
+		processInput(deltaTime);
+		update(deltaTime);
 
-		// Gestion simple des entrées (WASD pour avancer/reculer/gauche/droite)
-		glm::vec3 direction(0.0f);
-		if (keys[GLFW_KEY_W])
-			direction += glm::vec3(0, 0, -1);
-		if (keys[GLFW_KEY_S])
-			direction += glm::vec3(0, 0, 1);
-		if (keys[GLFW_KEY_A])
-			direction += glm::vec3(-1, 0, 0);
-		if (keys[GLFW_KEY_D])
-			direction += glm::vec3(1, 0, 0);
-		if (glm::length(direction) > 0.0f) {
-			direction = glm::normalize(direction);
-			camera.move(direction * deltaTime * 10.0f);
-		}
-
-		world->update();
-
-		glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
+		// Rendu de la scène dans le framebuffer du post-processor
+		postProcessor->bindFramebuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glm::mat4 view = camera->getViewMatrix();
+		glm::mat4 projection = camera->getProjectionMatrix((float)screenWidth / screenHeight);
+		renderer->render(view, projection);
 
-		renderer.renderWorld(*world, camera);
+		// Passage de post‑traitement
+		postProcessor->render((float)glfwGetTime());
+
+		// Rendu des overlays UI
+		debugOverlay->setFPS(1.0f / deltaTime);
+		debugOverlay->setCameraPosition(camera->Position);
+		debugOverlay->render(projection);
+		if (chatWindow->isActive())
+			chatWindow->render(projection);
 
 		glfwSwapBuffers(window);
+		glfwPollEvents();
+		inputManager->update();
 	}
 }
 
-// Callback clavier
-void Application::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (instance) {
-		if (key >= 0 && key < 1024) {
-			if (action == GLFW_PRESS)
-				instance->keys[key] = true;
-			else if (action == GLFW_RELEASE)
-				instance->keys[key] = false;
+void Application::processInput(float deltaTime) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	if (!chatWindow->isActive()) {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			camera->processKeyboard('W', deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			camera->processKeyboard('S', deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			camera->processKeyboard('A', deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			camera->processKeyboard('D', deltaTime);
+	}
+}
+
+void Application::update(float deltaTime) {
+	glm::mat4 view = camera->getViewMatrix();
+	glm::mat4 projection = camera->getProjectionMatrix((float)screenWidth / screenHeight);
+	camera->updateFrustum(projection * view);
+}
+
+GLFWwindow* Application::getWindow() const {
+	return window;
+}
+
+void Application::keyCallbackStatic(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (appInstance) {
+		appInstance->inputManager->keyCallback(key, scancode, action, mods);
+		if (appInstance->chatWindow->isActive())
+			appInstance->chatWindow->processInput(key, action);
+		if (key == GLFW_KEY_T && action == GLFW_PRESS)
+			appInstance->chatWindow->toggle();
+	}
+}
+
+void Application::mouseCallbackStatic(GLFWwindow* window, double xpos, double ypos) {
+	if (appInstance) {
+		appInstance->inputManager->mouseCallback(xpos, ypos);
+		if (!appInstance->chatWindow->isActive()) {
+			static double lastX = xpos, lastY = ypos;
+			double xoffset = xpos - lastX;
+			double yoffset = lastY - ypos;
+			lastX = xpos;
+			lastY = ypos;
+			appInstance->camera->processMouseMovement((float)xoffset, (float)yoffset);
 		}
 	}
 }
 
-// Callback de position de la souris
-void Application::cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-	static double lastX = xpos, lastY = ypos;
-	double deltaX = xpos - lastX;
-	double deltaY = lastY - ypos; // inversion de l'axe Y
-	lastX = xpos;
-	lastY = ypos;
-
-	float sensitivity = 0.1f;
-	instance->camera.rotate(deltaX * sensitivity, deltaY * sensitivity);
+void Application::scrollCallbackStatic(GLFWwindow* window, double xoffset, double yoffset) {
+	if (appInstance) {
+		appInstance->inputManager->scrollCallback(xoffset, yoffset);
+		appInstance->camera->processMouseScroll((float)yoffset);
+	}
 }

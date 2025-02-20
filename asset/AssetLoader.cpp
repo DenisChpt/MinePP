@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "../external/nlohmann/json.hpp"
+#include <json.hpp>
 using json = nlohmann::json;
 
 namespace asset {

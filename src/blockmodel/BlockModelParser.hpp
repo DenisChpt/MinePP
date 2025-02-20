@@ -2,7 +2,7 @@
 #define BLOCK_MODEL_PARSER_HPP
 
 #include "BlockModel.hpp"
-#include "nlohmann/json.hpp"
+#include <json.hpp>
 #include <string>
 
 namespace blockmodel {
