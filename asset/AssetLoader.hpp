@@ -8,53 +8,65 @@
 
 namespace asset {
 
-	// Structure représentant la section "definition" d'un bloc.
+	/**
+	 * @brief Holds definition details for a block (e.g. block type, additional properties).
+	 */
 	struct BlockDefinition {
-		std::string type;         // Exemple : "minecraft:button"
-		std::string blockSetType; // Par exemple, "acacia", si présent.
-		// Dictionnaire pour stocker d'autres propriétés (ex. "ticks_to_stay_pressed", etc.)
+		std::string type;
+		std::string blockSetType;
 		std::unordered_map<std::string, std::string> extra;
 	};
 
-	// Structure représentant la section "properties" qui liste les valeurs possibles.
+	/**
+	 * @brief Holds property definitions for a block, listing possible values for each property.
+	 */
 	struct BlockProperties {
-		// Pour chaque propriété, la liste de ses valeurs possibles.
 		std::unordered_map<std::string, std::vector<std::string>> properties;
 	};
 
-	// Structure représentant un état de bloc.
+	/**
+	 * @brief Represents a possible state of a block, including property values and an ID.
+	 */
 	struct BlockState {
 		int id;
-		bool isDefault; // indique si cet état est par défaut.
-		// Map des propriétés pour cet état (par exemple, {"face": "floor", "facing": "north", "powered": "true"})
+		bool isDefault;
 		std::unordered_map<std::string, std::string> properties;
 	};
 
-	// Structure globale regroupant la définition d'un bloc.
+	/**
+	 * @brief Encapsulates all data for a given block, including definition, properties, and states.
+	 */
 	struct BlockAsset {
-		std::string identifier; // Par exemple "minecraft:acacia_button"
+		std::string identifier;
 		BlockDefinition definition;
 		BlockProperties properties;
 		std::vector<BlockState> states;
 	};
 
-	// Classe chargée de lire et parser le fichier blocks.json.
+	/**
+	 * @brief Responsible for loading and parsing block assets (JSON data).
+	 */
 	class AssetLoader {
 	public:
 		AssetLoader();
 		~AssetLoader();
 
-		// Charge et parse le fichier de blocs depuis le chemin indiqué.
-		// Le fichier blocks.json doit être placé dans le répertoire du jeu (par exemple "./blocks.json")
+		/**
+		 * @brief Loads block asset data from a specified JSON file.
+		 * @param filePath Path to the blocks.json file.
+		 * @return True if successfully loaded and parsed, otherwise false.
+		 */
 		bool loadBlockAssets(const std::string &filePath);
 
-		// Accès aux assets chargés.
+		/**
+		 * @brief Provides access to all loaded block assets.
+		 * @return A const reference to the map of block identifier to BlockAsset.
+		 */
 		const std::unordered_map<std::string, BlockAsset>& getBlockAssets() const;
 
 	private:
 		std::unordered_map<std::string, BlockAsset> blockAssets;
 
-		// Fonctions d'aide pour parser les différentes sections du JSON.
 		bool parseBlockAsset(const std::string &blockId, const nlohmann::json &j);
 		bool parseDefinition(BlockDefinition &def, const nlohmann::json &j);
 		bool parseProperties(BlockProperties &props, const nlohmann::json &j);

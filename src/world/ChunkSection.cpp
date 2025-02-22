@@ -4,9 +4,7 @@
 namespace world {
 
 ChunkSection::ChunkSection() : dirty(true) {
-	// Initialisation de tous les blocs à 0 (par exemple, 0 = air)
 	blocks.fill(0);
-	// Initialisation des tableaux de lumière à 0
 	skyLight.fill(0);
 	blockLight.fill(0);
 }

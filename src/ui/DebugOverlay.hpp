@@ -6,30 +6,26 @@
 
 namespace ui {
 
-class DebugOverlay {
-public:
-	DebugOverlay();
-	~DebugOverlay();
+	/**
+	 * @brief Displays simple debug information, such as FPS and camera position.
+	 */
+	class DebugOverlay {
+	public:
+		DebugOverlay();
+		~DebugOverlay();
 
-	// Met à jour la valeur FPS
-	void setFPS(float fps);
+		void setFPS(float fps);
+		void setCameraPosition(const glm::vec3 &pos);
+		void setDebugInfo(const std::string &info);
+		void render(const glm::mat4 &projection);
 
-	// Met à jour la position de la caméra
-	void setCameraPosition(const glm::vec3 &pos);
+	private:
+		float fps;
+		glm::vec3 cameraPos;
+		std::string debugInfo;
 
-	// Met à jour une info additionnelle (ex. infos sur le chunk)
-	void setDebugInfo(const std::string &info);
-
-	// Rendu de l’overlay
-	void render(const glm::mat4 &projection);
-
-private:
-	float fps;
-	glm::vec3 cameraPos;
-	std::string debugInfo;
-
-	void renderText(const std::string &text, float x, float y, float scale, const glm::vec3 &color);
-};
+		void renderText(const std::string &text, float x, float y, float scale, const glm::vec3 &color);
+	};
 
 } // namespace ui
 

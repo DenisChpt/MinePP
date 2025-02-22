@@ -1,44 +1,52 @@
-#include "InputManager.hpp"
+#ifndef INPUT_MANAGER_HPP
+#define INPUT_MANAGER_HPP
+
+#include <unordered_map>
 
 namespace input {
 
-InputManager::InputManager() : mouseX(0.0), mouseY(0.0), scrollX(0.0), scrollY(0.0) { }
+	/**
+	 * @brief Manages input states, including keyboard, mouse, and scroll.
+	 */
+	class InputManager {
+	public:
+		InputManager();
+		~InputManager();
 
-InputManager::~InputManager() { }
+		/**
+		 * @brief Called when a key event occurs.
+		 */
+		void keyCallback(int key, int scancode, int action, int mods);
 
-void InputManager::keyCallback(int key, int scancode, int action, int mods) {
-	if (action == 1) // press
-		keys[key] = true;
-	else if (action == 0) // release
-		keys[key] = false;
-}
+		/**
+		 * @brief Called when a mouse move event occurs.
+		 */
+		void mouseCallback(double xpos, double ypos);
 
-void InputManager::mouseCallback(double xpos, double ypos) {
-	mouseX = xpos;
-	mouseY = ypos;
-}
+		/**
+		 * @brief Called when a scroll event occurs.
+		 */
+		void scrollCallback(double xoffset, double yoffset);
 
-void InputManager::scrollCallback(double xoffset, double yoffset) {
-	scrollX = xoffset;
-	scrollY = yoffset;
-}
+		/**
+		 * @brief Updates any transient input state if needed.
+		 */
+		void update();
 
-void InputManager::update() {
-	scrollX = 0.0;
-	scrollY = 0.0;
-}
+		/**
+		 * @brief Checks if a key is currently held down.
+		 */
+		bool isKeyPressed(int key) const;
 
-bool InputManager::isKeyPressed(int key) const {
-	auto it = keys.find(key);
-	return (it != keys.end()) ? it->second : false;
-}
+		double getMouseX() const;
+		double getMouseY() const;
 
-double InputManager::getMouseX() const {
-	return mouseX;
-}
-
-double InputManager::getMouseY() const {
-	return mouseY;
-}
+	private:
+		std::unordered_map<int, bool> keys;
+		double mouseX, mouseY;
+		double scrollX, scrollY;
+	};
 
 } // namespace input
+
+#endif // INPUT_MANAGER_HPP

@@ -2,20 +2,18 @@
 #define WORLD_HPP
 
 #include "Chunk.hpp"
+#include <vector>
 
+/**
+ * @brief Represents a simplistic World container holding multiple chunks in a grid.
+ */
 class World {
 public:
 	World(int widthInChunks, int depthInChunks);
 	~World();
 
-	// Renvoie le chunk situé aux coordonnées données (en unités de chunk)
 	world::Chunk* getChunk(int chunkX, int chunkZ) const;
-
-	// Met à jour le monde (par exemple, génération ou mises à jour de chunks)
 	void update();
-
-	// Rendu de tous les chunks
-	// void render() const;
 
 	int getWidthInChunks() const { return width; }
 	int getDepthInChunks() const { return depth; }

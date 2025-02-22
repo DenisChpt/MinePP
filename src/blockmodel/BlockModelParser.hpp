@@ -7,34 +7,34 @@
 
 namespace blockmodel {
 
-/**
- * Classe permettant de parser un fichier JSON définissant un modèle de bloc.
- */
-class BlockModelParser {
-public:
-	BlockModelParser();
-	~BlockModelParser();
-
 	/**
-	 * Parse un modèle de bloc depuis un fichier JSON.
-	 * @param filePath : chemin du fichier modèle.
-	 * @param outModel : (out) modèle parsé.
-	 * @return true en cas de succès.
+	 * @brief Parses JSON files representing block models.
 	 */
-	bool parseModelFromFile(const std::string& filePath, ParsedBlockModel& outModel);
+	class BlockModelParser {
+	public:
+		BlockModelParser();
+		~BlockModelParser();
 
-	/**
-	 * Parse un modèle de bloc à partir d'un objet JSON.
-	 * @param j : objet JSON représentant le modèle.
-	 * @param outModel : (out) modèle parsé.
-	 * @return true en cas de succès.
-	 */
-	bool parseModel(const nlohmann::json& j, ParsedBlockModel& outModel);
+		/**
+		 * @brief Parses a block model from a file on disk.
+		 * @param filePath Path to the JSON model file.
+		 * @param outModel Output block model data structure.
+		 * @return True on success, false on failure.
+		 */
+		bool parseModelFromFile(const std::string& filePath, ParsedBlockModel& outModel);
 
-private:
-	bool parseElement(const nlohmann::json& j, ParsedBlockElement& outElement);
-	bool parseFace(const nlohmann::json& j, Face& outFace);
-};
+		/**
+		 * @brief Parses a block model from a JSON object in memory.
+		 * @param j The JSON object containing the model data.
+		 * @param outModel Output block model data structure.
+		 * @return True on success, false on failure.
+		 */
+		bool parseModel(const nlohmann::json& j, ParsedBlockModel& outModel);
+
+	private:
+		bool parseElement(const nlohmann::json& j, ParsedBlockElement& outElement);
+		bool parseFace(const nlohmann::json& j, Face& outFace);
+	};
 
 } // namespace blockmodel
 

@@ -4,63 +4,65 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <glm/glm.hpp>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 namespace polymer {
 namespace texture {
 
-// Structure représentant la région d'une texture dans l'atlas (en coordonnées UV normalisées)
-struct TextureRegion {
-	glm::vec2 uvMin;
-	glm::vec2 uvMax;
-};
-
-// La classe TextureManager gère le chargement d'images et la création d'un atlas OpenGL
-class TextureManager {
-public:
-	TextureManager();
-	~TextureManager();
-
-	// Charge une texture depuis un fichier et la stocke dans l'atlas.
-	// Retourne la région associée à cette texture.
-	TextureRegion loadTexture(const std::string& filePath);
-
-	// Une fois toutes les textures chargées, construisez l'atlas.
-	// Retourne true en cas de succès.
-	bool buildAtlas();
-
-	// Accès à l'ID OpenGL de l'atlas.
-	GLuint getAtlasTextureID() const { return atlasTextureID; }
-
-private:
-	struct ImageData {
-		int width;
-		int height;
-		int channels;
-		unsigned char* data;
-		std::string filePath;
+	/**
+	 * @brief Defines a UV region for a texture within an atlas.
+	 */
+	struct TextureRegion {
+		glm::vec2 uvMin;
+		glm::vec2 uvMax;
 	};
 
-	// Liste des images chargées
-	std::vector<ImageData> images;
+	/**
+	 * @brief Manages multiple individual images, packing them into a single atlas texture.
+	 */
+	class TextureManager {
+	public:
+		TextureManager();
+		~TextureManager();
 
-	// Mapping de chemin de fichier vers la région dans l'atlas
-	std::unordered_map<std::string, TextureRegion> textureRegions;
+		/**
+		 * @brief Loads an image from a file for later inclusion in the atlas.
+		 * @param filePath Path to the image file.
+		 * @return The TextureRegion assigned (initially uninitialized).
+		 */
+		TextureRegion loadTexture(const std::string& filePath);
 
-	// ID OpenGL de la texture atlas
-	GLuint atlasTextureID;
+		/**
+		 * @brief Builds the final atlas texture after all images are loaded.
+		 * @return True on success, otherwise false.
+		 */
+		bool buildAtlas();
 
-	// Dimensions de l'atlas
-	int atlasWidth;
-	int atlasHeight;
+		/**
+		 * @brief Gets the OpenGL texture ID of the built atlas.
+		 */
+		GLuint getAtlasTextureID() const { return atlasTextureID; }
 
-	// Libère les images chargées
-	void freeImages();
+	private:
+		struct ImageData {
+			int width;
+			int height;
+			int channels;
+			unsigned char* data;
+			std::string filePath;
+		};
 
-	// Fonction naïve de pack d'images dans l'atlas
-	bool packImages();
-};
+		std::vector<ImageData> images;
+		std::unordered_map<std::string, TextureRegion> textureRegions;
+
+		GLuint atlasTextureID;
+		int atlasWidth;
+		int atlasHeight;
+
+		void freeImages();
+		bool packImages();
+	};
 
 } // namespace texture
 } // namespace polymer

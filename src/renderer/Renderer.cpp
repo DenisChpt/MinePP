@@ -22,34 +22,30 @@ Renderer::~Renderer() {
 }
 
 bool Renderer::initialize() {
-	// Création et chargement des shaders pour chaque pipeline
-
-	// Pipeline opaque
 	opaqueShader = std::make_unique<Shader>();
 	if (!opaqueShader->loadFromFiles("shaders/opaque.vert", "shaders/opaque.frag")) {
-		std::cerr << "Erreur lors du chargement des shaders opaques." << std::endl;
+		std::cerr << "Error loading opaque shaders." << std::endl;
 		return false;
 	}
 
-	// Pipeline transparent
 	transparentShader = std::make_unique<Shader>();
 	if (!transparentShader->loadFromFiles("shaders/transparent.vert", "shaders/transparent.frag")) {
-		std::cerr << "Erreur lors du chargement des shaders transparents." << std::endl;
+		std::cerr << "Error loading transparent shaders." << std::endl;
 		return false;
 	}
 
-	// Pipeline feuillage
 	foliageShader = std::make_unique<Shader>();
 	if (!foliageShader->loadFromFiles("shaders/foliage.vert", "shaders/foliage.frag")) {
-		std::cerr << "Erreur lors du chargement des shaders pour le feuillage." << std::endl;
+		std::cerr << "Error loading foliage shaders." << std::endl;
 		return false;
 	}
 
-	// Génération des VAO et VBO pour chaque type de mesh
 	glGenVertexArrays(1, &opaqueVAO);
 	glGenBuffers(1, &opaqueVBO);
+
 	glGenVertexArrays(1, &transparentVAO);
 	glGenBuffers(1, &transparentVBO);
+
 	glGenVertexArrays(1, &foliageVAO);
 	glGenBuffers(1, &foliageVBO);
 
@@ -60,17 +56,19 @@ void Renderer::setupMesh(GLuint &VAO, GLuint &VBO, const std::vector<float>& ver
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-	// Définition de la structure du vertex : 3 floats pour la position, 2 floats pour les UV
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
 void Renderer::setOpaqueMesh(const std::vector<float>& vertices) {
-	opaqueVertexCount = vertices.size() / 5; // 5 floats par vertex
+	opaqueVertexCount = vertices.size() / 5;
 	setupMesh(opaqueVAO, opaqueVBO, vertices);
 }
 
@@ -85,7 +83,7 @@ void Renderer::setFoliageMesh(const std::vector<float>& vertices) {
 }
 
 void Renderer::render(const glm::mat4 &view, const glm::mat4 &projection) {
-	// Rendu des objets opaques
+	// Opaque
 	opaqueShader->use();
 	GLuint program = opaqueShader->getProgram();
 	glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, &view[0][0]);
@@ -95,7 +93,7 @@ void Renderer::render(const glm::mat4 &view, const glm::mat4 &projection) {
 	glDrawArrays(GL_TRIANGLES, 0, opaqueVertexCount);
 	glBindVertexArray(0);
 
-	// Rendu des objets transparents
+	// Transparent
 	transparentShader->use();
 	program = transparentShader->getProgram();
 	glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, &view[0][0]);
@@ -105,7 +103,7 @@ void Renderer::render(const glm::mat4 &view, const glm::mat4 &projection) {
 	glDrawArrays(GL_TRIANGLES, 0, transparentVertexCount);
 	glBindVertexArray(0);
 
-	// Rendu du feuillage
+	// Foliage
 	foliageShader->use();
 	program = foliageShader->getProgram();
 	glUniformMatrix4fv(glGetUniformLocation(program, "view"), 1, GL_FALSE, &view[0][0]);

@@ -5,9 +5,7 @@
 #include <vector>
 
 /**
- * Structure décrivant une animation de texture.
- * - frametime : temps d'affichage (en ticks) pour chaque frame par défaut.
- * - frames : liste des indices de frames dans l'ordre d'animation.
+ * @brief Represents texture animation properties read from a .mcmeta file.
  */
 struct TextureAnimation {
 	int frametime;
@@ -15,10 +13,10 @@ struct TextureAnimation {
 };
 
 /**
- * Charge une animation de texture depuis un fichier .mcmeta.
- * @param mcmetaPath : chemin vers le fichier .mcmeta associé à la texture.
- * @param animation : (out) structure contenant les données d'animation.
- * @return true si le chargement et le parsing ont réussi.
+ * @brief Loads animation data for a texture from a .mcmeta file.
+ * @param mcmetaPath The file path to the .mcmeta file.
+ * @param animation Output animation data structure.
+ * @return True if successfully loaded, otherwise false.
  */
 bool loadTextureAnimation(const std::string& mcmetaPath, TextureAnimation& animation);
 

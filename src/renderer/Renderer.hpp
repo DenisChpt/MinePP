@@ -9,41 +9,57 @@
 
 namespace renderer {
 
-class Renderer {
-public:
-	Renderer();
-	~Renderer();
+	/**
+	 * @brief Coordinates the rendering of opaque, transparent, and foliage geometry.
+	 */
+	class Renderer {
+	public:
+		Renderer();
+		~Renderer();
 
-	// Initialise le renderer : chargement des shaders et configuration des VAO/VBO
-	bool initialize();
+		/**
+		 * @brief Initializes the renderer by setting up shaders and GPU buffers.
+		 */
+		bool initialize();
 
-	// Fonction de rendu : reçoit les matrices de vue et projection
-	void render(const glm::mat4 &view, const glm::mat4 &projection);
+		/**
+		 * @brief Renders all geometry using the specified view and projection matrices.
+		 */
+		void render(const glm::mat4 &view, const glm::mat4 &projection);
 
-	// Fournit les vertex buffers pour chaque pipeline de rendu
-	void setOpaqueMesh(const std::vector<float>& vertices);
-	void setTransparentMesh(const std::vector<float>& vertices);
-	void setFoliageMesh(const std::vector<float>& vertices);
+		/**
+		 * @brief Sets the vertex data for opaque objects.
+		 */
+		void setOpaqueMesh(const std::vector<float>& vertices);
 
-private:
-	// Shader pour chaque pipeline
-	std::unique_ptr<Shader> opaqueShader;
-	std::unique_ptr<Shader> transparentShader;
-	std::unique_ptr<Shader> foliageShader;
+		/**
+		 * @brief Sets the vertex data for transparent objects.
+		 */
+		void setTransparentMesh(const std::vector<float>& vertices);
 
-	// Objets OpenGL pour les VAO/VBO des différents types de mesh
-	GLuint opaqueVAO, opaqueVBO;
-	GLuint transparentVAO, transparentVBO;
-	GLuint foliageVAO, foliageVBO;
+		/**
+		 * @brief Sets the vertex data for foliage objects.
+		 */
+		void setFoliageMesh(const std::vector<float>& vertices);
 
-	// Nombre de vertex par pipeline (on suppose 5 floats par vertex : 3 pour la position et 2 pour les UV)
-	size_t opaqueVertexCount;
-	size_t transparentVertexCount;
-	size_t foliageVertexCount;
+	private:
+		std::unique_ptr<Shader> opaqueShader;
+		std::unique_ptr<Shader> transparentShader;
+		std::unique_ptr<Shader> foliageShader;
 
-	// Méthode d'aide pour configurer un VAO/VBO à partir d'un tableau de vertex
-	void setupMesh(GLuint &VAO, GLuint &VBO, const std::vector<float>& vertices);
-};
+		GLuint opaqueVAO, opaqueVBO;
+		GLuint transparentVAO, transparentVBO;
+		GLuint foliageVAO, foliageVBO;
+
+		size_t opaqueVertexCount;
+		size_t transparentVertexCount;
+		size_t foliageVertexCount;
+
+		/**
+		 * @brief Helper that uploads mesh data to a VAO/VBO.
+		 */
+		void setupMesh(GLuint &VAO, GLuint &VBO, const std::vector<float>& vertices);
+	};
 
 } // namespace renderer
 

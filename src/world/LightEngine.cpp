@@ -9,72 +9,60 @@
 namespace world {
 
 LightEngine::LightEngine(ChunkManager* chunkManager)
-	: chunkManager(chunkManager) {}
+	: chunkManager(chunkManager) {
+}
 
-LightEngine::~LightEngine() {}
-
-// --- Fonction d'assistance : conversion des coordonnées globales ---
+LightEngine::~LightEngine() {
+}
 
 bool LightEngine::getChunkSectionAt(int globalX, int globalY, int globalZ,
 									std::shared_ptr<Chunk>& outChunk,
 									int& localX, int& localY, int& localZ, int& sectionIndex) {
-	// Calcul des coordonnées de chunk
 	int chunkX = (globalX >= 0) ? globalX / CHUNK_SIZE_X : ((globalX + 1) / CHUNK_SIZE_X - 1);
 	int chunkZ = (globalZ >= 0) ? globalZ / CHUNK_SIZE_Z : ((globalZ + 1) / CHUNK_SIZE_Z - 1);
 	outChunk = chunkManager->getChunk(chunkX, chunkZ);
-	if (!outChunk)
+	if (!outChunk) {
 		return false;
+	}
 
-	// Coordonnées locales dans le chunk
 	localX = (globalX % CHUNK_SIZE_X + CHUNK_SIZE_X) % CHUNK_SIZE_X;
 	localZ = (globalZ % CHUNK_SIZE_Z + CHUNK_SIZE_Z) % CHUNK_SIZE_Z;
-	if (globalY < 0 || globalY >= CHUNK_HEIGHT)
+	if (globalY < 0 || globalY >= CHUNK_HEIGHT) {
 		return false;
+	}
 	sectionIndex = globalY / CHUNK_SECTION_HEIGHT;
 	localY = globalY % CHUNK_SECTION_HEIGHT;
 	return true;
 }
 
-// --- Fonctions d'assistance sur les propriétés des blocs ---
-
 bool LightEngine::isTransparent(int blockId) const {
-	// Ici, on considère que le bloc 0 (air) est transparent.
-	// Vous pouvez étendre cette fonction pour d'autres blocs transparents.
 	return (blockId == 0);
 }
 
 unsigned char LightEngine::getBlockLightEmission(int blockId) const {
-	// Exemple : le bloc d'identifiant 50 (par exemple, une torche) émet une lumière de 14.
 	if (blockId == 50) {
 		return 14;
 	}
-	// Ajouter d'autres cas si nécessaire.
 	return 0;
 }
 
-// --- Mise à jour globale de la lumière ---
-
 void LightEngine::updateLighting() {
-	// On met à jour d'abord le skylight, puis la block light.
 	propagateSkyLight();
 	propagateBlockLight();
 }
 
-// --- Propagation du skylight ---
-
 void LightEngine::propagateSkyLight() {
 	std::queue<LightNode> queue;
 
-	// Lambda pour obtenir l'identifiant d'un bloc à partir de coordonnées globales.
 	auto getBlockGlobal = [this](int gx, int gy, int gz) -> int {
 		std::shared_ptr<Chunk> chunk;
 		int lx, ly, lz, sectionIndex;
-		if (!getChunkSectionAt(gx, gy, gz, chunk, lx, ly, lz, sectionIndex))
+		if (!getChunkSectionAt(gx, gy, gz, chunk, lx, ly, lz, sectionIndex)) {
 			return 0;
+		}
 		return chunk->sections[sectionIndex].getBlock(lx, ly, lz);
 	};
 
-	// Réinitialisation de la lumière du ciel dans tous les chunks chargés.
 	auto allChunks = chunkManager->getAllChunks();
 	for (auto& chunk : allChunks) {
 		std::lock_guard<std::mutex> lock(chunk->chunkMutex);
@@ -87,8 +75,6 @@ void LightEngine::propagateSkyLight() {
 		}
 	}
 
-	// Initialisation du skylight : pour chaque colonne (global x,z),
-	// on part du haut du monde et on assigne la lumière maximale (15) tant que le bloc est transparent.
 	for (auto& chunk : allChunks) {
 		std::lock_guard<std::mutex> lock(chunk->chunkMutex);
 		int baseX = chunk->getX() * CHUNK_SIZE_X;
@@ -101,11 +87,13 @@ void LightEngine::propagateSkyLight() {
 				while (globalY >= 0) {
 					std::shared_ptr<Chunk> curChunk;
 					int localX, localY, localZ, sectionIndex;
-					if (!getChunkSectionAt(globalX, globalY, globalZ, curChunk, localX, localY, localZ, sectionIndex))
+					if (!getChunkSectionAt(globalX, globalY, globalZ, curChunk, localX, localY, localZ, sectionIndex)) {
 						break;
+					}
 					int blockId = curChunk->sections[sectionIndex].getBlock(localX, localY, localZ);
-					if (!isTransparent(blockId))
-						break; // Arrêt dès qu'un bloc opaque est rencontré.
+					if (!isTransparent(blockId)) {
+						break;
+					}
 					curChunk->sections[sectionIndex].setSkyLight(localX, localY, localZ, 15);
 					queue.push({globalX, globalY, globalZ, 15});
 					--globalY;
@@ -114,17 +102,17 @@ void LightEngine::propagateSkyLight() {
 		}
 	}
 
-	// Propagation BFS du skylight.
 	while (!queue.empty()) {
 		LightNode node = queue.front();
 		queue.pop();
 		unsigned char currentLight = node.light;
-		if (currentLight <= 1)
-			continue; // Plus rien à propager.
+		if (currentLight <= 1) {
+			continue;
+		}
 		const int offsets[6][3] = {
-			{1, 0, 0}, {-1, 0, 0},
-			{0, 1, 0}, {0, -1, 0},
-			{0, 0, 1}, {0, 0, -1}
+			{ 1, 0, 0}, {-1, 0, 0},
+			{ 0, 1, 0}, { 0,-1, 0},
+			{ 0, 0, 1}, { 0, 0,-1}
 		};
 
 		for (int i = 0; i < 6; ++i) {
@@ -133,11 +121,13 @@ void LightEngine::propagateSkyLight() {
 			int nz = node.z + offsets[i][2];
 			std::shared_ptr<Chunk> neighborChunk;
 			int localX, localY, localZ, sectionIndex;
-			if (!getChunkSectionAt(nx, ny, nz, neighborChunk, localX, localY, localZ, sectionIndex))
+			if (!getChunkSectionAt(nx, ny, nz, neighborChunk, localX, localY, localZ, sectionIndex)) {
 				continue;
+			}
 			int neighborBlock = getBlockGlobal(nx, ny, nz);
-			if (!isTransparent(neighborBlock))
+			if (!isTransparent(neighborBlock)) {
 				continue;
+			}
 			unsigned char neighborLight = neighborChunk->sections[sectionIndex].getSkyLight(localX, localY, localZ);
 			unsigned char propagatedLight = currentLight - 1;
 			if (neighborLight < propagatedLight) {
@@ -148,15 +138,15 @@ void LightEngine::propagateSkyLight() {
 	}
 }
 
-// --- Propagation de la block light ---
-
 void LightEngine::propagateBlockLight() {
 	std::queue<LightNode> queue;
+
 	auto getBlockGlobal = [this](int gx, int gy, int gz) -> int {
 		std::shared_ptr<Chunk> chunk;
 		int lx, ly, lz, sectionIndex;
-		if (!getChunkSectionAt(gx, gy, gz, chunk, lx, ly, lz, sectionIndex))
+		if (!getChunkSectionAt(gx, gy, gz, chunk, lx, ly, lz, sectionIndex)) {
 			return 0;
+		}
 		return chunk->sections[sectionIndex].getBlock(lx, ly, lz);
 	};
 
@@ -172,7 +162,6 @@ void LightEngine::propagateBlockLight() {
 		}
 	}
 
-	// Initialisation de la block light à partir des sources lumineuses.
 	for (auto& chunk : allChunks) {
 		std::lock_guard<std::mutex> lock(chunk->chunkMutex);
 		int baseX = chunk->getX() * CHUNK_SIZE_X;
@@ -188,8 +177,9 @@ void LightEngine::propagateBlockLight() {
 						int globalZ = baseZ + lz;
 						std::shared_ptr<Chunk> curChunk;
 						int localX, localY, localZ, sectionIndex;
-						if (!getChunkSectionAt(globalX, globalY, globalZ, curChunk, localX, localY, localZ, sectionIndex))
+						if (!getChunkSectionAt(globalX, globalY, globalZ, curChunk, localX, localY, localZ, sectionIndex)) {
 							continue;
+						}
 						curChunk->sections[sectionIndex].setBlockLight(localX, localY, localZ, emission);
 						queue.push({globalX, globalY, globalZ, emission});
 					}
@@ -198,17 +188,17 @@ void LightEngine::propagateBlockLight() {
 		}
 	}
 
-	// Propagation BFS de la block light.
 	while (!queue.empty()) {
 		LightNode node = queue.front();
 		queue.pop();
 		unsigned char currentLight = node.light;
-		if (currentLight <= 1)
+		if (currentLight <= 1) {
 			continue;
+		}
 		const int offsets[6][3] = {
-			{1, 0, 0}, {-1, 0, 0},
-			{0, 1, 0}, {0, -1, 0},
-			{0, 0, 1}, {0, 0, -1}
+			{ 1, 0, 0}, {-1, 0, 0},
+			{ 0, 1, 0}, { 0,-1, 0},
+			{ 0, 0, 1}, { 0, 0,-1}
 		};
 
 		for (int i = 0; i < 6; ++i) {
@@ -217,11 +207,13 @@ void LightEngine::propagateBlockLight() {
 			int nz = node.z + offsets[i][2];
 			std::shared_ptr<Chunk> neighborChunk;
 			int localX, localY, localZ, sectionIndex;
-			if (!getChunkSectionAt(nx, ny, nz, neighborChunk, localX, localY, localZ, sectionIndex))
+			if (!getChunkSectionAt(nx, ny, nz, neighborChunk, localX, localY, localZ, sectionIndex)) {
 				continue;
+			}
 			int neighborBlock = getBlockGlobal(nx, ny, nz);
-			if (!isTransparent(neighborBlock))
+			if (!isTransparent(neighborBlock)) {
 				continue;
+			}
 			unsigned char neighborLight = neighborChunk->sections[sectionIndex].getBlockLight(localX, localY, localZ);
 			unsigned char propagatedLight = currentLight - 1;
 			if (neighborLight < propagatedLight) {

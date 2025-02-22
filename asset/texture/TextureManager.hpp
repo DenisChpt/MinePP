@@ -6,42 +6,47 @@
 #include <vector>
 #include <glad/glad.h>
 
-// Structure représentant la région UV d'une texture dans l'atlas.
+/**
+ * @brief Represents a rectangular region (in UV space) within a texture atlas.
+ */
 struct TextureRegion {
-	float u;  // Coordonnée u de départ
-	float v;  // Coordonnée v de départ
-	float u2; // Coordonnée u de fin
-	float v2; // Coordonnée v de fin
+	float u;  
+	float v;  
+	float u2; 
+	float v2; 
 };
 
+/**
+ * @brief Manages loading multiple textures and packing them into a single texture atlas.
+ */
 class TextureManager {
 public:
 	TextureManager();
 	~TextureManager();
 
 	/**
-	 * Charge et assemble une texture atlas à partir d'une liste de textures.
-	 * @param textures : vecteur de paires (nom de la texture, chemin du fichier image)
-	 * @return true si le chargement et l'assemblage ont réussi.
+	 * @brief Loads and assembles a texture atlas from a list of texture file paths.
+	 * @param textures A list of (textureName, filePath) pairs.
+	 * @return True if successful, otherwise false.
 	 */
 	bool loadTextureAtlas(const std::vector<std::pair<std::string, std::string>>& textures);
 
 	/**
-	 * Retourne l'ID OpenGL de la texture atlas.
+	 * @brief Gets the OpenGL texture ID for the atlas.
 	 */
 	unsigned int getAtlasTextureID() const;
 
 	/**
-	 * Lie la texture atlas sur une unité donnée.
-	 * @param textureUnit : unité de texture OpenGL (ex. GL_TEXTURE0)
+	 * @brief Binds the atlas to the given texture unit.
+	 * @param textureUnit The texture unit to bind to (e.g., GL_TEXTURE0).
 	 */
 	void bindAtlasTexture(GLenum textureUnit = GL_TEXTURE0) const;
 
 	/**
-	 * Récupère la région UV associée au nom d'une texture.
-	 * @param textureName : nom de la texture recherchée.
-	 * @param region : (out) région UV dans l'atlas.
-	 * @return true si trouvée, false sinon.
+	 * @brief Retrieves UV coordinate information of a texture by name.
+	 * @param textureName The name assigned to the texture.
+	 * @param region Output parameter for the region.
+	 * @return True if the texture name exists, otherwise false.
 	 */
 	bool getTextureRegion(const std::string& textureName, TextureRegion& region) const;
 
@@ -53,7 +58,9 @@ private:
 	int textureHeight;
 	std::unordered_map<std::string, TextureRegion> textureRegions;
 
-	/// Libère les ressources éventuellement allouées pour l'atlas.
+	/**
+	 * @brief Deletes any existing atlas texture data.
+	 */
 	void clearAtlas();
 };
 

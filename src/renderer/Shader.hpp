@@ -5,18 +5,30 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+/**
+ * @brief Encapsulates OpenGL shader program compilation and usage.
+ */
 class Shader {
 public:
 	Shader();
 	~Shader();
 
-	// Charge et compile les shaders à partir des fichiers spécifiés
+	/**
+	 * @brief Loads, compiles, and links vertex and fragment shaders from files.
+	 * @param vertexPath Path to the vertex shader file.
+	 * @param fragmentPath Path to the fragment shader file.
+	 * @return True if successful, otherwise false.
+	 */
 	bool loadFromFiles(const std::string &vertexPath, const std::string &fragmentPath);
 
-	// Utilise le programme shader courant
+	/**
+	 * @brief Activates the shader program for subsequent rendering calls.
+	 */
 	void use() const;
 
-	// Retourne l'identifiant du programme shader
+	/**
+	 * @brief Retrieves the underlying OpenGL program identifier.
+	 */
 	GLuint getProgram() const;
 
 	void setBool(const std::string &name, bool value) const;
@@ -28,10 +40,7 @@ public:
 private:
 	GLuint program;
 
-	// Compile un shader depuis une source en mémoire
 	bool compileShader(const std::string &source, GLenum shaderType, GLuint &shaderID);
-
-	// Lit le contenu d'un fichier et renvoie une chaîne
 	std::string readFile(const std::string &filePath);
 };
 

@@ -1,10 +1,8 @@
 #include "Noise.hpp"
-
 #include <cmath>
 #include <cstdlib>
-#include <algorithm> // Pour std::swap
+#include <algorithm>
 
-// Constructeur : initialise la permutation avec la graine fournie.
 Noise::Noise(unsigned int seed) {
 	initPermutation(seed);
 }
@@ -12,59 +10,50 @@ Noise::Noise(unsigned int seed) {
 Noise::~Noise() {
 }
 
-// Initialise le tableau de permutation (de taille 512 après duplication)
 void Noise::initPermutation(unsigned int seed) {
 	permutation.resize(256);
-	// Remplit avec les valeurs de 0 à 255.
 	for (int i = 0; i < 256; ++i) {
 		permutation[i] = i;
 	}
-	// Mélange le tableau avec la graine donnée.
 	srand(seed);
 	for (int i = 255; i > 0; --i) {
 		int j = rand() % (i + 1);
 		std::swap(permutation[i], permutation[j]);
 	}
-	// Duplique le tableau pour éviter les débordements dans les calculs.
 	permutation.insert(permutation.end(), permutation.begin(), permutation.end());
 }
 
-// Fonction fade de Ken Perlin pour lisser les courbes d'interpolation.
 double Noise::fade(double t) const {
 	return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-// Interpolation linéaire.
 double Noise::lerp(double a, double b, double t) const {
 	return a + t * (b - a);
 }
 
-// Calcule le gradient pour le coin du cube (contribution).
 double Noise::grad(int hash, double x, double y, double z) const {
 	int h = hash & 15;
-	double u = h < 8 ? x : y;
-	double v = h < 4 ? y : ((h == 12 || h == 14) ? x : z);
-	return ((h & 1) ? -u : u) + ((h & 2) ? -v : v);
+	double u = (h < 8) ? x : y;
+	double v = (h < 4) ? y : ((h == 12 || h == 14) ? x : z);
+	double result = 0.0;
+	if ((h & 1) == 0) { result += u; } else { result -= u; }
+	if ((h & 2) == 0) { result += v; } else { result -= v; }
+	return result;
 }
 
-// Génère une valeur de Perlin Noise en 3D pour les coordonnées (x, y, z).
 double Noise::perlinNoise(double x, double y, double z) const {
-	// Trouve la cellule (cube) qui contient le point.
-	int X = (int)floor(x) & 255;
-	int Y = (int)floor(y) & 255;
-	int Z = (int)floor(z) & 255;
+	int X = (int)std::floor(x) & 255;
+	int Y = (int)std::floor(y) & 255;
+	int Z = (int)std::floor(z) & 255;
 
-	// Coordonnées relatives dans le cube.
-	x -= floor(x);
-	y -= floor(y);
-	z -= floor(z);
+	x -= std::floor(x);
+	y -= std::floor(y);
+	z -= std::floor(z);
 
-	// Calcul des courbes d'interpolation.
 	double u = fade(x);
 	double v = fade(y);
 	double w = fade(z);
 
-	// Hash des 8 coins du cube.
 	int A  = permutation[X] + Y;
 	int AA = permutation[A] + Z;
 	int AB = permutation[A + 1] + Z;
@@ -72,7 +61,6 @@ double Noise::perlinNoise(double x, double y, double z) const {
 	int BA = permutation[B] + Z;
 	int BB = permutation[B + 1] + Z;
 
-	// Interpole les contributions des 8 coins.
 	double res = lerp(
 		lerp(
 			lerp(grad(permutation[AA], x, y, z),
@@ -91,7 +79,6 @@ double Noise::perlinNoise(double x, double y, double z) const {
 	return res;
 }
 
-// Génère un bruit fractal en combinant plusieurs octaves de Perlin Noise.
 double Noise::octaveNoise(double x, double y, double z, int octaves, double persistence, double frequency) const {
 	double total = 0.0;
 	double maxValue = 0.0;

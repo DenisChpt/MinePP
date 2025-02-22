@@ -16,7 +16,10 @@ namespace {
 }
 
 Application::Application(int width, int height, const std::string &title)
-	: screenWidth(width), screenHeight(height), windowTitle(title), window(nullptr),
+	: screenWidth(width),
+	  screenHeight(height),
+	  windowTitle(title),
+	  window(nullptr),
 	  renderer(new renderer::Renderer()),
 	  postProcessor(new renderer::PostProcessor()),
 	  camera(new Camera(glm::vec3(0.0f, 50.0f, 100.0f))),
@@ -39,16 +42,16 @@ Application::~Application() {
 
 bool Application::initialize() {
 	int argc = 1;
-	char* argv[1] = { (char*)"Something" }; // Fake arguments pour glutInit
+	char* argv[1] = { (char*)"Placeholder" };
 	glutInit(&argc, argv);
-	
+
 	if (!glfwInit()) {
-		std::cerr << "Erreur: Échec de l'initialisation de GLFW." << std::endl;
+		std::cerr << "Error: Failed to initialize GLFW." << std::endl;
 		return false;
 	}
 	window = glfwCreateWindow(screenWidth, screenHeight, windowTitle.c_str(), nullptr, nullptr);
 	if (!window) {
-		std::cerr << "Erreur: Échec de la création de la fenêtre GLFW." << std::endl;
+		std::cerr << "Error: Failed to create GLFW window." << std::endl;
 		glfwTerminate();
 		return false;
 	}
@@ -56,19 +59,21 @@ bool Application::initialize() {
 	glfwSetKeyCallback(window, keyCallbackStatic);
 	glfwSetCursorPosCallback(window, mouseCallbackStatic);
 	glfwSetScrollCallback(window, scrollCallbackStatic);
+
 	if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
-		std::cerr << "Erreur: Échec de l'initialisation de GLAD." << std::endl;
+		std::cerr << "Error: Failed to initialize GLAD." << std::endl;
 		return false;
 	}
+
 	glViewport(0, 0, screenWidth, screenHeight);
 	glEnable(GL_DEPTH_TEST);
 
 	if (!renderer->initialize()) {
-		std::cerr << "Erreur: Échec de l'initialisation du renderer." << std::endl;
+		std::cerr << "Error: Renderer initialization failed." << std::endl;
 		return false;
 	}
 	if (!postProcessor->initialize(screenWidth, screenHeight)) {
-		std::cerr << "Erreur: Échec de l'initialisation du post processor." << std::endl;
+		std::cerr << "Error: PostProcessor initialization failed." << std::endl;
 		return false;
 	}
 	return true;
@@ -84,22 +89,22 @@ void Application::run() {
 		processInput(deltaTime);
 		update(deltaTime);
 
-		// Rendu de la scène dans le framebuffer du post-processor
 		postProcessor->bindFramebuffer();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		glm::mat4 view = camera->getViewMatrix();
 		glm::mat4 projection = camera->getProjectionMatrix((float)screenWidth / screenHeight);
 		renderer->render(view, projection);
 
-		// Passage de post‑traitement
 		postProcessor->render((float)glfwGetTime());
 
-		// Rendu des overlays UI
 		debugOverlay->setFPS(1.0f / deltaTime);
 		debugOverlay->setCameraPosition(camera->Position);
 		debugOverlay->render(projection);
-		if (chatWindow->isActive())
+
+		if (chatWindow->isActive()) {
 			chatWindow->render(projection);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -108,18 +113,22 @@ void Application::run() {
 }
 
 void Application::processInput(float deltaTime) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
-
+	}
 	if (!chatWindow->isActive()) {
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			camera->processKeyboard('W', deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 			camera->processKeyboard('S', deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 			camera->processKeyboard('A', deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			camera->processKeyboard('D', deltaTime);
+		}
 	}
 }
 
@@ -136,10 +145,12 @@ GLFWwindow* Application::getWindow() const {
 void Application::keyCallbackStatic(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (appInstance) {
 		appInstance->inputManager->keyCallback(key, scancode, action, mods);
-		if (appInstance->chatWindow->isActive())
+		if (appInstance->chatWindow->isActive()) {
 			appInstance->chatWindow->processInput(key, action);
-		if (key == GLFW_KEY_T && action == GLFW_PRESS)
+		}
+		if (key == GLFW_KEY_T && action == GLFW_PRESS) {
 			appInstance->chatWindow->toggle();
+		}
 	}
 }
 

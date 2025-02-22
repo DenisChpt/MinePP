@@ -7,31 +7,45 @@
 
 namespace renderer {
 
-class PostProcessor {
-public:
-	PostProcessor();
-	~PostProcessor();
+	/**
+	 * @brief Applies post-processing effects to a rendered scene.
+	 */
+	class PostProcessor {
+	public:
+		PostProcessor();
+		~PostProcessor();
 
-	// Initialise le post-processor : framebuffer, texture, quad écran
-	bool initialize(int screenWidth, int screenHeight);
+		/**
+		 * @brief Sets up an off-screen framebuffer for post-processing.
+		 */
+		bool initialize(int screenWidth, int screenHeight);
 
-	// Lie le framebuffer pour le rendu de la scène
-	void bindFramebuffer() const;
+		/**
+		 * @brief Binds the internal framebuffer for rendering.
+		 */
+		void bindFramebuffer() const;
 
-	// Exécute le passage de post‑traitement et affiche l’image finale
-	void render(float time);
+		/**
+		 * @brief Renders the final post-processed image to the screen.
+		 */
+		void render(float time);
 
-	// Redimensionne le framebuffer
-	void resize(int screenWidth, int screenHeight);
+		/**
+		 * @brief Resizes the associated framebuffer and textures.
+		 */
+		void resize(int screenWidth, int screenHeight);
 
-private:
-	GLuint FBO, textureColorBuffer, RBO;
-	GLuint quadVAO, quadVBO;
-	std::unique_ptr<Shader> postShader;
-	int screenWidth, screenHeight;
+	private:
+		GLuint FBO, textureColorBuffer, RBO;
+		GLuint quadVAO, quadVBO;
+		std::unique_ptr<Shader> postShader;
+		int screenWidth, screenHeight;
 
-	void initRenderData();
-};
+		/**
+		 * @brief Initializes the geometry for the full-screen quad.
+		 */
+		void initRenderData();
+	};
 
 } // namespace renderer
 
