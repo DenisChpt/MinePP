@@ -1,0 +1,1137 @@
+{
+	"textures": {
+		"default:stone": {
+			"file": "data/default/textures/stone.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:glass": {
+			"file": "data/default/textures/glass.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:wood": {
+			"file": "data/default/textures/wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:dirt": {
+			"file": "data/default/textures/dirt.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:dirt_with_grass": {
+			"file": "data/default/textures/dirt_with_grass.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:dry_dirt": {
+			"file": "data/default/textures/dry_dirt.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:desert_sand": {
+			"file": "data/default/textures/desert_sand.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:desert_cobble": {
+			"file": "data/default/textures/desert_cobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:brick": {
+			"file": "data/default/textures/brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"doors:door_wood": {
+			"file": "data/doors/textures/doors_door_wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"doors:door_steel": {
+			"file": "data/doors/textures/doors_door_steel.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"doors:hidden": {
+			"file": "data/doors/textures/doors_hidden_segment.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:white": {
+			"file": "data/wool/textures/wool_white.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:grey": {
+			"file": "data/wool/textures/wool_grey.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:dark_grey": {
+			"file": "data/wool/textures/wool_dark_grey.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:black": {
+			"file": "data/wool/textures/wool_black.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:violet": {
+			"file": "data/wool/textures/wool_violet.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:blue": {
+			"file": "data/wool/textures/wool_blue.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:cyan": {
+			"file": "data/wool/textures/wool_cyan.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:dark_green": {
+			"file": "data/wool/textures/wool_dark_green.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:green": {
+			"file": "data/wool/textures/wool_green.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:yellow": {
+			"file": "data/wool/textures/wool_yellow.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:brown": {
+			"file": "data/wool/textures/wool_brown.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:orange": {
+			"file": "data/wool/textures/wool_orange.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:red": {
+			"file": "data/wool/textures/wool_red.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:magenta": {
+			"file": "data/wool/textures/wool_magenta.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"wool:pink": {
+			"file": "data/wool/textures/wool_pink.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:white": {
+			"file": "data/dye/textures/dye_white.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:grey": {
+			"file": "data/dye/textures/dye_grey.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:dark_grey": {
+			"file": "data/dye/textures/dye_dark_grey.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:black": {
+			"file": "data/dye/textures/dye_black.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:violet": {
+			"file": "data/dye/textures/dye_violet.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:blue": {
+			"file": "data/dye/textures/dye_blue.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:cyan": {
+			"file": "data/dye/textures/dye_cyan.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:dark_green": {
+			"file": "data/dye/textures/dye_dark_green.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:green": {
+			"file": "data/dye/textures/dye_green.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:yellow": {
+			"file": "data/dye/textures/dye_yellow.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:brown": {
+			"file": "data/dye/textures/dye_brown.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:orange": {
+			"file": "data/dye/textures/dye_orange.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:red": {
+			"file": "data/dye/textures/dye_red.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:magenta": {
+			"file": "data/dye/textures/dye_magenta.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"dye:pink": {
+			"file": "data/dye/textures/dye_pink.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"farming:wheat": {
+			"file": "data/farming/textures/wheat.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"farming:cotton": {
+			"file": "data/farming/textures/cotton.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"farming:soil": {
+			"file": "data/farming/textures/soil.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"farming:soil_wet": {
+			"file": "data/farming/textures/soil_wet.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"farming:dry_soil": {
+			"file": "data/farming/textures/dry_soil.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"farming:dry_soil_wet": {
+			"file": "data/farming/textures/dry_soil_wet.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"keys:key": {
+			"file": "data/keys/textures/keys_key.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"keys:skeleton_key": {
+			"file": "data/keys/textures/keys_key_skeleton.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"map:mapping_kit": {
+			"file": "data/map/textures/map_mapping_kit.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"screwdriver:screwdriver": {
+			"file": "data/screwdriver/textures/screwdriver.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"tnt:tnt": {
+			"file": "data/tnt/textures/tnt.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"tnt:tnt_burning": {
+			"file": "data/tnt/textures/tnt_burning.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"tnt:gunpowder": {
+			"file": "data/tnt/textures/tnt_gunpowder.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"tnt:gunpowder_burning": {
+			"file": "data/tnt/textures/tnt_gunpowder_burning.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"fire:basic_flame": {
+			"file": "data/fire/textures/fire_basic_flame_animated.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": {
+				"start_frame": 0,
+				"end_frame": 15,
+				"length": 1.0
+			}
+		},
+		"fire:permanent_flame": {
+			"file": "data/fire/textures/fire_permanent_flame.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:rose": {
+			"file": "data/flowers/textures/flowers_rose.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:tulip": {
+			"file": "data/flowers/textures/flowers_tulip.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:dandelion_yellow": {
+			"file": "data/flowers/textures/flowers_dandelion_yellow.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:chrysanthemum_green": {
+			"file": "data/flowers/textures/flowers_chrysanthemum_green.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:geranium": {
+			"file": "data/flowers/textures/flowers_geranium.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:viola": {
+			"file": "data/flowers/textures/flowers_viola.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:dandelion_white": {
+			"file": "data/flowers/textures/flowers_dandelion_white.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:tulip_black": {
+			"file": "data/flowers/textures/flowers_tulip_black.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:mushroom_red": {
+			"file": "data/flowers/textures/flowers_mushroom_red.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:mushroom_brown": {
+			"file": "data/flowers/textures/flowers_mushroom_brown.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:waterlily": {
+			"file": "data/flowers/textures/flowers_waterlily.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"flowers:waterlily_waving": {
+			"file": "data/flowers/textures/flowers_waterlily_waving.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"xpanes:pane": {
+			"file": "data/xpanes/textures/default_glass.png",
+			"alpha": true,
+			"modifier": "^[makealpha:255,126,126",
+			"animation": null
+		},
+		"walls:cobble": {
+			"file": "data/walls/textures/default_cobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"walls:mossycobble": {
+			"file": "data/walls/textures/default_mossycobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"walls:desertcobble": {
+			"file": "data/walls/textures/default_desert_cobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"vessels:shelf": {
+			"file": "data/vessels/textures/vessels_shelf.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"vessels:glass_bottle": {
+			"file": "data/vessels/textures/vessels_glass_bottle.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"vessels:drinking_glass": {
+			"file": "data/vessels/textures/vessels_drinking_glass.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"vessels:steel_bottle": {
+			"file": "data/vessels/textures/vessels_steel_bottle.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"vessels:glass_fragments": {
+			"file": "data/vessels/textures/vessels_glass_fragments.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_wood": {
+			"file": "data/stairs/textures/default_wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_junglewood": {
+			"file": "data/stairs/textures/default_junglewood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_pine_wood": {
+			"file": "data/stairs/textures/default_pine_wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_acacia_wood": {
+			"file": "data/stairs/textures/default_acacia_wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_aspen_wood": {
+			"file": "data/stairs/textures/default_aspen_wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_stone": {
+			"file": "data/stairs/textures/default_stone.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_cobble": {
+			"file": "data/stairs/textures/default_cobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_mossycobble": {
+			"file": "data/stairs/textures/default_mossycobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_stonebrick": {
+			"file": "data/stairs/textures/default_stone_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_stone_block": {
+			"file": "data/stairs/textures/default_stone_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_stone": {
+			"file": "data/stairs/textures/default_desert_stone.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_cobble": {
+			"file": "data/stairs/textures/default_desert_cobble.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_stonebrick": {
+			"file": "data/stairs/textures/default_desert_stone_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_stone_block": {
+			"file": "data/stairs/textures/default_desert_stone_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_sandstone": {
+			"file": "data/stairs/textures/default_sandstone.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_sandstonebrick": {
+			"file": "data/stairs/textures/default_sandstone_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_sandstone_block": {
+			"file": "data/stairs/textures/default_sandstone_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_sandstone": {
+			"file": "data/stairs/textures/default_desert_sandstone.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_sandstone_brick": {
+			"file": "data/stairs/textures/default_desert_sandstone_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_desert_sandstone_block": {
+			"file": "data/stairs/textures/default_desert_sandstone_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_silver_sandstone": {
+			"file": "data/stairs/textures/default_silver_sandstone.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_silver_sandstone_brick": {
+			"file": "data/stairs/textures/default_silver_sandstone_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_silver_sandstone_block": {
+			"file": "data/stairs/textures/default_silver_sandstone_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_obsidian": {
+			"file": "data/stairs/textures/default_obsidian.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_obsidianbrick": {
+			"file": "data/stairs/textures/default_obsidian_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_obsidian_block": {
+			"file": "data/stairs/textures/default_obsidian_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_brick": {
+			"file": "data/stairs/textures/default_brick.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_steelblock": {
+			"file": "data/stairs/textures/default_steel_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_tinblock": {
+			"file": "data/stairs/textures/default_tin_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_copperblock": {
+			"file": "data/stairs/textures/default_copper_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_bronzeblock": {
+			"file": "data/stairs/textures/default_bronze_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_goldblock": {
+			"file": "data/stairs/textures/default_gold_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_ice": {
+			"file": "data/stairs/textures/default_ice.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"stairs:stair_snowblock": {
+			"file": "data/stairs/textures/default_snow.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"fireflies:firefly": {
+			"file": "data/fireflies/textures/fireflies_firefly.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"fireflies:firefly_animated": {
+			"file": "data/fireflies/textures/fireflies_firefly_animated.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:tree": {
+			"file": "data/default/textures/tree.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:leaves": {
+			"file": "data/default/textures/leaves.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:torch": {
+			"file": "data/default/textures/torch_on_floor.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:torch_on": {
+			"file": "data/default/textures/torch_on.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:coalblock": {
+			"file": "data/default/textures/coal_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:steelblock": {
+			"file": "data/default/textures/steel_block.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"doors:trapdoor_wood": {
+			"file": "data/doors/textures/doors_trapdoor_wood.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"doors:trapdoor_steel": {
+			"file": "data/doors/textures/doors_trapdoor_steel.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:water_source": {
+			"file": "data/default/textures/water_source.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": {
+				"start_frame": 0,
+				"end_frame": 31,
+				"length": 1.0
+			}
+		},
+		"default:water_flowing": {
+			"file": "data/default/textures/water_flowing.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": {
+				"start_frame": 0,
+				"end_frame": 31,
+				"length": 1.0
+			}
+		},
+		"default:lava_source": {
+			"file": "data/default/textures/lava_source.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": {
+				"start_frame": 0,
+				"end_frame": 31,
+				"length": 1.0
+			}
+		},
+		"default:lava_flowing": {
+			"file": "data/default/textures/lava_flowing.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": {
+				"start_frame": 0,
+				"end_frame": 31,
+				"length": 1.0
+			}
+		},
+		"default:sand": {
+			"file": "data/default/textures/sand.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:clay": {
+			"file": "data/default/textures/clay.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:gravel": {
+			"file": "data/default/textures/gravel.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:coal_lump": {
+			"file": "data/default/textures/coal_lump.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:iron_lump": {
+			"file": "data/default/textures/iron_lump.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:copper_lump": {
+			"file": "data/default/textures/copper_lump.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:tin_lump": {
+			"file": "data/default/textures/tin_lump.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:gold_lump": {
+			"file": "data/default/textures/gold_lump.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:mese_crystal_fragment": {
+			"file": "data/default/textures/mese_crystal_fragment.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:diamond": {
+			"file": "data/default/textures/diamond.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:papyrus": {
+			"file": "data/default/textures/papyrus.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:apple": {
+			"file": "data/default/textures/apple.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:sapling": {
+			"file": "data/default/textures/sapling.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:jungletree": {
+			"file": "data/default/textures/jungletree.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:jungleleaves": {
+			"file": "data/default/textures/jungleleaves.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:pine_tree": {
+			"file": "data/default/textures/pine_tree.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:pine_needles": {
+			"file": "data/default/textures/pine_needles.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:acacia_tree": {
+			"file": "data/default/textures/acacia_tree.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:acacia_leaves": {
+			"file": "data/default/textures/acacia_leaves.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		},
+		"default:aspen_tree": {
+			"file": "data/default/textures/aspen_tree.png",
+			"alpha": false,
+			"modifier": "",
+			"animation": null
+		},
+		"default:aspen_leaves": {
+			"file": "data/default/textures/aspen_leaves.png",
+			"alpha": true,
+			"modifier": "",
+			"animation": null
+		}
+	},
+	"sounds": {
+		"default:dig_stone": {
+			"file": "data/default/sounds/dig_stone.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"default:place_node": {
+			"file": "data/default/sounds/place_node.ogg",
+			"volume": 0.6,
+			"loop": false
+		},
+		"doors:door_open": {
+			"file": "data/doors/sounds/door_open.ogg",
+			"volume": 0.7,
+			"loop": false
+		},
+		"doors:door_close": {
+			"file": "data/doors/sounds/door_close.ogg",
+			"volume": 0.7,
+			"loop": false
+		},
+		"farming:hoe_use": {
+			"file": "data/farming/sounds/hoe_use.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"fire:fire_ignite": {
+			"file": "data/fire/sounds/fire_ignite.ogg",
+			"volume": 1.0,
+			"loop": false
+		},
+		"fire:fire_extinguish": {
+			"file": "data/fire/sounds/fire_extinguish.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"tnt:tnt_explode": {
+			"file": "data/tnt/sounds/tnt_explode.ogg",
+			"volume": 2.5,
+			"loop": false
+		},
+		"tnt:tnt_ignite": {
+			"file": "data/tnt/sounds/tnt_ignite.ogg",
+			"volume": 1.0,
+			"loop": false
+		},
+		"screwdriver:screwdriver_rotate": {
+			"file": "data/screwdriver/sounds/screwdriver_rotate.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"env_sounds:ambient": {
+			"file": "data/env_sounds/sounds/ambient.ogg",
+			"volume": 0.3,
+			"loop": true
+		},
+		"default:dig_dirt": {
+			"file": "data/default/sounds/dig_dirt.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"default:dug_node": {
+			"file": "data/default/sounds/dug_node.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"doors:trapdoor_open": {
+			"file": "data/doors/sounds/door_trapdoor_open.ogg",
+			"volume": 0.7,
+			"loop": false
+		},
+		"doors:trapdoor_close": {
+			"file": "data/doors/sounds/door_trapdoor_close.ogg",
+			"volume": 0.7,
+			"loop": false
+		},
+		"default:footstep": {
+			"file": "data/default/sounds/footstep.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"default:wood_hit": {
+			"file": "data/default/sounds/wood_hit.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"default:metal_hit": {
+			"file": "data/default/sounds/metal_hit.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"default:water_flow": {
+			"file": "data/default/sounds/water_flow.ogg",
+			"volume": 0.4,
+			"loop": true
+		},
+		"default:lava_flow": {
+			"file": "data/default/sounds/lava_flow.ogg",
+			"volume": 0.4,
+			"loop": true
+		},
+		"default:dig_gravel": {
+			"file": "data/default/sounds/dig_gravel.ogg",
+			"volume": 0.5,
+			"loop": false
+		},
+		"default:dug_gravel": {
+			"file": "data/default/sounds/dug_gravel.ogg",
+			"volume": 0.5,
+			"loop": false
+		}
+	},
+	"models": {
+		"default:chest": {
+			"file": "data/default/models/chest.obj",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"doors:door_b3d": {
+			"file": "data/doors/models/door_b3d.obj",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"character:b3d": {
+			"file": "data/player_api/models/character.b3d",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"tnt:tnt_model": {
+			"file": "data/tnt/models/tnt.obj",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"vessels:glass_bottle": {
+			"file": "data/vessels/models/glass_bottle.obj",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"carts:cart": {
+			"file": "data/carts/models/cart.mts",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"vessels:drinking_glass_mts": {
+			"file": "data/vessels/models/drinking_glass.mts",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"default:tree_model": {
+			"file": "data/default/models/tree.mts",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		},
+		"character:character_mts": {
+			"file": "data/player_api/models/character.mts",
+			"scale": [1.0, 1.0, 1.0],
+			"pivot": [0.0, 0.0, 0.0]
+		}
+	},
+	"animations": {
+		"character:stand": {
+			"start_frame": 0,
+			"end_frame": 79,
+			"speed": 30.0,
+			"loop": true,
+			"collisionbox": [-0.3, 0.0, -0.3, 0.3, 1.7, 0.3],
+			"eye_height": 1.47
+		},
+		"character:walk": {
+			"start_frame": 168,
+			"end_frame": 187,
+			"speed": 30.0,
+			"loop": true,
+			"collisionbox": [-0.3, 0.0, -0.3, 0.3, 1.7, 0.3],
+			"eye_height": 1.47
+		},
+		"character:mine": {
+			"start_frame": 189,
+			"end_frame": 198,
+			"speed": 30.0,
+			"loop": false,
+			"collisionbox": [-0.3, 0.0, -0.3, 0.3, 1.7, 0.3],
+			"eye_height": 1.47
+		},
+		"character:walk_mine": {
+			"start_frame": 200,
+			"end_frame": 219,
+			"speed": 30.0,
+			"loop": true,
+			"collisionbox": [-0.3, 0.0, -0.3, 0.3, 1.7, 0.3],
+			"eye_height": 1.47
+		},
+		"character:lay": {
+			"start_frame": 162,
+			"end_frame": 166,
+			"speed": 30.0,
+			"loop": false,
+			"collisionbox": [-0.6, 0.0, -0.6, 0.6, 0.3, 0.6],
+			"eye_height": 0.3
+		},
+		"character:sit": {
+			"start_frame": 81,
+			"end_frame": 160,
+			"speed": 30.0,
+			"loop": true,
+			"collisionbox": [-0.3, 0.0, -0.3, 0.3, 1.0, 0.3],
+			"eye_height": 0.8
+		},
+		"fire:basic_flame_anim": {
+			"start_frame": 0,
+			"end_frame": 15,
+			"speed": 30.0,
+			"loop": true,
+			"collisionbox": [0, 0, 0, 0, 0, 0],
+			"eye_height": 0
+		},
+		"character:swim": {
+			"start_frame": 220,
+			"end_frame": 239,
+			"speed": 30.0,
+			"loop": true,
+			"collisionbox": [-0.3, 0.0, -0.3, 0.3, 1.2, 0.3],
+			"eye_height": 1.2
+		}
+	}
+}
