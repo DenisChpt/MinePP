@@ -1,77 +1,49 @@
-cmake_minimum_required(VERSION 3.15)
-project(MinePP VERSION 1.0 LANGUAGES CXX C)
+cmake_minimum_required(VERSION 2.8)
 
-# Set the C++ standard to C++17
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+project(craft)
 
-# If no build type is specified, default to Release
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+FILE(GLOB SOURCE_FILES src/*.c)
+
+add_executable(
+    craft
+    ${SOURCE_FILES}
+    deps/glew/src/glew.c
+    deps/lodepng/lodepng.c
+    deps/noise/noise.c
+    deps/sqlite/sqlite3.c
+    deps/tinycthread/tinycthread.c)
+
+add_definitions(-std=c99 -O3)
+
+add_subdirectory(deps/glfw)
+include_directories(deps/glew/include)
+include_directories(deps/glfw/include)
+include_directories(deps/lodepng)
+include_directories(deps/noise)
+include_directories(deps/sqlite)
+include_directories(deps/tinycthread)
+
+if(MINGW)
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
+        "C:/Program Files/CURL/lib" "C:/Program Files (x86)/CURL/lib")
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
+        "C:/Program Files/CURL/include" "C:/Program Files (x86)/CURL/include")
 endif()
 
-# Include paths
-include_directories(
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/asset
-	${CMAKE_SOURCE_DIR}/asset/texture
-	${CMAKE_SOURCE_DIR}/external/nlohmann
-	${CMAKE_SOURCE_DIR}/external/stb
-	${CMAKE_SOURCE_DIR}/external/glad/include
-	${CMAKE_SOURCE_DIR}/external/glfw/include
-	${CMAKE_SOURCE_DIR}/shaders
-)
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
 
-# Add GLFW subdirectory
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/glfw)
+if(APPLE)
+    target_link_libraries(craft glfw
+        ${GLFW_LIBRARIES} ${CURL_LIBRARIES})
+endif()
 
-# Gather all source files from the project (src/ and asset/)
-file(GLOB_RECURSE PROJECT_SOURCES
-	${CMAKE_SOURCE_DIR}/src/*.cpp
-	${CMAKE_SOURCE_DIR}/asset/*.cpp
-	${CMAKE_SOURCE_DIR}/asset/texture/*.cpp
-)
+if(UNIX)
+    target_link_libraries(craft dl glfw
+        ${GLFW_LIBRARIES} ${CURL_LIBRARIES})
+endif()
 
-# Gather shader files
-file(GLOB_RECURSE SHADERS
-	${CMAKE_SOURCE_DIR}/shaders/*.vert
-	${CMAKE_SOURCE_DIR}/shaders/*.frag
-)
-
-# Build glad as a static library
-add_library(glad STATIC ${CMAKE_SOURCE_DIR}/external/glad/src/glad.c)
-target_include_directories(glad PUBLIC ${CMAKE_SOURCE_DIR}/external/glad/include)
-
-# Create executable
-add_executable(MinePP ${PROJECT_SOURCES} ${SHADERS})
-
-# Find system packages for OpenGL and GLUT
-find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
-include_directories(${GLUT_INCLUDE_DIRS})
-
-# Link libraries
-target_link_libraries(MinePP
-	OpenGL::GL
-	glfw
-	glad
-	${GLUT_LIBRARIES}
-)
-
-# Copy shader files to the executable directory after build
-add_custom_command(TARGET MinePP POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:MinePP>/shaders
-)
-
-# Copy blocks.json to the executable directory
-add_custom_command(TARGET MinePP POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	${CMAKE_SOURCE_DIR}/asset/blocks.json $<TARGET_FILE_DIR:MinePP>/
-)
-
-message(STATUS "Configuration MinePP:")
-message(STATUS "  Build Type      : ${CMAKE_BUILD_TYPE}")
-message(STATUS "  Source Dir      : ${CMAKE_SOURCE_DIR}")
-message(STATUS "  Executable Dir  : $<TARGET_FILE_DIR:MinePP>")
+if(MINGW)
+    target_link_libraries(craft ws2_32.lib glfw
+        ${GLFW_LIBRARIES} ${CURL_LIBRARIES})
+endif()
