@@ -2,14 +2,16 @@
 
 #include "PostProcessEffect.hpp"
 
-class InvertEffect : public PostProcessEffect {
+class InvertEffect : public PostProcessEffect
+{
 public:
-  InvertEffect(bool enabled)
-      : PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/invert_effect"), enabled){}
+	InvertEffect(bool enabled)
+		: PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
 
-  void update() override {}
+	void update() override {}
 
-  void renderGui() override {
-    ImGui::Checkbox("Enable invert effect", &enabled);
-  }
+	void renderGui() override
+	{
+		ImGui::Checkbox("Enable invert effect", &enabled);
+	}
 };

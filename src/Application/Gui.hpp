@@ -2,22 +2,23 @@
 
 #include "../MinePP.hpp"
 
-class Gui {
+class Gui
+{
 private:
-  static Gui *instancePtr;
+	static Gui *instancePtr;
 
 public:
-  Gui();
-  ~Gui();
+	Gui();
+	~Gui();
 
-  static Gui &instance() { return *instancePtr; }
+	static Gui &instance() { return *instancePtr; }
 
-  void beginFrame();
-  void finalizeFrame();
+	void beginFrame();
+	void finalizeFrame();
 
-  Gui(const Gui &) = delete;
-  Gui(Gui &&) noexcept = delete;
-  Gui(Gui &) = delete;
-  Gui &operator=(Gui &) = delete;
-  Gui &operator=(Gui &&) noexcept = delete;
+	Gui(const Gui &) = delete;
+	Gui(Gui &&) noexcept = delete;
+	Gui(Gui &) = delete;
+	Gui &operator=(Gui &) = delete;
+	Gui &operator=(Gui &&) noexcept = delete;
 };

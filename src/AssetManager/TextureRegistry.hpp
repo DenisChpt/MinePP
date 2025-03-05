@@ -3,6 +3,7 @@
 #include "../Rendering/Texture.hpp"
 #include "AssetRegistry.hpp"
 
-class TextureRegistry : public AssetRegistry<Texture> {
-  Ref<const Texture> loadAsset(const std::string& name) override { return Texture::loadTexture2D(name); }
+class TextureRegistry : public AssetRegistry<Texture>
+{
+	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadTexture2D(name); }
 };

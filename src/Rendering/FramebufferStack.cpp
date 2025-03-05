@@ -1,52 +1,65 @@
 #include "FramebufferStack.hpp"
 
-void FramebufferStack::push(const Ref<Framebuffer>& framebuffer) {
-  stack.push_back(framebuffer);
-  framebuffer->bind();
+void FramebufferStack::push(const Ref<Framebuffer> &framebuffer)
+{
+	stack.push_back(framebuffer);
+	framebuffer->bind();
 
-  if (keepIntermediateTextures) {
-    for (int i = 0; i < framebuffer->getAttachmentCount(); ++i) {
-      intermediateTextures.push_back(framebuffer->getColorAttachment(i));
-    }
-  }
+	if (keepIntermediateTextures)
+	{
+		for (int i = 0; i < framebuffer->getAttachmentCount(); ++i)
+		{
+			intermediateTextures.push_back(framebuffer->getColorAttachment(i));
+		}
+	}
 }
 
-Ref<Framebuffer> FramebufferStack::peek() const {
-  return empty() ? nullptr : stack.back();
+Ref<Framebuffer> FramebufferStack::peek() const
+{
+	return empty() ? nullptr : stack.back();
 }
 
-Ref<Framebuffer> FramebufferStack::pop() {
-  assert(!empty());
+Ref<Framebuffer> FramebufferStack::pop()
+{
+	assert(!empty());
 
-  Ref<Framebuffer> framebuffer = peek();
-  stack.pop_back();
+	Ref<Framebuffer> framebuffer = peek();
+	stack.pop_back();
 
-  auto current = peek();
-  if (current != nullptr) {
-    current->bind();
-  } else {
-    framebuffer->unbind();  // binds the default framebuffer
-  }
+	auto current = peek();
+	if (current != nullptr)
+	{
+		current->bind();
+	}
+	else
+	{
+		framebuffer->unbind(); // binds the default framebuffer
+	}
 
-  return framebuffer;
+	return framebuffer;
 }
 
-void FramebufferStack::clearIntermediateTextureReferences() {
-  intermediateTextures.clear();
+void FramebufferStack::clearIntermediateTextureReferences()
+{
+	intermediateTextures.clear();
 }
 
-void FramebufferStack::setKeepIntermediateTextures(bool keepBuffers) {
-  keepIntermediateTextures = keepBuffers;
+void FramebufferStack::setKeepIntermediateTextures(bool keepBuffers)
+{
+	keepIntermediateTextures = keepBuffers;
 }
 
-std::vector<Ref<Texture>> FramebufferStack::getIntermediateTextures() const {
-  return intermediateTextures;
+std::vector<Ref<Texture>> FramebufferStack::getIntermediateTextures() const
+{
+	return intermediateTextures;
 }
 
-bool FramebufferStack::empty() const {
-  return stack.empty();
+bool FramebufferStack::empty() const
+{
+	return stack.empty();
 }
 
-size_t FramebufferStack::size() const {
-  return stack.size();
+size_t FramebufferStack::size() const
+{
+	return stack.size();
 }

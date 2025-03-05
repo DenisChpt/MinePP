@@ -1,6 +1,7 @@
 #pragma once
 #include "VertexArray.hpp"
 
-namespace FullscreenQuad {
-  Ref<VertexArray> getVertexArray();
+namespace FullscreenQuad
+{
+	Ref<VertexArray> getVertexArray();
 }
