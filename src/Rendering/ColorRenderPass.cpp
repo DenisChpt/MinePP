@@ -1,6 +1,7 @@
 #include "ColorRenderPass.hpp"
 
 #include "../AssetManager/AssetManager.hpp"
+#include "../Application/Application.hpp"
 #include "../Performance/Trace.hpp"
 
 ColorRenderPass::ColorRenderPass(const Ref<const ShaderProgram> &shader) : shader(shader)
