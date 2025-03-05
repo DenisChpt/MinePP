@@ -22,6 +22,9 @@ void ColorRenderPass::render() {
 void ColorRenderPass::renderTextureWithEffect(const Ref<Texture>& texture, const Ref<const ShaderProgram>& effect) {
   TRACE_FUNCTION();
   ColorRenderPass renderPass(effect);
+
+  effect->bind();
+  effect->setInt("screenHeight", Window::instance().getWindowHeight());
   renderPass.setTexture("colorTexture", texture, 0);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
