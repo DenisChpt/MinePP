@@ -1,0 +1,152 @@
+{
+	"atlas": {
+		"tileWidth": 16,
+		"tileHeight": 16,
+		"padding": 2
+	},
+	"blocks": [
+		{
+			"name": "bedrock",
+			"directory": "assets/textures/bedrock",
+			"faces": {
+				"all": "bedrock.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "planks",
+			"directory": "assets/textures/planks",
+			"faces": {
+				"all": "planks.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "grass",
+			"directory": "assets/textures/grass",
+			"faces": {
+				"top": "top.png",
+				"bottom": "dirt.png",
+				"front": "side.png",
+				"back": "side.png",
+				"left": "side.png",
+				"right": "side.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "dirt",
+			"directory": "assets/textures/dirt",
+			"faces": {
+				"all": "dirt.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "sand",
+			"directory": "assets/textures/sand",
+			"faces": {
+				"all": "sand.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "stone",
+			"directory": "assets/textures/stone",
+			"faces": {
+				"all": "stone.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "cobblestone",
+			"directory": "assets/textures/cobblestone",
+			"faces": {
+				"all": "cobblestone.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "glass",
+			"directory": "assets/textures/glass",
+			"faces": {
+				"all": "glass.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "oak_wood",
+			"directory": "assets/textures/oak_wood",
+			"faces": {
+				"top": "top.png",
+				"bottom": "bottom.png",
+				"front": "side.png",
+				"back": "side.png",
+				"left": "side.png",
+				"right": "side.png"
+			},
+			"animated": false
+		},
+
+		{
+			"name": "water",
+			"directory": "assets/textures/water",
+			"faces": {
+				"all": "water.png"
+			},
+			"animated": true,
+			"frames": 4,
+			"frame_duration": 0.25
+		},
+		{
+			"name": "lava",
+			"directory": "assets/textures/lava",
+			"faces": {
+				"all": "lava.png"
+			},
+			"animated": true,
+			"frames": 4,
+			"frame_duration": 0.2
+		},
+		{
+			"name": "iron",
+			"directory": "assets/textures/iron",
+			"faces": {
+				"all": "iron.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "diamond",
+			"directory": "assets/textures/diamond",
+			"faces": {
+				"all": "diamond.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "gold",
+			"directory": "assets/textures/gold",
+			"faces": {
+				"all": "gold.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "obsidian",
+			"directory": "assets/textures/obsidian",
+			"faces": {
+				"all": "obsidian.png"
+			},
+			"animated": false
+		},
+		{
+			"name": "sponge",
+			"directory": "assets/textures/sponge",
+			"faces": {
+				"all": "sponge.png"
+			},
+			"animated": false
+		}
+	]
+}
