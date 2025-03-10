@@ -27,10 +27,10 @@
 			"faces": {
 				"top": "top.png",
 				"bottom": "dirt.png",
-				"front": "side.png",
-				"back": "side.png",
-				"left": "side.png",
-				"right": "side.png"
+				"north": "side.png",
+				"south": "side.png",
+				"west": "side.png",
+				"east": "side.png"
 			},
 			"animated": false
 		},
@@ -80,14 +80,13 @@
 			"faces": {
 				"top": "top.png",
 				"bottom": "bottom.png",
-				"front": "side.png",
-				"back": "side.png",
-				"left": "side.png",
-				"right": "side.png"
+				"north": "side.png",
+				"south": "side.png",
+				"west": "side.png",
+				"east": "side.png"
 			},
 			"animated": false
 		},
-
 		{
 			"name": "water",
 			"directory": "assets/textures/water",

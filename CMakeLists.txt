@@ -52,6 +52,12 @@ include_directories(MinePP external/FastNoiseLite)
 # include FrustumCulling
 include_directories(MinePP external/FrustumCulling)
 
+# include nlohmann
+include_directories(MinePP external/nlohmann)
+
+# include stb
+include_directories(MinePP external/stb)
+
 # lodepng
 add_library(lodepng EXCLUDE_FROM_ALL external/lodepng/lodepng.h external/lodepng/lodepng.cpp)
 include_directories(lodepng external/lodepng)
