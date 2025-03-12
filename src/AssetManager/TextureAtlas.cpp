@@ -1,4 +1,5 @@
 // File: src/TextureAtlas.cpp
+
 #include "TextureAtlas.hpp"
 #include "../Util/Util.hpp"
 #include "AssetManager.hpp"
@@ -9,7 +10,6 @@
 #include <iostream>
 
 // On utilise nlohmann_json pour le parsing JSON.
-// Assurez-vous d'ajouter la librairie (header-only) dans votre projet (par exemple dans external/nlohmann_json).
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
@@ -33,6 +33,7 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 		std::cerr << "Erreur lors du chargement de " << jsonPath << std::endl;
 		return;
 	}
+
 	json j;
 	try
 	{
@@ -53,57 +54,102 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 		padding = atlasConfig.value("padding", 2);
 	}
 
-	// On va collecter toutes les images de tuiles dans un vecteur.
-	// Pour éviter de charger plusieurs fois la même image, on utilise un cache (mapping de chemin vers index).
+	// On va collecter toutes les images (tuiles ou frames) dans un seul vecteur.
+	// Pour éviter de recharger le même chemin plusieurs fois, on utilise un cache
+	// (mapping: chemin -> indexDeLaPremiereFrame).
 	std::vector<Image> tileImages;
-	std::unordered_map<std::string, uint8_t> tileCache; // clé = chemin, valeur = index dans tileImages
+	std::unordered_map<std::string, uint8_t> tileCache; // clé = path, valeur = index de la première frame
 
-	// Fonction lambda pour charger une tuile à partir d'un chemin de fichier
-	auto loadTile = [&](const std::string &path) -> uint8_t
+	// Lambda pour charger un spritesheet (ou une seule tuile) et renvoyer l'index de la première frame.
+	auto loadTileOrFrames = [&](const std::string &path, bool animated, int framesCount) -> uint8_t
 	{
+		// Si on a déjà chargé ce path, on récupère l'index de la première frame.
 		if (tileCache.find(path) != tileCache.end())
 		{
 			return tileCache[path];
 		}
+
+		// On tente de charger l'image
 		Ref<const Image> img = AssetManager::instance().loadImage(path);
 		if (!img)
 		{
 			std::cerr << "Échec du chargement de l'image : " << path << std::endl;
-			// Crée une image factice (magenta) indiquant une texture manquante
-			Image dummy;
-			dummy.width = tileWidth;
-			dummy.height = tileHeight;
-			dummy.data.resize(tileWidth * tileHeight * 4, 255);
-			for (size_t i = 0; i < dummy.data.size(); i += 4)
+
+			// On crée (framesCount) fois une image factice (rose flashy) si c'est animé,
+			// sinon 1 seule si framesCount==1
+			uint8_t firstIndex = static_cast<uint8_t>(tileImages.size());
+			int total = (animated && framesCount > 1) ? framesCount : 1;
+			for (int f = 0; f < total; f++)
 			{
-				dummy.data[i] = 255;
-				dummy.data[i + 1] = 0;
-				dummy.data[i + 2] = 255;
-				dummy.data[i + 3] = 255;
+				Image dummy;
+				dummy.width = tileWidth;
+				dummy.height = tileHeight;
+				dummy.data.resize(tileWidth * tileHeight * 4, 255);
+				for (size_t i = 0; i < dummy.data.size(); i += 4)
+				{
+					dummy.data[i + 0] = 255; // R
+					dummy.data[i + 1] = 0;	 // G
+					dummy.data[i + 2] = 255; // B
+					dummy.data[i + 3] = 255; // A
+				}
+				tileImages.push_back(dummy);
 			}
-			tileImages.push_back(dummy);
-			uint8_t index = static_cast<uint8_t>(tileImages.size() - 1);
+			tileCache[path] = firstIndex;
+			return firstIndex;
+		}
+
+		// Si l'image est animée (plusieurs frames), on s'attend à un spritesheet
+		// vertical de dimension (tileWidth x (tileHeight*framesCount)).
+		if (animated && framesCount > 1)
+		{
+			// Vérifier la taille
+			uint32_t expectedW = tileWidth;
+			uint32_t expectedH = tileHeight * framesCount;
+			if (img->width != expectedW || img->height != expectedH)
+			{
+				std::cerr << "Spritesheet " << path
+						  << " : dimensions inattendues ("
+						  << img->width << "x" << img->height
+						  << "), attendues = ("
+						  << expectedW << "x" << expectedH
+						  << ") pour " << framesCount << " frames.\n";
+			}
+			uint8_t firstIndex = static_cast<uint8_t>(tileImages.size());
+
+			// On découpe chaque frame
+			for (int f = 0; f < framesCount; f++)
+			{
+				Image frame = img->subImage(
+					{0, (uint32_t)(f * tileHeight)}, // offset (x=0, y=f*tileHeight)
+					{(uint32_t)tileWidth, (uint32_t)tileHeight});
+				tileImages.push_back(frame);
+			}
+			tileCache[path] = firstIndex;
+			return firstIndex;
+		}
+		else
+		{
+			// Cas non-animé (ou framesCount=1), on attend une image 16x16 (ou tileWidth x tileHeight)
+			if (img->width != (uint32_t)tileWidth || img->height != (uint32_t)tileHeight)
+			{
+				std::cerr << "L'image " << path << " n'a pas les dimensions attendues ("
+						  << tileWidth << "x" << tileHeight << "), mais ("
+						  << img->width << "x" << img->height << ")!\n";
+			}
+			// On stocke directement la tuile
+			Image tile;
+			tile.width = img->width;
+			tile.height = img->height;
+			tile.data = img->data;
+
+			uint8_t index = static_cast<uint8_t>(tileImages.size());
+			tileImages.push_back(tile);
 			tileCache[path] = index;
 			return index;
 		}
-		// Vérification des dimensions (optionnelle)
-		if (img->width != static_cast<uint32_t>(tileWidth) || img->height != static_cast<uint32_t>(tileHeight))
-		{
-			std::cerr << "L'image " << path << " n'a pas les dimensions attendues ("
-					  << tileWidth << "x" << tileHeight << ")" << std::endl;
-		}
-		// Copie de l'image dans le vecteur de tuiles
-		Image tile;
-		tile.width = img->width;
-		tile.height = img->height;
-		tile.data = img->data;
-		tileImages.push_back(tile);
-		uint8_t index = static_cast<uint8_t>(tileImages.size() - 1);
-		tileCache[path] = index;
-		return index;
 	};
 
-	// Parcours de chaque bloc défini dans le JSON
+	// On parcourt chaque bloc défini dans le JSON
 	if (j.contains("blocks") && j["blocks"].is_array())
 	{
 		for (auto &blockEntry : j["blocks"])
@@ -115,7 +161,7 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 			float frame_duration = blockEntry.value("frame_duration", 0.0f);
 
 			// Détermine les noms de fichiers pour chaque face.
-			// Si la clé "all" est présente, on utilise la même image pour toutes les faces.
+			// Si "all" est présent, même image pour toutes les faces.
 			std::array<std::string, 6> faceFiles;
 			if (blockEntry["faces"].contains("all"))
 			{
@@ -124,7 +170,7 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 			}
 			else
 			{
-				// Convention : top, bottom, right, left, back, front.
+				// top, bottom, right, left, back, front (ordre interne).
 				faceFiles[0] = blockEntry["faces"].value("top", "");
 				faceFiles[5] = blockEntry["faces"].value("bottom", "");
 				faceFiles[1] = blockEntry["faces"].value("west", "");
@@ -133,21 +179,27 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 				faceFiles[4] = blockEntry["faces"].value("north", "");
 			}
 
+			// On crée la structure pour ce bloc
 			BlockTextureData btd;
 			btd.animated = animated;
 			btd.frames = frames;
 			btd.frame_duration = frame_duration;
 
-			// Pour chaque face, charge la tuile et stocke l’index
+			// Pour chaque face, on charge la tuile (ou le spritesheet)
 			for (int i = 0; i < 6; i++)
 			{
+				if (faceFiles[i].empty())
+				{
+					// Si vide => on met un dummy
+					btd.faceIndices[i] = 0; // ou n'importe
+					continue;
+				}
 				std::string path = directory + "/" + faceFiles[i];
-				uint8_t tileIndex = loadTile(path);
-				btd.faceIndices[i] = tileIndex;
+				uint8_t firstFrameIndex = loadTileOrFrames(path, animated, frames);
+				btd.faceIndices[i] = firstFrameIndex;
 			}
 
-			// Convertir le nom de bloc en BlockData::BlockType.
-			// Ici, on suppose que le nom (en minuscules) correspond à l’enum.
+			// Convertir le nom en BlockData::BlockType (simplifié)
 			BlockData::BlockType type = BlockData::BlockType::air;
 			if (blockName == "bedrock")
 				type = BlockData::BlockType::bedrock;
@@ -183,12 +235,13 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 				type = BlockData::BlockType::obsidian;
 			else if (blockName == "sponge")
 				type = BlockData::BlockType::sponge;
+			// Sinon => air par défaut
 
 			mapping[type] = btd;
 		}
 	}
 
-	// Crée le texture array à partir du vecteur de tuiles.
+	// Enfin, on crée le texture array unique à partir du vecteur de tuiles
 	atlasTexture = Texture::loadTexture2DArrayFromImages(tileImages, tileWidth, tileHeight);
 }
 

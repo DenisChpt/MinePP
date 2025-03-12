@@ -1,3 +1,5 @@
+// File: src/World.cpp
+
 #include "World.hpp"
 
 #include <ranges>
@@ -17,6 +19,8 @@ World::World(const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>
 	opaqueShader = AssetManager::instance().loadShaderProgram("assets/shaders/world_opaque");
 	transparentShader = AssetManager::instance().loadShaderProgram("assets/shaders/world_transparent");
 	blendShader = AssetManager::instance().loadShaderProgram("assets/shaders/world_blend");
+
+	// On charge la texture atlas (unique) générée par TextureAtlas
 	setTextureAtlas(TextureAtlas::instance().getAtlasTexture());
 }
 
@@ -31,7 +35,6 @@ Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)
 	chunk = std::make_shared<Chunk>(position);
 	generator.populateChunk(chunk);
 	persistence->commitChunk(chunk);
-
 	return chunk;
 }
 
@@ -39,6 +42,8 @@ void World::unloadChunk(const Ref<Chunk> &chunk)
 {
 	const auto chunkPos = chunk->getPosition();
 	chunks.erase(chunkPos);
+
+	// Informer les WorldBehavior que les blocs de ce chunk sont supprimés
 	for (int32_t x = 0; x < Chunk::HorizontalSize; ++x)
 	{
 		for (int32_t y = 0; y < Chunk::VerticalSize; ++y)
@@ -59,10 +64,14 @@ void World::unloadChunk(const Ref<Chunk> &chunk)
 void World::update(const glm::vec3 &playerPosition, float deltaTime)
 {
 	TRACE_FUNCTION();
+
+	// On incrémente le "temps" pour l'animation
 	textureAnimation += deltaTime * TextureAnimationSpeed;
 
+	// Déterminer le chunk du joueur
 	glm::vec2 playerChunkPosition = getChunkIndex(playerPosition);
 
+	// Décharger les chunks trop lointains
 	auto chunksCopy = chunks;
 	float unloadDistance = static_cast<float>(viewDistance + 1) * 16 + 8.0f;
 	for (const auto &[chunkPosition, chunk] : chunksCopy)
@@ -73,6 +82,7 @@ void World::update(const glm::vec3 &playerPosition, float deltaTime)
 		}
 	}
 
+	// Charger de nouveaux chunks si le joueur s’approche
 	float loadDistance = static_cast<float>(viewDistance) * 16 + 8.0f;
 	for (int32_t i = -viewDistance; i <= viewDistance; i++)
 	{
@@ -80,9 +90,7 @@ void World::update(const glm::vec3 &playerPosition, float deltaTime)
 		{
 			glm::ivec2 position = glm::ivec2(i * 16, j * 16) + glm::ivec2(playerChunkPosition);
 			if (isChunkLoaded(position))
-			{
 				continue;
-			}
 
 			float distance = glm::abs(glm::distance(glm::vec2(position), playerChunkPosition));
 			if (distance <= loadDistance)
@@ -92,6 +100,7 @@ void World::update(const glm::vec3 &playerPosition, float deltaTime)
 		}
 	}
 
+	// Update des behaviors (particules, etc.)
 	for (auto &behavior : behaviors)
 	{
 		behavior->update(deltaTime);
@@ -112,14 +121,19 @@ void World::sortChunkIndices(glm::vec3 playerPos, const Ref<ChunkIndexVector> &c
 		chunkIndices->emplace_back(key, value->distanceToPoint(playerXZ));
 	}
 
+	// Tri du plus proche au plus lointain
 	std::sort(chunkIndices->begin(), chunkIndices->end(),
 			  [](const auto &a, const auto &b)
-			  { return b.second < a.second; });
+			  {
+				  return b.second < a.second; // on inverse pour .reverse_view ensuite
+			  });
 }
 
 void World::rebuildChunks(const Ref<ChunkIndexVector> &chunkIndices, const Frustum &frustum)
 {
 	uint32_t meshesRebuilt = 0;
+
+	// On itère du plus proche au plus lointain (car chunkIndices est trié à l'envers + .reverse_view)
 	for (auto &index : std::ranges::reverse_view(*chunkIndices))
 	{
 		if (meshesRebuilt > MaxRebuildsAllowedPerFrame)
@@ -138,18 +152,21 @@ void World::rebuildChunks(const Ref<ChunkIndexVector> &chunkIndices, const Frust
 void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum)
 {
 	TRACE_FUNCTION();
+
+	// 1) Tri et rebuild des chunks au besoin
 	static auto sortedChunkIndices = std::make_shared<ChunkIndexVector>();
 	sortChunkIndices(playerPos, sortedChunkIndices);
 	rebuildChunks(sortedChunkIndices, frustum);
 
-	const int32_t animationProgress = static_cast<int32_t>(textureAnimation) % 5;
+	// 2) Calcul de la frame courante
+	//    Ex: 8 frames total
+	int totalFrames = 8;
+	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
-	// animation offsets for water and lava
-	const static int32_t animationOffsets[] = {0, 1, 2, 17, 18};
+	// 3) Envoi au shader
+	opaqueShader->setUInt("textureAnimation", currentFrame);
 
-	const int32_t animationOffset = animationOffsets[animationProgress];
-
-	opaqueShader->setUInt("textureAnimation", animationOffset);
+	// 4) Rendu
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -158,10 +175,15 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 		const auto &chunk = chunks[index.first];
 		chunk->setShader(opaqueShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
+
+		// Rendu des blocs opaques
 		chunk->renderOpaque(transform, frustum);
+
+		// Rendu des blocs "semi-transparents" (ex: verre) qui se dessinent aussi dans ce pass
 		chunk->renderSemiTransparent(transform, frustum);
 	}
 
+	// Rendu additionnel : behaviors opaques (ex: particules cubiques)
 	for (const auto &behavior : behaviors)
 	{
 		behavior->renderOpaque(transform, playerPos, frustum);
@@ -170,7 +192,6 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	glDisable(GL_BLEND);
 }
 
-/// implemented this paper: https://jcgt.org/published/0002/02/09/
 void World::renderTransparent(glm::mat4 transform,
 							  glm::vec3 playerPos,
 							  const Frustum &frustum,
@@ -179,26 +200,31 @@ void World::renderTransparent(glm::mat4 transform,
 							  const Ref<Framebuffer> &opaqueRender)
 {
 	TRACE_FUNCTION();
+
+	// 1) Préparer le framebuffer "accum + revealage"
 	auto width = opaqueRender->getWidth();
 	auto height = opaqueRender->getHeight();
 	static Ref<Framebuffer> framebuffer = nullptr;
-	if (framebuffer == nullptr || framebuffer->getWidth() != width || framebuffer->getHeight() != height)
+	if (!framebuffer || framebuffer->getWidth() != width || framebuffer->getHeight() != height)
 	{
 		framebuffer = std::make_shared<Framebuffer>(width, height, false, 2);
 	}
+
+	// 2) Tri + rebuild
 	static auto sortedChunkIndices = std::make_shared<ChunkIndexVector>();
 	sortChunkIndices(playerPos, sortedChunkIndices);
 	rebuildChunks(sortedChunkIndices, frustum);
 
-	const int32_t animationProgress = static_cast<int32_t>(textureAnimation) % 5;
+	// 3) Calcul de la frame courante (même totalFrames = 8, par ex)
+	int totalFrames = 8;
+	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
-	// animation offsets for water and lava
-	const static int32_t animationOffsets[] = {0, 1, 2, 17, 18};
-	const int32_t animationOffset = animationOffsets[animationProgress];
+	// 4) Bind du FBO
 	auto &window = Window::instance();
 	window.getFramebufferStack()->push(framebuffer);
 	glEnable(GL_BLEND);
 
+	// On configure un blend spécial (Weighted Blended OIT)
 	glBlendFunci(0, GL_ONE, GL_ONE);
 	glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -206,26 +232,32 @@ void World::renderTransparent(glm::mat4 transform,
 	glClear(GL_COLOR_BUFFER_BIT);
 	framebuffer->clearColorAttachment(1, glm::vec4(1));
 
-	transparentShader->setUInt("textureAnimation", animationOffset);
+	// 5) Paramètres du shader transparent
+	transparentShader->setUInt("textureAnimation", currentFrame);
 	transparentShader->setFloat("zNear", zNear);
 	transparentShader->setFloat("zFar", zFar);
 	transparentShader->setTexture("opaqueDepth", opaqueRender->getDepthAttachment(), 1);
 	transparentShader->bind();
 
+	// 6) Dessin des chunks semi-transparents (ex: eau)
 	for (const auto &[key, chunk] : chunks)
 	{
 		chunk->setShader(transparentShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
 		chunk->renderSemiTransparent(transform, frustum);
 	}
-	Window::instance().getFramebufferStack()->pop();
 
+	// On pop pour repasser au framebuffer précédent
+	window.getFramebufferStack()->pop();
+
+	// 7) Composition finale via world_blend.frag
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	ColorRenderPass renderPass(blendShader);
 	renderPass.setTexture("accumTexture", framebuffer->getColorAttachment(0), 1);
 	renderPass.setTexture("revealageTexture", framebuffer->getColorAttachment(1), 2);
 	renderPass.setTexture("opaqueTexture", opaqueRender->getColorAttachment(0), 3);
 	renderPass.render();
+
 	glDisable(GL_BLEND);
 }
 
@@ -233,6 +265,7 @@ const BlockData *World::getBlockAt(glm::ivec3 position)
 {
 	return getChunk(getChunkIndex(position))->getBlockAt(Chunk::toChunkCoordinates(position));
 }
+
 bool World::isValidBlockPosition(glm::ivec3 position)
 {
 	return Chunk::isValidPosition(position);
@@ -249,17 +282,23 @@ bool World::placeBlock(BlockData block, glm::ivec3 position)
 	glm::ivec3 positionInChunk = Chunk::toChunkCoordinates(position);
 	auto chunk = getChunk(getChunkIndex(position));
 	auto oldBlock = chunk->getBlockAt(positionInChunk);
+
+	// Notifier les behaviors qu'un bloc est retiré
 	for (const auto &behavior : behaviors)
 	{
 		behavior->onBlockRemoved(position, oldBlock, *this, true);
 	}
 
-	getChunk(getChunkIndex(position))->placeBlock(block, positionInChunk);
+	// Placer le nouveau bloc
+	chunk->placeBlock(block, positionInChunk);
+
+	// Notifier qu'on a ajouté un bloc
 	for (const auto &behavior : behaviors)
 	{
 		behavior->onNewBlock(position, &block, *this);
 	}
 
+	// Marquer les voisins comme "dirty" si besoin, + onBlockUpdate
 	constexpr std::array<glm::ivec3, 6> blocksAround = {
 		{{0, 0, 1}, {1, 0, 0}, {0, 0, -1}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}}};
 	for (const glm::ivec3 &offset : blocksAround)
@@ -268,8 +307,8 @@ bool World::placeBlock(BlockData block, glm::ivec3 position)
 		glm::ivec3 neighborWorldPosition = position + offset;
 		if (!Chunk::isInBounds(neighbor.x, neighbor.y, neighbor.z))
 		{
-			const auto &chunk = getChunk(getChunkIndex(neighborWorldPosition));
-			chunk->setDirty();
+			const auto &chunkN = getChunk(getChunkIndex(neighborWorldPosition));
+			chunkN->setDirty();
 		}
 		for (const auto &behavior : behaviors)
 		{
@@ -282,8 +321,9 @@ bool World::placeBlock(BlockData block, glm::ivec3 position)
 
 glm::ivec2 World::getChunkIndex(glm::ivec3 position)
 {
-	return {position.x - Util::positiveMod(position.x, Chunk::HorizontalSize),
-			position.z - Util::positiveMod(position.z, Chunk::HorizontalSize)};
+	return {
+		position.x - Util::positiveMod(position.x, Chunk::HorizontalSize),
+		position.z - Util::positiveMod(position.z, Chunk::HorizontalSize)};
 }
 
 Ref<Chunk> World::getChunk(glm::ivec2 position)
@@ -293,7 +333,6 @@ Ref<Chunk> World::getChunk(glm::ivec2 position)
 	{
 		addChunk(position, generateOrLoadChunk(position));
 	}
-
 	return chunks.at(position);
 }
 
@@ -301,16 +340,18 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 {
 	TRACE_FUNCTION();
 	chunks[position] = chunk;
+
+	// Marquer les voisins comme dirty
 	std::array<glm::ivec2, 4> chunksAround = {{{0, 16}, {16, 0}, {0, -16}, {-16, 0}}};
 	for (const glm::ivec2 &offset : chunksAround)
 	{
 		glm::ivec2 neighborPosition = position + offset;
-
 		if (!isChunkLoaded(neighborPosition))
 			continue;
-
 		chunks[neighborPosition]->setDirty();
 	}
+
+	// Notifier behaviors pour tous les blocs de ce chunk
 	for (int32_t x = 0; x < Chunk::HorizontalSize; ++x)
 	{
 		for (int32_t y = 0; y < Chunk::VerticalSize; ++y)
@@ -320,8 +361,8 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 				for (const auto &worldBehavior : behaviors)
 				{
 					glm::ivec3 blockPos = {x, y, z};
-					worldBehavior->onNewBlock(blockPos + glm::ivec3(position.x, 0, position.y), chunk->getBlockAt(blockPos),
-											  *this);
+					glm::ivec3 globalPos = blockPos + glm::ivec3(position.x, 0, position.y);
+					worldBehavior->onNewBlock(globalPos, chunk->getBlockAt(blockPos), *this);
 				}
 			}
 		}
@@ -334,6 +375,7 @@ void World::setTextureAtlas(const Ref<const Texture> &texture)
 	opaqueShader->setTexture("atlas", textureAtlas, 0);
 	transparentShader->setTexture("atlas", textureAtlas, 0);
 }
+
 const BlockData *World::getBlockAtIfLoaded(glm::ivec3 position) const
 {
 	glm::ivec2 index = getChunkIndex(position);
@@ -341,9 +383,9 @@ const BlockData *World::getBlockAtIfLoaded(glm::ivec3 position) const
 	{
 		return nullptr;
 	}
-
 	return chunks.at(index)->getBlockAt(Chunk::toChunkCoordinates(position));
 }
+
 bool World::isChunkLoaded(glm::ivec2 position) const
 {
 	return chunks.contains(position);

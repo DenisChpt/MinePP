@@ -91,20 +91,30 @@
 			"name": "water",
 			"directory": "assets/textures/water",
 			"faces": {
-				"all": "water.png"
+				"top": "water_still.png",
+				"bottom": "water_still.png",
+				"north": "water_still.png",
+				"south": "water_still.png",
+				"west": "water_still.png",
+				"east": "water_still.png"
 			},
 			"animated": true,
-			"frames": 4,
-			"frame_duration": 0.25
+			"frames": 32,
+			"frame_duration": 0.2
 		},
 		{
 			"name": "lava",
 			"directory": "assets/textures/lava",
 			"faces": {
-				"all": "lava.png"
+				"top": "lava_still.png",
+				"bottom": "lava_still.png",
+				"north": "lava_still.png",
+				"south": "lava_still.png",
+				"west": "lava_still.png",
+				"east": "lava_still.png"
 			},
 			"animated": true,
-			"frames": 4,
+			"frames": 20,
 			"frame_duration": 0.2
 		},
 		{
