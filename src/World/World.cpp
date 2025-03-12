@@ -6,6 +6,7 @@
 #include "../AssetManager/AssetManager.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 #include "../Rendering/FullscreenQuad.hpp"
+#include "../AssetManager/TextureAtlas.hpp"
 
 World::World(const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed)
 	: behaviors(std::move(behaviors)),
@@ -16,7 +17,7 @@ World::World(const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>
 	opaqueShader = AssetManager::instance().loadShaderProgram("assets/shaders/world_opaque");
 	transparentShader = AssetManager::instance().loadShaderProgram("assets/shaders/world_transparent");
 	blendShader = AssetManager::instance().loadShaderProgram("assets/shaders/world_blend");
-	setTextureAtlas(AssetManager::instance().loadTextureArray("assets/textures/default_texture.png"));
+	setTextureAtlas(TextureAtlas::instance().getAtlasTexture());
 }
 
 Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)

@@ -1,4 +1,5 @@
 #include "BlockVertex.hpp"
+#include "../AssetManager/TextureAtlas.hpp"
 
 BlockVertex::BlockVertex(const glm::ivec3 &position, const glm::bvec2 &uv)
 {
@@ -14,16 +15,12 @@ void BlockVertex::setUv(bool x, bool y)
 	data += uv << 19;
 };
 
-void BlockVertex::setTexture(uint8_t x, uint8_t y)
+void BlockVertex::setTextureIndex(uint8_t tileIndex)
 {
-	assert(x < 16 && "Coordinate is out of bounds");
-	assert(y < 16 && "Coordinate is out of bounds");
-
-	uint16_t uv = x | (y << 4);
-	assert(uv <= 0xff && "Texture index is out of bounds");
-
-	data += uv << 20;
-};
+	// Efface les bits 20 à 27 puis insère la nouvelle valeur
+	data &= ~(0xFF << 20);
+	data |= (tileIndex & 0xFF) << 20;
+}
 
 void BlockVertex::offset(uint32_t x, uint32_t y, uint32_t z)
 {
@@ -54,83 +51,35 @@ void BlockVertex::setOcclusionLevel(uint8_t occlusionLevel)
 
 void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type)
 {
-	switch (type)
+	// Détermine l'index de face en fonction de l'offset
+	// Convention : 0 = top, 1 = east, 2 = west, 3 = north, 4 = south, 5 = bottom
+	int faceIndex = 0;
+	if (offset.y == 1)
 	{
-	case BlockData::BlockType::bedrock:
-		setTexture(1, 1);
-		break;
-	case BlockData::BlockType::planks:
-		setTexture(4, 0);
-		break;
-	case BlockData::BlockType::water:
-		setAnimated();
-		setTexture(13, 12);
-		break;
-	case BlockData::BlockType::lava:
-		setAnimated();
-		setTexture(13, 14);
-		break;
-	case BlockData::BlockType::iron:
-		setTexture(6, 1);
-		break;
-	case BlockData::BlockType::diamond:
-		setTexture(8, 1);
-		break;
-	case BlockData::BlockType::gold:
-		setTexture(7, 1);
-		break;
-	case BlockData::BlockType::obsidian:
-		setTexture(5, 2);
-		break;
-	case BlockData::BlockType::sponge:
-		setTexture(0, 3);
-		break;
-	case BlockData::BlockType::grass:
-		if (offset.y == 1)
-		{
-			setTexture(0, 0);
-		}
-		else if (offset.y == -1)
-		{
-			setTexture(2, 0);
-		}
-		else
-		{
-			setTexture(3, 0);
-		}
-		break;
-	case BlockData::BlockType::dirt:
-		setTexture(2, 0);
-		break;
-	case BlockData::BlockType::sand:
-		setTexture(2, 1);
-		break;
-	case BlockData::BlockType::stone:
-		setTexture(1, 0);
-		break;
-	case BlockData::BlockType::cobblestone:
-		setTexture(0, 1);
-		break;
-	case BlockData::BlockType::glass:
-		setTexture(1, 3);
-		break;
-	case BlockData::BlockType::oak_wood:
-		if (offset.y == 1 || offset.y == -1)
-		{
-			setTexture(5, 1);
-		}
-		else
-		{
-			setTexture(4, 1);
-		}
-		break;
-	case BlockData::BlockType::oak_leaves:
-		setTexture(4, 3);
-		break;
-	case BlockData::BlockType::air:
-		assert(false);
-		break;
-	default:
-		assert(false);
+		faceIndex = 0; // top
 	}
+	else if (offset.y == -1)
+	{
+		faceIndex = 5; // bottom
+	}
+	else if (offset.x == 1)
+	{
+		faceIndex = 1; // east
+	}
+	else if (offset.x == -1)
+	{
+		faceIndex = 2; // west
+	}
+	else if (offset.z == 1)
+	{
+		faceIndex = 4; // south
+	}
+	else if (offset.z == -1)
+	{
+		faceIndex = 3; // north
+	}
+	// Récupère la configuration de texture pour ce type de bloc via TextureAtlas
+	BlockTextureData btd = TextureAtlas::instance().getBlockTextureData(type);
+	// Stocke l'index correspondant à la face dans le vertex
+	setTextureIndex(btd.faceIndices[faceIndex]);
 }

@@ -38,6 +38,8 @@ public:
 	static Ref<const Texture> loadTexture2DArray(const std::string &name);
 	static Ref<const Texture> loadCubeMapTexture(const std::string &name);
 
+	static Ref<const Texture> loadTexture2DArrayFromImages(const std::vector<Image>& images, int tileWidth, int tileHeight);
+
 	Texture(const Texture &) = delete;
 	Texture(Texture &) = delete;
 	Texture(Texture &&) noexcept = delete;

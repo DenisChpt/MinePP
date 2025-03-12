@@ -19,9 +19,10 @@ class BlockVertex
 {
 private:
 	uint32_t data = 0;
-
 	void setUv(bool x, bool y);
-	void setTexture(uint8_t x, uint8_t y);
+	// Remplacer setTexture par une nouvelle méthode
+	// void setTexture(uint8_t x, uint8_t y); // À supprimer ou déprécier
+	void setTextureIndex(uint8_t tileIndex);
 
 public:
 	BlockVertex() = default;
@@ -29,11 +30,12 @@ public:
 
 	void offset(uint32_t x, uint32_t y, uint32_t z);
 	void setAnimated();
+	// Mise à jour de setType pour utiliser le système dynamique
 	void setType(const glm::ivec3 &offset, BlockData::BlockType type);
 	[[nodiscard]] glm::ivec3 getPosition() const;
+	void setOcclusionLevel(uint8_t occlusionLevel);
 
 	static std::vector<VertexAttribute> vertexAttributes() { return {VertexAttribute(1, VertexAttribute::UInt, 0)}; }
-	void setOcclusionLevel(uint8_t occlusionLevel);
 };
 
 static_assert(sizeof(BlockVertex) == sizeof(uint32_t), "The BlockVertex struct must not have padding");

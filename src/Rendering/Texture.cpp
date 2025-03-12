@@ -192,3 +192,26 @@ Ref<const Texture> Texture::loadCubeMapTexture(const std::string &name)
 	texture->bufferCubeMapRGBAData(images);
 	return texture;
 }
+
+Ref<const Texture> Texture::loadTexture2DArrayFromImages(const std::vector<Image> &images, int tileWidth, int tileHeight)
+{
+	if (images.empty())
+		return nullptr;
+
+	// Crée un texture array dont le nombre de couches est égal au nombre d'images.
+	Ref<Texture> texture = std::make_shared<Texture>(GL_TEXTURE_2D_ARRAY, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, true, 4);
+	texture->bind();
+	int layers = static_cast<int>(images.size());
+	glTexImage3D(texture->target, 0, texture->internalFormat, tileWidth, tileHeight, layers, 0, texture->format, texture->type, nullptr);
+	for (int i = 0; i < layers; i++)
+	{
+		const Image &img = images[i];
+		glTexSubImage3D(texture->target, 0, 0, 0, i, tileWidth, tileHeight, 1, texture->format, texture->type, img.data.data());
+	}
+	if (texture->generateMipMap)
+	{
+		glGenerateMipmap(texture->target);
+	}
+	texture->unbind();
+	return texture;
+}
