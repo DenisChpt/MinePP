@@ -6,15 +6,16 @@
 
 /**
  * Data layout:
- *  00-08: y  coordinates
- *  09-13: x  coordinates
- *  14-18: z  coordinates
- *  19-20: uv coordinates
- *  20-27: texture index
- *  28-28: animation flag
- *  29-30: occlusion
- *  31-31: reserved
+ *  00-08: y  coordinates    (9 bits)
+ *  09-13: x  coordinates    (5 bits)
+ *  14-18: z  coordinates    (5 bits)
+ *  19-20: uv coordinates    (2 bits)
+ *  21-28: texture index     (8 bits)
+ *  29   : animation flag    (1 bit)
+ *  30-31: occlusion         (2 bits)
  */
+
+
 class BlockVertex
 {
 private:

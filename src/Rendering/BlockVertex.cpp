@@ -18,8 +18,8 @@ void BlockVertex::setUv(bool x, bool y)
 void BlockVertex::setTextureIndex(uint8_t tileIndex)
 {
 	// Efface les bits 20 à 27 puis insère la nouvelle valeur
-	data &= ~(0xFF << 20);
-	data |= (tileIndex & 0xFF) << 20;
+	data &= ~(0xFF << 21);
+	data |= (tileIndex & 0xFF) << 21;
 }
 
 void BlockVertex::offset(uint32_t x, uint32_t y, uint32_t z)

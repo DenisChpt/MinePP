@@ -15,7 +15,7 @@ out vec2 vert_uv;
 void main() {
     uint animated = bitfieldExtract(vertexData, 28, 1);
 
-    textureIndex = bitfieldExtract(vertexData, 20, 8) + textureAnimation * animated;
+    textureIndex = bitfieldExtract(vertexData, 21, 8) + textureAnimation * animated;
 
     uint yPos = bitfieldExtract(vertexData,  0, 9);
     uint xPos = bitfieldExtract(vertexData,  9, 5);
