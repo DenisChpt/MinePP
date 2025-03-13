@@ -1,3 +1,13 @@
+/**
+ * @class Camera
+ * @brief Gère la vue et l'orientation de la caméra dans le monde.
+ *
+ * @details La classe Camera fournit des méthodes pour positionner la caméra, calculer la matrice de vue (via glm::lookAt),
+ *          et gérer l'orientation (yaw, pitch). Elle propose aussi des getters pour la position, la direction de regard
+ *          et le calcul d'un vecteur de déplacement en fonction des commandes utilisateur.
+ */
+
+
 #pragma once
 
 #include "../MinePP.hpp"

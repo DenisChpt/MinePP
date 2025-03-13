@@ -1,3 +1,13 @@
+/**
+ * @class Scene
+ * @brief Représente la scène complète du jeu.
+ *
+ * @details La classe Scene intègre le monde, le joueur, le skybox et les effets post-process.
+ *          Elle gère les mises à jour (deltaTime), le rendu (opaque et transparent), la gestion des événements (clavier, souris, redimensionnement)
+ *          et l'affichage d'une interface graphique (menu) via ImGui.
+ */
+
+
 #pragma once
 
 #include <utility>

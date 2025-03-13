@@ -1,3 +1,10 @@
+/**
+ * @class CubeMapRegistry
+ * @brief Registre spécialisé dans le chargement des textures cubemap.
+ *
+ * @details Hérite d'AssetRegistry et implémente loadAsset() pour charger une texture cubemap via Texture::loadCubeMapTexture().
+ */
+
 #pragma once
 
 #include "AssetRegistry.hpp"

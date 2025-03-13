@@ -1,3 +1,15 @@
+/**
+ * @class AssetManager
+ * @brief Gestionnaire central des ressources (assets) du projet.
+ *
+ * @details La classe AssetManager permet de charger et de mettre en cache les assets tels que les shaders, textures,
+ *          images et fichiers texte. Elle fait appel à plusieurs registres spécialisés (AssetRegistry) pour éviter les rechargements
+ *          inutiles et garantir une utilisation efficace de la mémoire.
+ *
+ * @note Des méthodes de suppression et de récupération sont fournies pour chaque type d'asset.
+ */
+
+
 #pragma once
 
 #include "../Rendering/Shader.hpp"

@@ -1,3 +1,13 @@
+/**
+ * @struct BlockData
+ * @brief Structure contenant le type et la classification d'un bloc.
+ *
+ * @details Le BlockData définit un type de bloc (grass, dirt, stone, etc.) et sa classe
+ *          (air, solide, semi-transparent, transparent). Une méthode getColor() fournit une couleur indicative
+ *          pour le rendu et le debug.
+ */
+
+
 #pragma once
 
 struct BlockData

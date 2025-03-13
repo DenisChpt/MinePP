@@ -1,3 +1,18 @@
+/**
+ * @file main.cpp
+ * @brief Point d'entrée du programme MinePP.
+ *
+ * @details Ce fichier initialise l'application MinePP, démarre une session de trace de performances,
+ *          crée une instance de la classe Application, configure la scène (par exemple via la lecture d’un fichier de sauvegarde)
+ *          et lance la boucle principale de rendu.
+ *
+ * @param argc Nombre d'arguments de la ligne de commande.
+ * @param argv Tableau des arguments.
+ *
+ * @return Code de retour de l'application.
+ */
+
+
 #include "Application/Application.hpp"
 #include "Performance/Trace.hpp"
 #include "MinePP.hpp"

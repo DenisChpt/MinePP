@@ -1,3 +1,10 @@
+/**
+ * @class Framebuffer
+ * @brief Encapsule la création et la gestion d'un framebuffer OpenGL, avec attachements de couleur et optionnellement de profondeur.
+ *
+ * @details La classe permet de créer un framebuffer, de lier ses attachements et de le détruire proprement.
+ */
+
 #pragma once
 
 #include "../MinePP.hpp"

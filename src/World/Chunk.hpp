@@ -1,3 +1,15 @@
+/**
+ * @class Chunk
+ * @brief Représente un segment du monde (chunk) contenant un volume de blocs et un maillage pour le rendu.
+ *
+ * @details La classe Chunk stocke un tableau 3D de BlockData et gère la reconstruction du maillage
+ *          pour le rendu des blocs opaques et semi-transparents. Elle fournit des méthodes pour placer des blocs,
+ *          vérifier la visibilité via une AABB et interagir avec le système de persistance.
+ *
+ * @param worldPosition Coordonnées du chunk dans le monde.
+ */
+
+
 #pragma once
 
 #include <Frustum.h>

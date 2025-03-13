@@ -1,3 +1,14 @@
+/**
+ * @class World
+ * @brief Représente le monde du jeu, constitué de chunks générés et gérés dynamiquement.
+ *
+ * @details La classe World gère le chargement/déchargement des chunks en fonction de la position du joueur,
+ *          la mise à jour du contenu du monde et le rendu en plusieurs passes (opaque et transparent).
+ *          Elle intègre également la gestion de comportements (WorldBehavior) pour déclencher des effets additionnels
+ *          lors d'événements sur les blocs (ex. particules).
+ */
+
+
 #pragma once
 
 #include <Frustum.h>

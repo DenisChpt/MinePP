@@ -1,3 +1,13 @@
+/**
+ * @class BlockMesh
+ * @brief Génère le maillage d'un bloc à partir d'un ensemble statique de sommets.
+ *
+ * @details La classe BlockMesh définit un tableau statique à deux dimensions de BlockVertex,
+ *          chaque ligne correspondant à une face (top, bottom, east, west, north, south).
+ *          La méthode getVerticesFromDirection() renvoie les sommets adaptés à la face à afficher.
+ */
+
+
 #pragma once
 
 #include "BlockVertex.hpp"

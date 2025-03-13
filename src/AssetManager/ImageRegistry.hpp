@@ -1,3 +1,10 @@
+/**
+ * @class ImageRegistry
+ * @brief Registre pour le chargement des images via lodepng.
+ *
+ * @details Charge une image depuis un fichier et gère les erreurs de décodage en renvoyant un pointeur vers l'image.
+ */
+
 #pragma once
 
 #include "../Rendering/Image.hpp"

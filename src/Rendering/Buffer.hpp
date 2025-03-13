@@ -1,3 +1,13 @@
+/**
+ * @class Buffer
+ * @brief Classe abstraite encapsulant la création et la gestion d'un buffer OpenGL.
+ *
+ * @details La classe Buffer offre des méthodes pour lier le buffer, allouer et uploader des données en mode statique ou dynamique.
+ *          Les classes dérivées VertexBuffer et IndexBuffer spécifient le type de buffer (GL_ARRAY_BUFFER ou GL_ELEMENT_ARRAY_BUFFER)
+ *          et gèrent les attributs de sommets ou d'indices.
+ */
+
+
 #pragma once
 
 #include "../Performance/Trace.hpp"

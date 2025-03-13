@@ -1,3 +1,13 @@
+/**
+ * @class Util
+ * @brief Classe utilitaire regroupant diverses fonctions d'aide.
+ *
+ * @details La classe Util fournit notamment une méthode readBinaryFile() pour lire un fichier en mode binaire,
+ *          positiveMod() pour calculer un modulo positif, ainsi que des classes de hachage (HashVec2, HashVec3) et
+ *          de comparaison (CompareIVec3) pour les types glm::ivec2 et glm::ivec3.
+ */
+
+
 #pragma once
 
 #include "../MinePP.hpp"

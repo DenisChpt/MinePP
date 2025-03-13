@@ -1,4 +1,14 @@
-// File: src/TextureAtlas.hpp
+/**
+ * @class TextureAtlas
+ * @brief Gestionnaire d'atlas de textures pour le rendu des blocs.
+ *
+ * @details La classe TextureAtlas charge la configuration des textures depuis un fichier JSON (textures.json),
+ *          découpe les images en tuiles et crée un texture array unique. Elle fournit également la configuration (indices de faces)
+ *          pour chaque type de bloc.
+ *
+ * @note Implémentée en singleton.
+ */
+
 #pragma once
 
 #include "../MinePP.hpp"

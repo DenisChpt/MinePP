@@ -1,3 +1,12 @@
+/**
+ * @class VertexArray
+ * @brief Encapsule la configuration d'un tableau de sommets OpenGL (VAO).
+ *
+ * @details La classe VertexArray permet d'associer un VertexBuffer et un IndexBuffer, de configurer les attributs
+ *          de sommets et de lancer des rendus indexés ou en flux de sommets.
+ */
+
+
 #pragma once
 
 #include <vector>

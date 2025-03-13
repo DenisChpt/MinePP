@@ -1,3 +1,18 @@
+/**
+ * @class Window
+ * @brief Encapsule la gestion de la fenêtre et du contexte OpenGL.
+ *
+ * @details La classe Window initialise GLFW, configure le contexte OpenGL (version 4.6 Core profile),
+ *          gère les callbacks (clavier, souris, redimensionnement, erreurs), et propose des méthodes pour verrouiller/déverrouiller la souris,
+ *          démarrer/terminer une frame et échanger les buffers.
+ *
+ * @param windowWidth Largeur initiale de la fenêtre.
+ * @param windowHeight Hauteur initiale de la fenêtre.
+ *
+ * @note Des fonctionnalités avancées telles que l'affichage de messages de débogage OpenGL sont également implémentées.
+ */
+
+
 #pragma once
 
 #include "../Rendering/FramebufferStack.hpp"

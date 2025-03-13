@@ -1,3 +1,12 @@
+/**
+ * @class BlockVertex
+ * @brief Représente un sommet d'un bloc avec position, coordonnées UV, index de texture, animation et niveau d'occlusion.
+ *
+ * @details La structure de données est codée sur 32 bits avec des segments dédiés à la position, aux UV, au tile index,
+ *          au flag d'animation et à l'occlusion. Les méthodes setType(), setOcclusionLevel(), etc. permettent d'en modifier les valeurs.
+ */
+
+
 #pragma once
 
 #include "../World/BlockData.hpp"

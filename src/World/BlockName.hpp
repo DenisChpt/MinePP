@@ -1,3 +1,12 @@
+/**
+ * @class BlockName
+ * @brief Fournit des utilitaires pour associer un type de bloc à son nom lisible.
+ *
+ * @details La classe BlockName définit un tableau statique associant les BlockType à leurs noms respectifs
+ *          et propose des méthodes pour obtenir le nom ou l'indice correspondant à un type donné.
+ */
+
+
 #pragma once
 
 #include "../MinePP.hpp"

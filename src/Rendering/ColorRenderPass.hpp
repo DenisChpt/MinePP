@@ -1,3 +1,12 @@
+/**
+ * @class ColorRenderPass
+ * @brief Effectue une passe de rendu couleur avec application d'effets post-process via un shader.
+ *
+ * @details La classe ColorRenderPass permet de lier un ShaderProgram, d'y associer une texture (par exemple
+ *          le rendu d'une frame intermédiaire) et d'exécuter le rendu sur un quad plein écran.
+ */
+
+
 #pragma once
 
 #include "FullscreenQuad.hpp"

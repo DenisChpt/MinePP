@@ -1,3 +1,14 @@
+/**
+ * @class AssetRegistry
+ * @brief Classe template abstraite pour le chargement et le cache des assets.
+ *
+ * @details Cette classe gère un unordered_map associant des noms d’assets à des pointeurs faibles.
+ *          Elle définit la méthode pure loadAsset() qui doit être implémentée par les classes dérivées pour charger un asset spécifique.
+ *
+ * @tparam T Type de l'asset (ex. Texture, Shader, std::string, etc.).
+ */
+
+
 #pragma once
 
 #include "../Rendering/ShaderProgram.hpp"

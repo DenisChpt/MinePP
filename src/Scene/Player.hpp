@@ -1,3 +1,13 @@
+/**
+ * @class Player
+ * @brief Représente le joueur et gère son comportement, sa physique et ses interactions avec le monde.
+ *
+ * @details La classe Player intègre une instance de Camera et interagit avec le monde via la vérification
+ *          des collisions (MovementSimulation) et la mise à jour de la position en fonction de la gravité et des actions utilisateur.
+ *          Elle gère également les actions de placement ou de suppression de blocs.
+ */
+
+
 #pragma once
 
 #include "../Physics/MovementSimulation.hpp"

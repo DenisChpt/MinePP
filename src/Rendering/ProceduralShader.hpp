@@ -1,3 +1,14 @@
+/**
+ * @class ProceduralShader
+ * @brief Classe abstraite permettant de générer dynamiquement des shaders procéduraux.
+ *
+ * @details Les classes dérivées doivent implémenter les méthodes emitVertexShaderSource() et
+ *          emitFragmentShaderSource() pour fournir le code source GLSL correspondant.
+ *
+ * @note Une conversion en ShaderProgram est proposée via l'opérateur de conversion.
+ */
+
+
 #pragma once
 
 #include "ShaderProgram.hpp"

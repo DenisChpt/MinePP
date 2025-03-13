@@ -1,3 +1,15 @@
+/**
+ * @class Trace
+ * @brief Système de trace pour mesurer les performances du projet.
+ *
+ * @details La classe Trace démarre et termine une session de traçage, enregistre les événements d'exécution
+ *          (nom, durée, timestamp) et écrit les données dans un fichier JSON. Elle propose aussi une classe interne TraceTimer
+ *          pour tracer la durée d'exécution de fonctions ou de blocs de code via des macros (TRACE_FUNCTION, TRACE_SCOPE).
+ *
+ * @note Active uniquement si ENABLE_TRACING est défini.
+ */
+
+
 #pragma once
 
 #include <utility>

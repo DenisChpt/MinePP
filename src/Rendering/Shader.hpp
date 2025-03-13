@@ -1,3 +1,14 @@
+/**
+ * @class Shader
+ * @brief Représente un shader OpenGL (vertex ou fragment) et gère sa compilation.
+ *
+ * @details Le constructeur compile le code source GLSL et vérifie le statut de compilation.
+ *          En cas d'erreur, un message détaillé est affiché et l'identifiant est invalidé.
+ *
+ * @param source Code source GLSL.
+ * @param type Type de shader (GL_VERTEX_SHADER ou GL_FRAGMENT_SHADER).
+ */
+
 #pragma once
 
 #include "../MinePP.hpp"

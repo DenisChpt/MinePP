@@ -1,3 +1,14 @@
+/**
+ * @class ParticleSystem
+ * @brief Système abstrait de particules pour gérer les effets visuels dynamiques.
+ *
+ * @details La classe ParticleSystem gère l'émission, la mise à jour et le rendu des particules.
+ *          Elle sert de base pour les systèmes spécifiques comme BlockBreakParticleSystem et LavaParticleSystem.
+ *
+ * @note La méthode render() est pure virtuelle et doit être implémentée dans les classes dérivées.
+ */
+
+
 #pragma once
 
 #include "../Util/Random.hpp"

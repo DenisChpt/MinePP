@@ -1,3 +1,11 @@
+/**
+ * @class FramebufferStack
+ * @brief Gère une pile de framebuffers afin de faciliter le rendu multi-passes et le post-process.
+ *
+ * @details La classe FramebufferStack permet de pousser et de dépiler des framebuffers,
+ *          et de conserver éventuellement des références aux textures intermédiaires pour déboguer les passes de rendu.
+ */
+
 #pragma once
 
 #include "../MinePP.hpp"

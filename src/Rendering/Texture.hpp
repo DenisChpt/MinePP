@@ -1,3 +1,18 @@
+/**
+ * @class Texture
+ * @brief Encapsule la création et la gestion des textures OpenGL.
+ *
+ * @details La classe Texture permet de créer et d'allouer des textures 2D, des tableaux de textures 2D et des cubemaps.
+ *          Elle offre des méthodes pour uploader des données d'image, générer des mipmaps et lier la texture à une unité.
+ *
+ * @param target Cible OpenGL (GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY ou GL_TEXTURE_CUBE_MAP).
+ * @param internalFormat Format interne de la texture.
+ * @param format Format des données.
+ * @param type Type de donnée.
+ * @param generateMipMap Indique si des mipmaps doivent être générés.
+ */
+
+
 #pragma once
 
 #include "../MinePP.hpp"

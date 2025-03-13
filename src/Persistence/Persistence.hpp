@@ -1,3 +1,15 @@
+/**
+ * @class Persistence
+ * @brief Gère la sauvegarde et le chargement des données de la scène (chunks, caméra).
+ *
+ * @details La classe Persistence lit et écrit un fichier binaire qui contient la position de la caméra et les données
+ *          de chaque chunk. Elle offre des méthodes pour committer (sauvegarder) un chunk ou la caméra, et pour récupérer
+ *          un chunk à partir de son identifiant de position.
+ *
+ * @param path Chemin du fichier de sauvegarde.
+ */
+
+
 #pragma once
 
 #include "../Scene/Camera.hpp"

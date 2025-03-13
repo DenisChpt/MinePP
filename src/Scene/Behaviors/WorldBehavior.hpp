@@ -1,3 +1,13 @@
+/**
+ * @class WorldBehavior
+ * @brief Interface abstraite permettant de définir des comportements réactifs aux changements dans le monde.
+ *
+ * @details Les classes dérivées de WorldBehavior (par exemple, BlockBreakParticleBehavior et LavaParticleBehavior)
+ *          implémentent des méthodes pour réagir à l'ajout, la mise à jour ou la suppression de blocs et pour lancer des effets (particules,
+ *          animations, etc.).
+ */
+
+
 #pragma once
 
 #include <Frustum.h>

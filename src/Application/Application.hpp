@@ -1,3 +1,15 @@
+/**
+ * @class Application
+ * @brief Gère le cycle de vie de l'application MinePP.
+ *
+ * @details La classe Application initialise la fenêtre, le système de rendu et la scène. Elle orchestre
+ *          la boucle principale, gère la mise à jour et le rendu, et transmet les événements clavier, souris et redimensionnement
+ *          aux modules concernés. Des macros de trace (TRACE_FUNCTION, etc.) sont utilisées pour mesurer les performances.
+ *
+ * @note La classe est implémentée en singleton via un pointeur statique.
+ */
+
+
 #pragma once
 
 #include "../Scene/Scene.hpp"

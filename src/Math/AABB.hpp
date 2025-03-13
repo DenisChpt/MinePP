@@ -1,3 +1,14 @@
+/**
+ * @struct AABB
+ * @brief Représente une boîte englobante alignée sur les axes (Axis-Aligned Bounding Box).
+ *
+ * @details La structure AABB définit les points minimum et maximum et offre des méthodes pour tester l'intersection
+ *          avec une autre AABB. Une méthode statique fromBlockPosition() permet de créer une AABB pour un bloc de taille unité.
+ *
+ * @return true si les boîtes se chevauchent, false sinon.
+ */
+
+
 #pragma once
 
 #include "../MinePP.hpp"

@@ -1,3 +1,11 @@
+/**
+ * @class ShaderProgram
+ * @brief Regroupe un vertex shader et un fragment shader pour créer un programme OpenGL.
+ *
+ * @details La classe ShaderProgram lie les shaders, gère le linking et offre des méthodes pour définir les uniformes
+ *          (entiers, flottants, vecteurs, matrices, textures).
+ */
+
 #pragma once
 
 #include "../MinePP.hpp"

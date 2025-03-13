@@ -1,3 +1,18 @@
+/**
+ * @class AxisPlane
+ * @brief Calcule l'intersection d'un rayon avec un plan aligné sur l'un des axes.
+ *
+ * @details La classe AxisPlane, initialisée avec la normale du plan, la position et la direction du rayon,
+ *          calcule la position d'intersection, la distance et fournit une méthode pour avancer l'offset du plan.
+ *
+ * @param planeNormal Vecteur normal du plan.
+ * @param rayPosition Position de départ du rayon.
+ * @param rayDirection Direction du rayon.
+ *
+ * @return La distance (t) d'intersection ou -infinity si parallèle.
+ */
+
+
 #pragma once
 
 #include "../MinePP.hpp"

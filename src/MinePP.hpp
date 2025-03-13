@@ -1,3 +1,20 @@
+/**
+ * @file MinePP.cpp
+ * @brief Fichier source principal d'initialisation spécifique à MinePP.
+ *
+ * @details Ce fichier inclut les définitions qui complètent les déclarations de MinePP.hpp.
+ *          Il permet de centraliser l’inclusion des bibliothèques et la configuration des dépendances.
+ */
+
+/**
+ * @file MinePP.hpp
+ * @brief Déclarations principales et inclusion des dépendances globales du projet.
+ *
+ * @details Ce header force l'ordre des inclusions (par exemple, GLAD en premier) et définit des alias de pointeurs
+ *          (Ref, WeakRef, Scoped) afin de faciliter la gestion mémoire dans l’ensemble du projet.
+ */
+
+
 #pragma once
 
 // this is to force the formatter to keep the order, because glad must be included first

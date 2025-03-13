@@ -158,9 +158,7 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	sortChunkIndices(playerPos, sortedChunkIndices);
 	rebuildChunks(sortedChunkIndices, frustum);
 
-	// 2) Calcul de la frame courante
-	//    Ex: 8 frames total
-	int totalFrames = 8;
+	int totalFrames = 32;
 	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
 	// 3) Envoi au shader
