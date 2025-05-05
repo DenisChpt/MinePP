@@ -1,13 +1,4 @@
-/**
- * @class Scene
- * @brief Représente la scène complète du jeu.
- *
- * @details La classe Scene intègre le monde, le joueur, le skybox et les effets post-process.
- *          Elle gère les mises à jour (deltaTime), le rendu (opaque et transparent), la gestion des événements (clavier, souris, redimensionnement)
- *          et l'affichage d'une interface graphique (menu) via ImGui.
- */
-
-
+// Scene.hpp refactorisé - mise à jour des includes
 #pragma once
 
 #include <utility>
@@ -19,13 +10,7 @@
 #include "../World/World.hpp"
 #include "../MinePP.hpp"
 #include "BlockOutline.hpp"
-#include "Effects/ChromaticAberrationEffect.hpp"
-#include "Effects/CrosshairEffect.hpp"
-#include "Effects/GammaCorrectionEffect.hpp"
-#include "Effects/GaussianBlurEffect.hpp"
-#include "Effects/InvertEffect.hpp"
-#include "Effects/PostProcessEffect.hpp"
-#include "Effects/VignetteEffect.hpp"
+#include "Effects/PostProcessEffects.hpp" // Un seul include pour tous les effets
 #include "Player.hpp"
 #include "Skybox.hpp"
 

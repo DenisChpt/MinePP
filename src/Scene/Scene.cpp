@@ -1,3 +1,4 @@
+// Scene.cpp refactorisé - mise à jour des includes
 #include "Scene.hpp"
 
 #include <Frustum.h>
@@ -6,8 +7,7 @@
 #include "../Math/WorldRayCast.hpp"
 #include "../Performance/Trace.hpp"
 #include "../World/BlockName.hpp"
-#include "Behaviors/BlockBreakParticleBehavior.hpp"
-#include "Behaviors/LavaParticleBehavior.hpp"
+#include "Behaviors/ParticleBehaviors.hpp"
 
 Scene::Scene(const std::string &savePath)
 	: persistence(std::make_shared<Persistence>(savePath)),

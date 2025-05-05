@@ -1,28 +1,10 @@
-/**
- * @class AssetManager
- * @brief Gestionnaire central des ressources (assets) du projet.
- *
- * @details La classe AssetManager permet de charger et de mettre en cache les assets tels que les shaders, textures,
- *          images et fichiers texte. Elle fait appel à plusieurs registres spécialisés (AssetRegistry) pour éviter les rechargements
- *          inutiles et garantir une utilisation efficace de la mémoire.
- *
- * @note Des méthodes de suppression et de récupération sont fournies pour chaque type d'asset.
- */
-
-
+// AssetManager.hpp refactorisé
 #pragma once
 
 #include "../Rendering/Shader.hpp"
 #include "../Rendering/ShaderProgram.hpp"
 #include "../MinePP.hpp"
-#include "AssetRegistry.hpp"
-#include "CubeMapRegistry.hpp"
-#include "ImageRegistry.hpp"
-#include "ShaderProgramRegistry.hpp"
-#include "ShaderRegistry.hpp"
-#include "TextRegistry.hpp"
-#include "TextureArrayRegistry.hpp"
-#include "TextureRegistry.hpp"
+#include "AssetRegistries.hpp"
 
 class AssetManager
 {
@@ -52,11 +34,7 @@ public:
 	Ref<const std::string> loadText(const std::string &name) { return textRegistry.get(name); };
 	Ref<const Image> loadImage(const std::string &name) { return imageRegistry.get(name); };
 	Ref<const Texture> loadTexture(const std::string &name) { return textureRegistry.get(name); };
-
-	/// the expected input format: width;height;
 	Ref<const Texture> loadTextureArray(const std::string &name) { return textureArrayRegistry.get(name); };
-
-	/// the expected input format: right;left;top;bottom;front;back
 	Ref<const Texture> loadCubeMap(const std::string &name) { return cubeMapRegistry.get(name); };
 	Ref<const Shader> loadShader(const std::string &name) { return shaderRegistry.get(name); };
 	Ref<const ShaderProgram> loadShaderProgram(const std::string &name) { return shaderProgramRegistry.get(name); };
