@@ -10,6 +10,39 @@
 #include "../Rendering/Buffers.hpp"
 #include "../Core/Context.hpp"
 
+// ChunkPool implementation
+Ref<Chunk> ChunkPool::acquire(glm::ivec2 pos)
+{
+	if (!available.empty())
+	{
+		auto chunk = std::shared_ptr<Chunk>(available.front().release());
+		available.pop();
+		chunk->reset(pos);
+		// Debug: log pool reuse
+		// printf("ChunkPool: Reused chunk for position (%d, %d), pool size: %zu\n", pos.x, pos.y, available.size());
+		return chunk;
+	}
+	// Debug: log new allocation
+	// printf("ChunkPool: New allocation for position (%d, %d)\n", pos.x, pos.y);
+	return std::make_shared<Chunk>(pos);
+}
+
+void ChunkPool::release(const Ref<Chunk>& chunk)
+{
+	if (available.size() < MAX_SIZE)
+	{
+		chunk->clear();
+		available.push(std::unique_ptr<Chunk>(new Chunk(*chunk)));
+		// Debug: log pool release
+		// printf("ChunkPool: Released chunk, pool size: %zu\n", available.size());
+	}
+	else
+	{
+		// Debug: log pool full
+		// printf("ChunkPool: Pool full, discarding chunk\n");
+	}
+}
+
 World::World(Context& context, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed)
 	: context(context),
 	  behaviors(std::move(behaviors)),
@@ -33,7 +66,7 @@ Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)
 	{
 		return chunk;
 	}
-	chunk = std::make_shared<Chunk>(position);
+	chunk = chunkPool.acquire(position);
 	generator.populateChunk(chunk);
 	persistence->commitChunk(chunk);
 	return chunk;
@@ -60,6 +93,9 @@ void World::unloadChunk(const Ref<Chunk> &chunk)
 			}
 		}
 	}
+	
+	// Release chunk to pool for reuse
+	chunkPool.release(chunk);
 }
 
 void World::update(const glm::vec3 &playerPosition, float deltaTime)

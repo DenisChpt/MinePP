@@ -118,5 +118,10 @@ public:
 	static glm::ivec3 toChunkCoordinates(const glm::ivec3 &globalPosition);
 
 	glm::ivec2 getPosition() { return worldPosition; }
+	
+	// Methods for ChunkPool
+	void reset(glm::ivec2 newPosition);
+	void clear();
+	
 	friend Persistence;
 };

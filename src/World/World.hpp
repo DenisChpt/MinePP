@@ -12,6 +12,7 @@
 #pragma once
 
 #include <Frustum.h>
+#include <queue>
 
 #include "../Persistence/Persistence.hpp"
 #include "../Rendering/Shaders.hpp"
@@ -24,10 +25,24 @@
 
 class Context;
 class Framebuffer;
+
+// ChunkPool for efficient chunk memory management
+class ChunkPool
+{
+	std::queue<std::unique_ptr<Chunk>> available;
+	static constexpr size_t MAX_SIZE = 100;
+	
+public:
+	Ref<Chunk> acquire(glm::ivec2 pos);
+	void release(const Ref<Chunk>& chunk);
+	size_t size() const { return available.size(); }
+};
+
 class World
 {
 	std::unordered_map<glm::ivec2, Ref<Chunk>, Util::HashVec2> chunks;
 	std::vector<Ref<WorldBehavior>> behaviors;
+	ChunkPool chunkPool;
 	using ChunkIndexVector = std::vector<std::pair<glm::vec2, float>>;
 	Ref<const Texture> textureAtlas;
 	Ref<const ShaderProgram> opaqueShader;
@@ -81,4 +96,7 @@ public:
 	void renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum);
 	static bool isValidBlockPosition(glm::ivec3 position);
 	void setTextureAtlas(const Ref<const Texture> &texture);
+	
+	// ChunkPool stats
+	size_t getChunkPoolSize() const { return chunkPool.size(); }
 };

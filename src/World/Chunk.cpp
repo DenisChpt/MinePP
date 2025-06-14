@@ -222,3 +222,32 @@ glm::ivec3 Chunk::toChunkCoordinates(const glm::ivec3 &globalPosition)
 	return {Util::positiveMod(globalPosition.x, HorizontalSize), globalPosition.y,
 			Util::positiveMod(globalPosition.z, HorizontalSize)};
 }
+
+
+// ChunkPool methods
+void Chunk::reset(glm::ivec2 newPosition)
+{
+	worldPosition = newPosition;
+	init();
+	
+	// Clear all blocks to air
+	for (int32_t x = 0; x < HorizontalSize; ++x)
+	{
+		for (int32_t y = 0; y < VerticalSize; ++y)
+		{
+			for (int32_t z = 0; z < HorizontalSize; ++z)
+			{
+				data[x][y][z] = BlockData{BlockData::BlockType::air};
+			}
+		}
+	}
+}
+
+void Chunk::clear()
+{
+	// Reset render state and clear mesh
+	renderState = RenderState::initial;
+	solidVertexCount = 0;
+	semiTransparentVertexCount = 0;
+	mesh = nullptr;
+}
