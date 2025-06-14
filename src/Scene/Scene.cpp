@@ -46,8 +46,8 @@ void Scene::update(float dt)
 	TRACE_FUNCTION();
 	deltaTime = dt;
 	player.update(deltaTime);
-	world->update(player.getCamera().getPosition(), deltaTime);
-	skybox.update(projectionMatrix, player.getCamera().getViewMatrix(), deltaTime);
+	world->update(player.getPosition(), deltaTime);
+	skybox.update(projectionMatrix, player.getViewMatrix(), deltaTime);
 }
 
 void Scene::toggleMenu()
@@ -75,10 +75,8 @@ void Scene::render()
 	TRACE_FUNCTION();
 	skybox.render();
 
-	const glm::mat4 mvp = projectionMatrix * player.getCamera().getViewMatrix();
+	const glm::mat4 mvp = projectionMatrix * player.getViewMatrix();
 	Frustum frustum(mvp);
-
-	const Camera &camera = player.getCamera();
 	const int32_t width = context.getWindow().getWindowWidth();
 	const int32_t height = context.getWindow().getWindowHeight();
 
@@ -91,12 +89,12 @@ void Scene::render()
 	context.getWindow().getFramebufferStack()->push(framebuffer);
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	world->renderOpaque(mvp, camera.getPosition(), frustum);
+	world->renderOpaque(mvp, player.getPosition(), frustum);
 	auto opaqueRender = context.getWindow().getFramebufferStack()->pop();
 
-	world->renderTransparent(mvp, camera.getPosition(), frustum, zNear, zFar, opaqueRender);
+	world->renderTransparent(mvp, player.getPosition(), frustum, zNear, zFar, opaqueRender);
 
-	if (WorldRayCast ray{camera.getPosition(), camera.getLookDirection(), *world, Player::Reach})
+	if (WorldRayCast ray{player.getPosition(), player.getLookDirection(), *world, Player::Reach})
 	{
 		outline.render(mvp * glm::translate(ray.getHitTarget().position));
 	}
@@ -113,9 +111,9 @@ void Scene::renderMenu()
 	if (ImGui::Begin("Menu"))
 	{
 		ImGui::Text("Frame Time: %fms", deltaTime * 1000);
-		glm::vec3 position = player.getCamera().getPosition();
+		glm::vec3 position = player.getPosition();
 		ImGui::Text("Player position: x:%f, y:%f, z:%f", position.x, position.y, position.z);
-		glm::vec3 lookDirection = player.getCamera().getLookDirection();
+		glm::vec3 lookDirection = player.getLookDirection();
 		ImGui::Text("Player direction: x:%f, y:%f, z:%f", lookDirection.x, lookDirection.y, lookDirection.z);
 
 		ImGui::Spacing();
