@@ -2,7 +2,6 @@
 
 #include "../Utils/Utils.hpp"
 #include "Window.hpp"
-#include "Gui.hpp"
 
 Application::Application(Context& context) : context(context)
 {
@@ -47,9 +46,9 @@ void Application::updateAndRender()
 		scene->render();
 		context.getWindow().finalizeFrame();
 
-		context.getGui().beginFrame();
+		context.getWindow().beginGuiFrame();
 		scene->renderGui();
-		context.getGui().finalizeFrame();
+		context.getWindow().finalizeGuiFrame();
 
 		context.getWindow().swapBuffers();
 	}

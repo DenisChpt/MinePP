@@ -34,11 +34,13 @@ Window::Window()
 	}
 
 	setupCallbacks();
+	initGui();
 }
 
 Window::~Window()
 {
 	TRACE_FUNCTION();
+	shutdownGui();
 	glfwTerminate();
 }
 
@@ -298,4 +300,43 @@ glm::dvec2 Window::getCursorPosition()
 	glm::dvec2 pos;
 	glfwGetCursorPos(window, &pos.x, &pos.y);
 	return pos;
+}
+
+void Window::initGui()
+{
+	TRACE_FUNCTION();
+
+	if (window == nullptr)
+	{
+		return;
+	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 450 core");
+}
+
+void Window::shutdownGui()
+{
+	TRACE_FUNCTION();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void Window::beginGuiFrame()
+{
+	TRACE_FUNCTION();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
+
+void Window::finalizeGuiFrame()
+{
+	TRACE_FUNCTION();
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

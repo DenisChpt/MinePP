@@ -31,6 +31,10 @@ class Window
 	Application* applicationPtr = nullptr;
 	class AssetManager* assetManagerPtr = nullptr;
 
+	// GUI management (from Gui class)
+	void initGui();
+	void shutdownGui();
+
 	void setupCallbacks();
 	static bool setupGlad();
 
@@ -72,6 +76,10 @@ public:
 	void resetFrame();
 	void finalizeFrame();
 	void swapBuffers();
+
+	// GUI frame management (from Gui class)
+	void beginGuiFrame();
+	void finalizeGuiFrame();
 
 	void pollEvents();
 	void unlockMouse();
