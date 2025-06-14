@@ -1,17 +1,19 @@
 /**
- * @class BlockMesh
- * @brief Génère le maillage d'un bloc à partir d'un ensemble statique de sommets.
- *
- * @details La classe BlockMesh définit un tableau statique à deux dimensions de BlockVertex,
- *          chaque ligne correspondant à une face (top, bottom, east, west, north, south).
- *          La méthode getVerticesFromDirection() renvoie les sommets adaptés à la face à afficher.
+ * @file Mesh.hpp
+ * @brief Gestion unifiée des maillages de blocs et de cubes
+ * 
+ * @details Fusionne BlockMesh et CubeMesh pour simplifier la gestion des maillages
  */
-
 
 #pragma once
 
 #include "BlockVertex.hpp"
+#include "Buffers.hpp"
 
+/**
+ * @class BlockMesh
+ * @brief Génère le maillage d'un bloc à partir d'un ensemble statique de sommets
+ */
 struct BlockMesh
 {
 	static const std::array<BlockVertex, 6> &getVerticesFromDirection(const glm::ivec3 &vec)
@@ -53,4 +55,17 @@ struct BlockMesh
 	}
 
 	static const std::array<std::array<BlockVertex, 6>, 6> vertices;
+};
+
+/**
+ * @class CubeMesh
+ * @brief Génère un maillage de cube pour l'affichage d'effets (ex. contours de bloc)
+ */
+class CubeMesh
+{
+	Ref<VertexArray> cubeVertexArray;
+
+public:
+	CubeMesh();
+	void render() const;
 };

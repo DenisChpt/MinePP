@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Rendering/Shaders.hpp"
-#include "CubeMesh.hpp"
+#include "../Rendering/Mesh.hpp"
 
 class Assets;
 

@@ -15,7 +15,7 @@
 #include <Frustum.h>
 
 #include "../Math/Math.hpp"
-#include "../Rendering/BlockMesh.hpp"
+#include "../Rendering/Mesh.hpp"
 #include "../Rendering/BlockVertex.hpp"
 #include "../Rendering/Shaders.hpp"
 #include "../Rendering/Buffers.hpp"

@@ -2,7 +2,7 @@
 #pragma once
 #include "../../Rendering/ParticleSystem.hpp"
 #include "../../World/World.hpp"
-#include "../CubeMesh.hpp"
+#include "../../Rendering/Mesh.hpp"
 #include "../../Utils/Utils.hpp"
 
 class Assets;
