@@ -1,6 +1,6 @@
 #include "ColorRenderPass.hpp"
 
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "../Application/Application.hpp"
 #include "../Utils/Utils.hpp"
 
@@ -37,12 +37,12 @@ void ColorRenderPass::renderTextureWithEffect(const Ref<Texture> &texture, const
 	renderPass.render();
 }
 
-void ColorRenderPass::renderTexture(const Ref<Texture> &texture, AssetManager& assetManager)
+void ColorRenderPass::renderTexture(const Ref<Texture> &texture, Assets& assets)
 {
 	TRACE_FUNCTION();
 	static Ref<const ShaderProgram> colorIdentity = nullptr;
 	if (!colorIdentity) {
-		colorIdentity = assetManager.loadShaderProgram("assets/shaders/identity");
+		colorIdentity = assets.loadShaderProgram("assets/shaders/identity");
 	}
 	renderTextureWithEffect(texture, colorIdentity);
 }

@@ -1,6 +1,6 @@
 #include "ShaderProgram.hpp"
 
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "../Utils/Utils.hpp"
 #include "Shader.hpp"
 
@@ -30,9 +30,9 @@ ShaderProgram::ShaderProgram(const Ref<const Shader> &vertexShader, const Ref<co
 	}
 }
 
-ShaderProgram::ShaderProgram(const std::string &name, AssetManager& assetManager)
-	: ShaderProgram(assetManager.loadShader(name + ".vert"),
-					assetManager.loadShader(name + ".frag")) {}
+ShaderProgram::ShaderProgram(const std::string &name, Assets& assets)
+	: ShaderProgram(assets.loadShader(name + ".vert"),
+					assets.loadShader(name + ".frag")) {}
 
 ShaderProgram::~ShaderProgram()
 {

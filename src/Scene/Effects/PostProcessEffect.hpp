@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../AssetManager/AssetManager.hpp"
+#include "../../Core/Assets.hpp"
 #include "../../Rendering/FrameBuffer.hpp"
 #include "../../Rendering/ShaderProgram.hpp"
 #include "../../Common.hpp"

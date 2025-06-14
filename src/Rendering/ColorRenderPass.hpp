@@ -12,7 +12,7 @@
 #include "Buffers.hpp"
 #include "ShaderProgram.hpp"
 
-class AssetManager;
+class Assets;
 
 class ColorRenderPass
 {
@@ -25,5 +25,5 @@ public:
 	void render();
 
 	static void renderTextureWithEffect(const Ref<Texture> &texture, const Ref<const ShaderProgram> &effect);
-	static void renderTexture(const Ref<Texture> &texture, AssetManager& assetManager);
+	static void renderTexture(const Ref<Texture> &texture, Assets& assets);
 };

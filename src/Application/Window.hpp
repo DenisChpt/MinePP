@@ -29,7 +29,7 @@ class Window
 	glm::vec4 clearColor = {0, 0, 0, 1};
 	Ref<FramebufferStack> framebufferStack = std::make_shared<FramebufferStack>();
 	Application* applicationPtr = nullptr;
-	class AssetManager* assetManagerPtr = nullptr;
+	class Assets* assetsPtr = nullptr;
 
 	// GUI management (from Gui class)
 	void initGui();
@@ -58,7 +58,7 @@ public:
 	~Window();
 
 	void setApplication(Application* app) { applicationPtr = app; }
-	void setAssetManager(AssetManager* am) { assetManagerPtr = am; }
+	void setAssets(Assets* am) { assetsPtr = am; }
 
 	[[nodiscard]] inline int32_t getWindowWidth() const { return windowWidth; }
 	void setWindowWidth(int32_t width) { windowWidth = width; }

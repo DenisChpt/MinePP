@@ -1,5 +1,5 @@
 #include "Textures.hpp"
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "../Utils/Utils.hpp"
 
 // Image implementation
@@ -144,10 +144,10 @@ void Texture::unbind() const
     glBindTexture(target, 0);
 }
 
-Ref<const Texture> Texture::loadTexture2D(const std::string &name, AssetManager& assetManager)
+Ref<const Texture> Texture::loadTexture2D(const std::string &name, Assets& assets)
 {
     TRACE_FUNCTION();
-    Ref<const Image> image = assetManager.loadImage(name);
+    Ref<const Image> image = assets.loadImage(name);
     if (image == nullptr)
     {
         return nullptr;
@@ -158,10 +158,10 @@ Ref<const Texture> Texture::loadTexture2D(const std::string &name, AssetManager&
     return texture;
 }
 
-Ref<const Texture> Texture::loadTexture2DArray(const std::string &name, AssetManager& assetManager)
+Ref<const Texture> Texture::loadTexture2DArray(const std::string &name, Assets& assets)
 {
     TRACE_FUNCTION();
-    Ref<const Image> image = assetManager.loadImage(name);
+    Ref<const Image> image = assets.loadImage(name);
     if (image == nullptr)
     {
         return nullptr;
@@ -185,7 +185,7 @@ Ref<const Texture> Texture::loadTexture2DArray(const std::string &name, AssetMan
     return texture;
 }
 
-Ref<const Texture> Texture::loadCubeMapTexture(const std::string &name, AssetManager& assetManager)
+Ref<const Texture> Texture::loadCubeMapTexture(const std::string &name, Assets& assets)
 {
     TRACE_FUNCTION();
     std::stringstream parts(name);
@@ -199,7 +199,7 @@ Ref<const Texture> Texture::loadCubeMapTexture(const std::string &name, AssetMan
             std::cerr << "Invalid cube map name format" << std::endl;
             return nullptr;
         }
-        images[i] = assetManager.loadImage(imageName);
+        images[i] = assets.loadImage(imageName);
 
         if (images[i] == nullptr)
         {

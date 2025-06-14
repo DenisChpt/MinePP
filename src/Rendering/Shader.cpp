@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "../Utils/Utils.hpp"
 
 Shader::Shader(const std::string &source, uint32_t type)
@@ -26,8 +26,8 @@ Shader::Shader(const std::string &source, uint32_t type)
 	}
 }
 
-Shader::Shader(const std::string &name, AssetManager& assetManager)
-	: Shader(*assetManager.loadText(name),
+Shader::Shader(const std::string &name, Assets& assets)
+	: Shader(*assets.loadText(name),
 			 name.ends_with(".vert") ? GL_VERTEX_SHADER : (name.ends_with(".frag") ? GL_FRAGMENT_SHADER : 0)) {}
 
 Shader::~Shader()

@@ -5,10 +5,9 @@
 #include <ranges>
 
 #include "../Application/Window.hpp"
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 #include "../Rendering/Buffers.hpp"
-#include "../AssetManager/TextureAtlas.hpp"
 #include "../Core/Context.hpp"
 
 World::World(Context& context, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed)
@@ -18,12 +17,12 @@ World::World(Context& context, const Ref<Persistence> &persistence, std::vector<
 	  generator(seed)
 {
 	TRACE_FUNCTION();
-	opaqueShader = context.getAssetManager().loadShaderProgram("assets/shaders/world_opaque");
-	transparentShader = context.getAssetManager().loadShaderProgram("assets/shaders/world_transparent");
-	blendShader = context.getAssetManager().loadShaderProgram("assets/shaders/world_blend");
+	opaqueShader = context.getAssets().loadShaderProgram("assets/shaders/world_opaque");
+	transparentShader = context.getAssets().loadShaderProgram("assets/shaders/world_transparent");
+	blendShader = context.getAssets().loadShaderProgram("assets/shaders/world_blend");
 
 	// On charge la texture atlas (unique) générée par TextureAtlas
-	setTextureAtlas(context.getTextureAtlas().getAtlasTexture());
+	setTextureAtlas(context.getAssets().getAtlasTexture());
 }
 
 Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)
@@ -371,8 +370,10 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 void World::setTextureAtlas(const Ref<const Texture> &texture)
 {
 	textureAtlas = texture;
-	opaqueShader->setTexture("atlas", textureAtlas, 0);
-	transparentShader->setTexture("atlas", textureAtlas, 0);
+	if (textureAtlas && opaqueShader && transparentShader) {
+		opaqueShader->setTexture("atlas", textureAtlas, 0);
+		transparentShader->setTexture("atlas", textureAtlas, 0);
+	}
 }
 
 const BlockData *World::getBlockAtIfLoaded(glm::ivec3 position) const

@@ -5,8 +5,7 @@
 #include "../../Application/Window.hpp"			// Ajouté pour CrosshairEffect
 #include "../../Rendering/ProceduralShader.hpp" // Ajouté pour GaussianBlurEffect
 #include "../../Core/Context.hpp"
-
-class AssetManager;
+#include "../../Core/Assets.hpp"
 
 // ChromaticAberrationEffect
 class ChromaticAberrationEffect : public PostProcessEffect
@@ -18,7 +17,7 @@ class ChromaticAberrationEffect : public PostProcessEffect
 
 public:
 	ChromaticAberrationEffect(Context& context, bool enabled)
-		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
+		: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
 
 	void renderGui() override
 	{
@@ -50,7 +49,7 @@ class CrosshairEffect : public PostProcessEffect
 
 public:
 	CrosshairEffect(Context& context, bool enabled)
-		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/crosshair"), enabled) {}
+		: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/crosshair"), enabled) {}
 
 	void renderGui() override
 	{
@@ -84,7 +83,7 @@ class GammaCorrectionEffect : public PostProcessEffect
 
 public:
 	GammaCorrectionEffect(Context& context, bool enabled)
-		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/gamma_correction"), enabled) {};
+		: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/gamma_correction"), enabled) {};
 
 	void update() override { shader->setFloat("power", power); }
 
@@ -200,7 +199,7 @@ class InvertEffect : public PostProcessEffect
 {
 public:
 	InvertEffect(Context& context, bool enabled)
-		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
+		: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
 
 	void update() override {}
 
@@ -218,7 +217,7 @@ class VignetteEffect : public PostProcessEffect
 
 public:
 	VignetteEffect(Context& context, bool enabled)
-		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
+		: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
 
 	void update() override
 	{

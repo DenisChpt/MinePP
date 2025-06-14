@@ -3,7 +3,7 @@
 #include "../Rendering/ShaderProgram.hpp"
 #include "CubeMesh.hpp"
 
-class AssetManager;
+class Assets;
 
 class BlockOutline
 {
@@ -11,7 +11,7 @@ class BlockOutline
 	Ref<const CubeMesh> blockMesh;
 
 public:
-	BlockOutline(Ref<const CubeMesh> blockMesh, AssetManager& assetManager);
+	BlockOutline(Ref<const CubeMesh> blockMesh, Assets& assets);
 
 	void render(const glm::mat4 &transform) const;
 };

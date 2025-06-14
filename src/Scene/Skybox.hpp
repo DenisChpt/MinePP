@@ -4,7 +4,7 @@
 #include "../Rendering/Buffers.hpp"
 #include "../Common.hpp"
 
-class AssetManager;
+class Assets;
 
 class Skybox
 {
@@ -31,7 +31,7 @@ class Skybox
 	float rotationSpeed = 0.01;
 
 public:
-	Skybox(AssetManager& assetManager);
+	Skybox(Assets& assets);
 
 	[[nodiscard]] float getRotationSpeed() const { return rotationSpeed; };
 	void setRotationSpeed(float speed) { rotationSpeed = speed; };

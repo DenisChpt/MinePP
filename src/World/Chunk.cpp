@@ -1,6 +1,6 @@
 #include "Chunk.hpp"
 
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "../Core/Context.hpp"
 #include "World.hpp"
 
@@ -152,7 +152,7 @@ void Chunk::rebuildMesh(const World &world)
 						{
 							BlockVertex vert = vertex;
 							vert.offset(x, y, z);
-							vert.setType(offset, type, world.getContext().getTextureAtlas());
+							vert.setType(offset, type, world.getContext().getAssets());
 
 							uint8_t occlusionLevel = 3;
 							if (useAmbientOcclusion)

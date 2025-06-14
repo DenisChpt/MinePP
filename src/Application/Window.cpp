@@ -2,7 +2,7 @@
 
 #include "../Utils/Utils.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 #include "Application.hpp"
 
 Window::Window()
@@ -184,8 +184,8 @@ void Window::finalizeFrame()
 	TRACE_FUNCTION();
 	assert(framebufferStack->size() == 1);
 	
-	if (assetManagerPtr) {
-		ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0), *assetManagerPtr);
+	if (assetsPtr) {
+		ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0), *assetsPtr);
 	} else {
 		// Fallback: just pop the framebuffer without rendering
 		framebufferStack->pop();

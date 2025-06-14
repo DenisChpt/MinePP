@@ -1,17 +1,17 @@
 #include "Skybox.hpp"
 
-#include "../AssetManager/AssetManager.hpp"
+#include "../Core/Assets.hpp"
 
-Skybox::Skybox(AssetManager& assetManager)
+Skybox::Skybox(Assets& assets)
 {
-	cubeMap = assetManager.loadCubeMap(
+	cubeMap = assets.loadCubeMap(
 		"assets/textures/skybox/empty.png;"
 		"assets/textures/skybox/empty.png;"
 		"assets/textures/skybox/sun.png;"
 		"assets/textures/skybox/moon.png;"
 		"assets/textures/skybox/empty.png;"
 		"assets/textures/skybox/empty.png");
-	shader = assetManager.loadShaderProgram("assets/shaders/skybox");
+	shader = assets.loadShaderProgram("assets/shaders/skybox");
 }
 
 void Skybox::update(const glm::mat4 &projection, const glm::mat4 &cameraView, float deltaTime)

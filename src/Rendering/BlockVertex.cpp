@@ -1,5 +1,5 @@
 #include "BlockVertex.hpp"
-#include "../AssetManager/TextureAtlas.hpp"
+#include "../Core/Assets.hpp"
 
 BlockVertex::BlockVertex(const glm::ivec3 &position, const glm::bvec2 &uv)
 {
@@ -49,7 +49,7 @@ void BlockVertex::setOcclusionLevel(uint8_t occlusionLevel)
 	data |= occlusionLevel << 29;
 }
 
-void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type, const TextureAtlas& textureAtlas)
+void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type, const Assets& assets)
 {
 	// Détermine l'index de face en fonction de l'offset
 	// Convention : 0 = top, 1 = east, 2 = west, 3 = north, 4 = south, 5 = bottom
@@ -78,8 +78,8 @@ void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type, c
 	{
 		faceIndex = 3; // north
 	}
-	// Récupère la configuration de texture pour ce type de bloc via TextureAtlas
-	BlockTextureData btd = textureAtlas.getBlockTextureData(type);
+	// Récupère la configuration de texture pour ce type de bloc via Assets
+	BlockTextureData btd = assets.getBlockTextureData(type);
 	// Stocke l'index correspondant à la face dans le vertex
 	setTextureIndex(btd.faceIndices[faceIndex]);
 }

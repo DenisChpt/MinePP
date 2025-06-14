@@ -2,24 +2,24 @@
 #include "../Common.hpp"
 
 class Window;
-class AssetManager;
-class TextureAtlas;
+class Assets;
 
 class Context {
 private:
     Scoped<Window> window;
-    Scoped<AssetManager> assetManager;
-    Scoped<TextureAtlas> textureAtlas;
+    Scoped<Assets> assets;
     
 public:
     Context();
     ~Context();
     
     Window& getWindow() { return *window; }
-    AssetManager& getAssetManager() { return *assetManager; }
-    TextureAtlas& getTextureAtlas() { return *textureAtlas; }
+    Assets& getAssets() { return *assets; }
     
     const Window& getWindow() const { return *window; }
-    const AssetManager& getAssetManager() const { return *assetManager; }
-    const TextureAtlas& getTextureAtlas() const { return *textureAtlas; }
+    const Assets& getAssets() const { return *assets; }
+    
+    // Compatibility methods during transition
+    Assets& getAssetManager() { return *assets; }
+    const Assets& getAssetManager() const { return *assets; }
 };

@@ -13,7 +13,7 @@
 
 #include "../Common.hpp"
 
-class AssetManager;
+class Assets;
 
 class Shader
 {
@@ -21,7 +21,7 @@ class Shader
 
 public:
 	Shader(const std::string &source, uint32_t type);
-	Shader(const std::string &name, AssetManager& assetManager);
+	Shader(const std::string &name, Assets& assets);
 	~Shader();
 
 	[[nodiscard]] bool isValid() const { return id != 0; };

@@ -12,7 +12,7 @@
 #include "Shader.hpp"
 #include "Textures.hpp"
 
-class AssetManager;
+class Assets;
 
 class ShaderProgram
 {
@@ -22,7 +22,7 @@ class ShaderProgram
 
 public:
 	ShaderProgram(const Ref<const Shader> &vertexShader, const Ref<const Shader> &fragmentShader);
-	ShaderProgram(const std::string &name, AssetManager& assetManager);
+	ShaderProgram(const std::string &name, Assets& assets);
 	~ShaderProgram();
 
 	[[nodiscard]] bool isValid() const { return shaderProgram; };

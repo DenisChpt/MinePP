@@ -13,7 +13,7 @@
 #include "../Common.hpp"
 #include "Buffers.hpp"
 
-class TextureAtlas;
+class Assets;
 
 /**
  * Data layout:
@@ -43,7 +43,7 @@ public:
 	void offset(uint32_t x, uint32_t y, uint32_t z);
 	void setAnimated();
 	// Mise à jour de setType pour utiliser le système dynamique
-	void setType(const glm::ivec3 &offset, BlockData::BlockType type, const TextureAtlas& textureAtlas);
+	void setType(const glm::ivec3 &offset, BlockData::BlockType type, const Assets& assets);
 	[[nodiscard]] glm::ivec3 getPosition() const;
 	void setOcclusionLevel(uint8_t occlusionLevel);
 

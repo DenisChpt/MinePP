@@ -1,10 +1,10 @@
 // Nouveau fichier : consolidation des comportements de particules
 #include "ParticleBehaviors.hpp"
-#include "../../AssetManager/AssetManager.hpp"
+#include "../../Core/Assets.hpp"
 
 // BlockBreakParticleSystem
-BlockBreakParticleSystem::BlockBreakParticleSystem(AssetManager& assetManager)
-	: cubeShader(assetManager.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
+BlockBreakParticleSystem::BlockBreakParticleSystem(Assets& assets)
+	: cubeShader(assets.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
 
 void BlockBreakParticleSystem::render(glm::mat4 MVP)
 {
@@ -19,8 +19,8 @@ void BlockBreakParticleSystem::render(glm::mat4 MVP)
 }
 
 // LavaParticleSystem
-LavaParticleSystem::LavaParticleSystem(AssetManager& assetManager)
-	: cubeShader(assetManager.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
+LavaParticleSystem::LavaParticleSystem(Assets& assets)
+	: cubeShader(assets.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
 
 void LavaParticleSystem::render(glm::mat4 MVP)
 {

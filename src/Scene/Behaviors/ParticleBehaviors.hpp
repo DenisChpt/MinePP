@@ -5,7 +5,7 @@
 #include "../CubeMesh.hpp"
 #include "../../Utils/Utils.hpp"
 
-class AssetManager;
+class Assets;
 
 // BlockBreakParticleSystem
 class BlockBreakParticleSystem : public ParticleSystem
@@ -14,7 +14,7 @@ class BlockBreakParticleSystem : public ParticleSystem
 	Ref<const ShaderProgram> cubeShader;
 
 public:
-	BlockBreakParticleSystem(AssetManager& assetManager);
+	BlockBreakParticleSystem(Assets& assets);
 	void render(glm::mat4 MVP) override;
 };
 
@@ -25,7 +25,7 @@ class LavaParticleSystem : public ParticleSystem
 	Ref<const ShaderProgram> cubeShader;
 
 public:
-	LavaParticleSystem(AssetManager& assetManager);
+	LavaParticleSystem(Assets& assets);
 	void render(glm::mat4 MVP) override;
 };
 
@@ -38,7 +38,7 @@ class BlockBreakParticleBehavior : public WorldBehavior
 	void emitBlockParticle(glm::vec3 pos, glm::vec4 color);
 
 public:
-	BlockBreakParticleBehavior(AssetManager& assetManager) : particleSystem(assetManager) {}
+	BlockBreakParticleBehavior(Assets& assets) : particleSystem(assets) {}
 	void onBlockRemoved(glm::ivec3 blockPos, const BlockData *block, World &world, bool removedByPlayer) override;
 	void update(float dt) override;
 	void renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum) override;
@@ -57,7 +57,7 @@ class LavaParticleBehavior : public WorldBehavior
 	void emitLavaParticle(glm::vec3 pos);
 
 public:
-	LavaParticleBehavior(AssetManager& assetManager) : particleSystem(assetManager) {}
+	LavaParticleBehavior(Assets& assets) : particleSystem(assets) {}
 	void onNewBlock(glm::ivec3 blockPos, const BlockData *block, World &world) override;
 	void onBlockUpdate(glm::ivec3 blockPos, const BlockData *block, World &world) override;
 	void onBlockRemoved(glm::ivec3 blockPos, const BlockData *block, World &world, bool removedByPlayer) override;
