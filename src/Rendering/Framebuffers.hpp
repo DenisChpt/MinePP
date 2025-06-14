@@ -1,8 +1,9 @@
 /**
- * @class Framebuffer
- * @brief Encapsule la création et la gestion d'un framebuffer OpenGL, avec attachements de couleur et optionnellement de profondeur.
- *
- * @details La classe permet de créer un framebuffer, de lier ses attachements et de le détruire proprement.
+ * @file Framebuffers.hpp
+ * @brief Gestion unifiée des framebuffers et de leur pile pour le rendu multi-passes
+ * 
+ * @details Fusionne les classes Framebuffer et FramebufferStack en un seul fichier
+ *          pour simplifier la gestion des framebuffers OpenGL
  */
 
 #pragma once
@@ -10,6 +11,10 @@
 #include "../Common.hpp"
 #include "Textures.hpp"
 
+/**
+ * @class Framebuffer
+ * @brief Encapsule la création et la gestion d'un framebuffer OpenGL
+ */
 class Framebuffer
 {
 	uint32_t id = 0;
@@ -43,4 +48,27 @@ public:
 	Framebuffer(Framebuffer &&) noexcept = delete;
 	Framebuffer &operator=(Framebuffer &) = delete;
 	Framebuffer &operator=(Framebuffer &&) noexcept = delete;
+};
+
+/**
+ * @class FramebufferStack
+ * @brief Gère une pile de framebuffers pour le rendu multi-passes
+ */
+class FramebufferStack
+{
+	std::vector<Ref<Framebuffer>> stack;
+	std::vector<Ref<Texture>> intermediateTextures;
+	bool keepIntermediateTextures = false;
+
+public:
+	void push(const Ref<Framebuffer> &framebuffer);
+	[[nodiscard]] Ref<Framebuffer> peek() const;
+	Ref<Framebuffer> pop();
+
+	void setKeepIntermediateTextures(bool keepBuffers);
+	void clearIntermediateTextureReferences();
+	std::vector<Ref<Texture>> getIntermediateTextures() const;
+
+	[[nodiscard]] bool empty() const;
+	[[nodiscard]] size_t size() const;
 };

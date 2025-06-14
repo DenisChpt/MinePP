@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Core/Assets.hpp"
-#include "../../Rendering/FrameBuffer.hpp"
+#include "../../Rendering/Framebuffers.hpp"
 #include "../../Rendering/Shaders.hpp"
 #include "../../Common.hpp"
 

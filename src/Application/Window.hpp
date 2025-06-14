@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "../Rendering/FramebufferStack.hpp"
+#include "../Rendering/Framebuffers.hpp"
 #include "../Common.hpp"
 
 class Application;

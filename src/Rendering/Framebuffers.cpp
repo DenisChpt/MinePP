@@ -1,5 +1,6 @@
-#include "FrameBuffer.hpp"
+#include "Framebuffers.hpp"
 
+// Framebuffer implementation
 Framebuffer::Framebuffer(int32_t width, int32_t height, bool createDepthAttachment, int32_t colorAttachmentCount)
 	: width(width),
 	  height(height)
@@ -66,4 +67,69 @@ void Framebuffer::bind(bool forDrawing)
 void Framebuffer::unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+// FramebufferStack implementation
+void FramebufferStack::push(const Ref<Framebuffer> &framebuffer)
+{
+	stack.push_back(framebuffer);
+	framebuffer->bind();
+
+	if (keepIntermediateTextures)
+	{
+		for (int i = 0; i < framebuffer->getAttachmentCount(); ++i)
+		{
+			intermediateTextures.push_back(framebuffer->getColorAttachment(i));
+		}
+	}
+}
+
+Ref<Framebuffer> FramebufferStack::peek() const
+{
+	return empty() ? nullptr : stack.back();
+}
+
+Ref<Framebuffer> FramebufferStack::pop()
+{
+	assert(!empty());
+
+	Ref<Framebuffer> framebuffer = peek();
+	stack.pop_back();
+
+	auto current = peek();
+	if (current != nullptr)
+	{
+		current->bind();
+	}
+	else
+	{
+		framebuffer->unbind(); // binds the default framebuffer
+	}
+
+	return framebuffer;
+}
+
+void FramebufferStack::clearIntermediateTextureReferences()
+{
+	intermediateTextures.clear();
+}
+
+void FramebufferStack::setKeepIntermediateTextures(bool keepBuffers)
+{
+	keepIntermediateTextures = keepBuffers;
+}
+
+std::vector<Ref<Texture>> FramebufferStack::getIntermediateTextures() const
+{
+	return intermediateTextures;
+}
+
+bool FramebufferStack::empty() const
+{
+	return stack.empty();
+}
+
+size_t FramebufferStack::size() const
+{
+	return stack.size();
 }
