@@ -26,14 +26,14 @@ Scene::Scene(Context& context, const std::string &savePath)
 {
 	TRACE_FUNCTION();
 	
-	// Initialize post-processing effects
+	// Initialize post-processing effects avec Context
 	postProcessingEffects = {
-		std::make_shared<CrosshairEffect>(context.getAssetManager(), true),
-		std::make_shared<ChromaticAberrationEffect>(context.getAssetManager(), false),
-		std::make_shared<InvertEffect>(context.getAssetManager(), false),
-		std::make_shared<VignetteEffect>(context.getAssetManager(), true),
-		std::make_shared<GammaCorrectionEffect>(context.getAssetManager(), true),
-		std::make_shared<GaussianBlurEffect>(false)
+		std::make_shared<CrosshairEffect>(context, true),
+		std::make_shared<ChromaticAberrationEffect>(context, false),
+		std::make_shared<InvertEffect>(context, false),
+		std::make_shared<VignetteEffect>(context, true),
+		std::make_shared<GammaCorrectionEffect>(context, true),
+		std::make_shared<GaussianBlurEffect>(context, false)
 	};
 	
 	onResized(context.getWindow().getWindowWidth(), context.getWindow().getWindowHeight());

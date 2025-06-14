@@ -4,9 +4,9 @@
 #include "PostProcessEffect.hpp"
 #include "../../Application/Window.hpp"			// Ajouté pour CrosshairEffect
 #include "../../Rendering/ProceduralShader.hpp" // Ajouté pour GaussianBlurEffect
+#include "../../Core/Context.hpp"
 
 class AssetManager;
-class Context;
 
 // ChromaticAberrationEffect
 class ChromaticAberrationEffect : public PostProcessEffect
@@ -17,8 +17,8 @@ class ChromaticAberrationEffect : public PostProcessEffect
 	float aberrationBOffset = -0.005;
 
 public:
-	ChromaticAberrationEffect(AssetManager& assetManager, bool enabled)
-		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
+	ChromaticAberrationEffect(Context& context, bool enabled)
+		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
 
 	void renderGui() override
 	{
@@ -49,8 +49,8 @@ class CrosshairEffect : public PostProcessEffect
 	float crosshairHorizontalWidth = 0.15f;
 
 public:
-	CrosshairEffect(AssetManager& assetManager, bool enabled)
-		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/crosshair"), enabled) {}
+	CrosshairEffect(Context& context, bool enabled)
+		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/crosshair"), enabled) {}
 
 	void renderGui() override
 	{
@@ -65,10 +65,9 @@ public:
 
 	void update() override
 	{
-		// TODO: Receive window reference via constructor or context
-		// auto &window = Window::instance();
-		auto width = 1200; // temporary hardcoded
-		auto height = 900; // temporary hardcoded
+		Window& window = context.getWindow();
+		auto width = window.getWindowWidth();
+		auto height = window.getWindowHeight();
 		float aspectRatio = width == 0 || height == 0 ? 0 : static_cast<float>(width) / static_cast<float>(height);
 
 		shader->setFloat("size", crosshairSize);
@@ -84,8 +83,8 @@ class GammaCorrectionEffect : public PostProcessEffect
 	float power = 0.85;
 
 public:
-	GammaCorrectionEffect(AssetManager& assetManager, bool enabled)
-		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/gamma_correction"), enabled) {};
+	GammaCorrectionEffect(Context& context, bool enabled)
+		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/gamma_correction"), enabled) {};
 
 	void update() override { shader->setFloat("power", power); }
 
@@ -183,7 +182,7 @@ private:
 	}
 
 public:
-	GaussianBlurEffect(bool enabled) : PostProcessEffect(nullptr, enabled) {};
+	GaussianBlurEffect(Context& context, bool enabled) : PostProcessEffect(context, nullptr, enabled) {};
 
 	void update() override { shader = getBlurShader(stDev); };
 	void renderGui() override
@@ -200,8 +199,8 @@ public:
 class InvertEffect : public PostProcessEffect
 {
 public:
-	InvertEffect(AssetManager& assetManager, bool enabled)
-		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
+	InvertEffect(Context& context, bool enabled)
+		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
 
 	void update() override {}
 
@@ -218,8 +217,8 @@ class VignetteEffect : public PostProcessEffect
 	float vignetteStart = 2;
 
 public:
-	VignetteEffect(AssetManager& assetManager, bool enabled)
-		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
+	VignetteEffect(Context& context, bool enabled)
+		: PostProcessEffect(context, context.getAssetManager().loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
 
 	void update() override
 	{

@@ -2,6 +2,7 @@
 
 #include "../Performance/Trace.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
+#include "../AssetManager/AssetManager.hpp"
 #include "Application.hpp"
 
 Window::Window()
@@ -180,11 +181,13 @@ void Window::finalizeFrame()
 {
 	TRACE_FUNCTION();
 	assert(framebufferStack->size() == 1);
-
-	// TODO: Window needs access to AssetManager for this call
-	// ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0), assetManager);
-	// For now, just pop the framebuffer without rendering
-	framebufferStack->pop();
+	
+	if (assetManagerPtr) {
+		ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0), *assetManagerPtr);
+	} else {
+		// Fallback: just pop the framebuffer without rendering
+		framebufferStack->pop();
+	}
 }
 
 void Window::swapBuffers()
