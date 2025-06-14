@@ -32,6 +32,7 @@ set(MinePPSources
     src/Scene/Player.cpp
     src/Scene/Scene.cpp
     src/World/Chunk.cpp
+    src/World/ChunkMeshBuilder.cpp
     src/World/ChunkRegion.cpp
     src/World/World.cpp
     src/World/WorldGenerator.cpp
@@ -63,6 +64,8 @@ set(MinePPHeaders
     src/Utils/Utils.hpp
     src/World/BlockTypes.hpp
     src/World/Chunk.hpp
+    src/World/ChunkMeshBuilder.hpp
+    src/World/ChunkMeshTask.hpp
     src/World/ChunkRegion.hpp
     src/World/World.hpp
     src/World/WorldConstants.hpp

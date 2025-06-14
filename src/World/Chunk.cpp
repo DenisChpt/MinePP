@@ -174,93 +174,49 @@ uint8_t calculateOcclusionLevel(const glm::ivec3& blockPos,
 /**
  * @brief Rebuilds the mesh for this chunk based on visible block faces
  * 
- * @details This method iterates through all blocks in the chunk and generates
- *          vertices for faces that are exposed (not occluded by neighboring blocks).
- *          It separates solid and semi-transparent geometry for proper rendering order.
- *          The method also applies ambient occlusion if enabled.
+ * @details This method uses ChunkMeshBuilder to generate vertices in a thread-safe manner.
+ *          The generated mesh data is then uploaded to the GPU.
  * 
  * @param world Reference to the world to access neighboring chunks
  * 
  * @note This method should be called when the chunk is marked as dirty
- * @warning This is a performance-critical method that should be optimized
+ * @warning This method must be called from the main thread as it uploads to GPU
  */
 void Chunk::rebuildMesh(const World& world) {
 	TRACE_FUNCTION();
 
-	solidVertexCount = 0;
-	semiTransparentVertexCount = 0;
-
-	const std::array<glm::ivec3, 6> offsetsToCheck = {{
-		{1, 0, 0},
-		{-1, 0, 0},
-		{0, 1, 0},
-		{0, -1, 0},
-		{0, 0, 1},
-		{0, 0, -1},
-	}};
+	// Use ChunkMeshBuilder to generate mesh data
+	ChunkMeshData meshData;
 	{
-		TRACE_SCOPE("Chunk::rebuildMesh::WalkBlocks");
-		for (int32_t x = HorizontalSize - 1; x >= 0; --x) {
-			for (int32_t y = VerticalSize - 1; y >= 0; --y) {
-				for (int32_t z = HorizontalSize - 1; z >= 0; --z) {
-					glm::ivec3 blockPos = {x, y, z};
-					const auto& [type, blockClass] = data[x][y][z];
-					if (blockClass == BlockData::BlockClass::air) {
-						continue;
-					}
-
-					for (const glm::ivec3& offset : offsetsToCheck) {
-						const BlockData* block = getBlockAtOptimized(blockPos + offset, world);
-						if (block == nullptr) {
-							continue;
-						}
-
-						bool isSameClass = block->blockClass == blockClass;
-						bool isTransparentNextToOpaque =
-							block->blockClass == BlockData::BlockClass::solid &&
-							blockClass == BlockData::BlockClass::transparent;
-						if (isSameClass || isTransparentNextToOpaque) {
-							continue;
-						}
-
-						for (const auto& vertex : BlockMesh::getVerticesFromDirection(offset)) {
-							BlockVertex vert = vertex;
-							vert.offset(x, y, z);
-							vert.setType(offset, type, world.getAssets());
-
-							uint8_t occlusionLevel = 3;
-							if (useAmbientOcclusion) {
-								if (offset.y == -1) {
-									occlusionLevel = 0;
-								} else {
-									occlusionLevel = calculateOcclusionLevel(
-										blockPos, vert.getPosition() - blockPos, *this, world);
-								}
-							}
-							vert.setOcclusionLevel(occlusionLevel);
-
-							if (blockClass == BlockData::BlockClass::semiTransparent ||
-								blockClass == BlockData::BlockClass::transparent) {
-								// Ensure capacity before adding
-								if (semiTransparentVertexCount >= semiTransparentVertices->size()) {
-									ensureVertexCapacity(solidVertexCount, semiTransparentVertexCount + 1000);
-									semiTransparentVertices->resize(semiTransparentVertices->capacity());
-								}
-								(*semiTransparentVertices)[semiTransparentVertexCount] = vert;
-								semiTransparentVertexCount++;
-							} else {
-								// Ensure capacity before adding
-								if (solidVertexCount >= solidVertices->size()) {
-									ensureVertexCapacity(solidVertexCount + 1000, semiTransparentVertexCount);
-									solidVertices->resize(solidVertices->capacity());
-								}
-								(*solidVertices)[solidVertexCount] = vert;
-								solidVertexCount++;
-							}
-						}
-					}
-				}
-			}
+		TRACE_SCOPE("Chunk::rebuildMesh::BuildMesh");
+		ChunkMeshBuilder::buildMesh(*this, world, world.getAssets(), useAmbientOcclusion, meshData);
+	}
+	
+	// Update counts
+	solidVertexCount = meshData.solidVertexCount;
+	semiTransparentVertexCount = meshData.semiTransparentVertexCount;
+	
+	// Copy mesh data to internal buffers
+	{
+		TRACE_SCOPE("Chunk::rebuildMesh::CopyData");
+		ensureVertexCapacity(solidVertexCount, semiTransparentVertexCount);
+		
+		if (solidVertexCount > 0) {
+			solidVertices->resize(solidVertexCount);
+			std::copy(meshData.solidVertices.begin(), 
+			         meshData.solidVertices.begin() + solidVertexCount,
+			         solidVertices->begin());
+		} else {
+			solidVertices->clear();
+		}
+		
+		if (semiTransparentVertexCount > 0) {
+			semiTransparentVertices->resize(semiTransparentVertexCount);
+			std::copy(meshData.semiTransparentVertices.begin(),
+			         meshData.semiTransparentVertices.begin() + semiTransparentVertexCount,
+			         semiTransparentVertices->begin());
+		} else {
+			semiTransparentVertices->clear();
 		}
 	}
 	
@@ -296,6 +252,84 @@ void Chunk::rebuildMesh(const World& world) {
 		if (semiTransparentVertexCount > 0) {
 			combinedBuffer.insert(combinedBuffer.end(), 
 				semiTransparentVertices->begin(), semiTransparentVertices->begin() + semiTransparentVertexCount);
+		}
+		
+		// Pad to buffer size
+		combinedBuffer.resize(bufferSize);
+		
+		// Upload to GPU
+		buffer->bufferDynamicData(combinedBuffer, bufferSize, 0);
+		renderState = RenderState::ready;
+	}
+}
+
+/**
+ * @brief Apply pre-built mesh data to this chunk
+ * 
+ * @details Copies the mesh data and uploads it to GPU
+ */
+void Chunk::applyMeshData(const ChunkMeshData& meshData) {
+	TRACE_FUNCTION();
+	
+	// Update counts
+	solidVertexCount = meshData.solidVertexCount;
+	semiTransparentVertexCount = meshData.semiTransparentVertexCount;
+	
+	// Copy mesh data to internal buffers
+	{
+		TRACE_SCOPE("Chunk::applyMeshData::CopyData");
+		ensureVertexCapacity(solidVertexCount, semiTransparentVertexCount);
+		
+		if (solidVertexCount > 0) {
+			solidVertices->resize(solidVertexCount);
+			std::copy(meshData.solidVertices.begin(), 
+			         meshData.solidVertices.begin() + solidVertexCount,
+			         solidVertices->begin());
+		} else {
+			solidVertices->clear();
+		}
+		
+		if (semiTransparentVertexCount > 0) {
+			semiTransparentVertices->resize(semiTransparentVertexCount);
+			std::copy(meshData.semiTransparentVertices.begin(),
+			         meshData.semiTransparentVertices.begin() + semiTransparentVertexCount,
+			         semiTransparentVertices->begin());
+		} else {
+			semiTransparentVertices->clear();
+		}
+	}
+	
+	// Update statistics
+	updatePeakUsage();
+	
+	// Upload to GPU
+	{
+		TRACE_SCOPE("Chunk::applyMeshData::UploadToGPU");
+		int32_t vertexCount = solidVertexCount + semiTransparentVertexCount;
+
+		if (!mesh) {
+			mesh = std::make_shared<VertexArray>();
+			mesh->addVertexAttributes(BlockVertex::vertexAttributes(), sizeof(BlockVertex));
+		}
+
+		Ref<VertexBuffer> buffer = mesh->getVertexBuffer();
+		
+		// Always use bufferDynamicData to avoid issues with bufferDynamicSubData
+		int32_t bufferSize = glm::max(vertexCount, glm::min(vertexCount + 1000, MaxVertexCount));
+		
+		// Create combined buffer
+		std::vector<BlockVertex> combinedBuffer;
+		combinedBuffer.reserve(bufferSize);
+		
+		// Add vertices
+		if (solidVertexCount > 0) {
+			combinedBuffer.insert(combinedBuffer.end(), 
+				solidVertices->begin(), solidVertices->end());
+		}
+		
+		if (semiTransparentVertexCount > 0) {
+			combinedBuffer.insert(combinedBuffer.end(), 
+				semiTransparentVertices->begin(), semiTransparentVertices->end());
 		}
 		
 		// Pad to buffer size

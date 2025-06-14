@@ -20,6 +20,7 @@
 #include "../Rendering/Mesh.hpp"
 #include "../Rendering/Shaders.hpp"
 #include "BlockTypes.hpp"
+#include "ChunkMeshBuilder.hpp"
 
 #include <Frustum.h>
 
@@ -88,6 +89,17 @@ class Chunk {
 	void renderOpaque(const glm::mat4& transform, const Frustum& frustum);
 	void renderSemiTransparent(const glm::mat4& transform, const Frustum& frustum);
 	void rebuildMesh(const World& world);
+	
+	/**
+	 * @brief Apply pre-built mesh data to this chunk
+	 * 
+	 * @details This method is used to apply mesh data that was built
+	 *          asynchronously by ChunkMeshBuilder. Must be called from
+	 *          the main thread as it uploads data to GPU.
+	 * 
+	 * @param meshData The mesh data to apply
+	 */
+	void applyMeshData(const ChunkMeshData& meshData);
 
 	[[nodiscard]] bool needsMeshRebuild() const {
 		return !mesh || renderState != RenderState::ready;
@@ -160,4 +172,5 @@ class Chunk {
 	}
 
 	friend Persistence;
+	friend class ChunkMeshBuilder;
 };
