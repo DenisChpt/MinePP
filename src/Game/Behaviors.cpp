@@ -1,6 +1,7 @@
-// Nouveau fichier : consolidation des comportements de particules
-#include "ParticleBehaviors.hpp"
-#include "../../Core/Assets.hpp"
+// Behaviors.cpp - Implémentation de tous les comportements du monde
+#include "Behaviors.hpp"
+#include "../Core/Assets.hpp"
+#include "../World/World.hpp"
 
 // BlockBreakParticleSystem
 BlockBreakParticleSystem::BlockBreakParticleSystem(Assets& assets)

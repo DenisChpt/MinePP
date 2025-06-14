@@ -8,7 +8,7 @@
 #include "../Math/Math.inl"
 #include "../Utils/Utils.hpp"
 #include "../World/BlockTypes.hpp"
-#include "Behaviors/ParticleBehaviors.hpp"
+#include "../Game/Behaviors.hpp"
 #include "../Core/Context.hpp"
 #include "../Application/Window.hpp"
 #include "../Core/Assets.hpp"

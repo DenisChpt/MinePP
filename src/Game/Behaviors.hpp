@@ -1,11 +1,31 @@
-// Nouveau fichier : headers consolidés pour les behaviors de particules
+// Behaviors.hpp - Consolidation de tous les comportements du monde
 #pragma once
-#include "../../Rendering/ParticleSystem.hpp"
-#include "../../World/World.hpp"
-#include "../../Rendering/Mesh.hpp"
-#include "../../Utils/Utils.hpp"
+
+#include <Frustum.h>
+
+#include "../World/BlockTypes.hpp"
+#include "../Rendering/ParticleSystem.hpp"
+#include "../Rendering/Mesh.hpp"
+#include "../Rendering/Shaders.hpp"
+#include "../Utils/Utils.hpp"
 
 class Assets;
+class World;
+struct BlockData;
+
+// Interface abstraite WorldBehavior
+class WorldBehavior
+{
+public:
+	virtual void onNewBlock(glm::ivec3 blockPos, const BlockData *block, World &world) {}
+	virtual void onBlockUpdate(glm::ivec3 blockPos, const BlockData *block, World &world) {}
+	virtual void onBlockRemoved(glm::ivec3 blockPos, const BlockData *block, World &world, bool removedByPlayer) {}
+
+	virtual void update(float dt) {}
+	virtual void renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum) {}
+
+	virtual ~WorldBehavior() = default;
+};
 
 // BlockBreakParticleSystem
 class BlockBreakParticleSystem : public ParticleSystem

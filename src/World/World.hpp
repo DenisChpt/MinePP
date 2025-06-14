@@ -16,7 +16,7 @@
 #include "../Persistence/Persistence.hpp"
 #include "../Rendering/Shaders.hpp"
 #include "../Rendering/Textures.hpp"
-#include "../Scene/Behaviors/WorldBehavior.hpp"
+#include "../Game/Behaviors.hpp"
 #include "../Common.hpp"
 #include "../Utils/Utils.hpp"
 #include "Chunk.hpp"
