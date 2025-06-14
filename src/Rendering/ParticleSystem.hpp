@@ -3,19 +3,18 @@
  * @brief Système abstrait de particules pour gérer les effets visuels dynamiques.
  *
  * @details La classe ParticleSystem gère l'émission, la mise à jour et le rendu des particules.
- *          Elle sert de base pour les systèmes spécifiques comme BlockBreakParticleSystem et LavaParticleSystem.
+ *          Elle sert de base pour les systèmes spécifiques comme BlockBreakParticleSystem et
+ * LavaParticleSystem.
  *
  * @note La méthode render() est pure virtuelle et doit être implémentée dans les classes dérivées.
  */
 
-
 #pragma once
 
-#include "../Utils/Utils.hpp"
 #include "../Common.hpp"
+#include "../Utils/Utils.hpp"
 
-struct ParticleDescription
-{
+struct ParticleDescription {
 	glm::vec3 position{0, 0, 0};
 
 	glm::vec3 scale{1, 1, 1};
@@ -39,18 +38,17 @@ struct ParticleDescription
 	float lifetime{1};
 };
 
-class ParticleSystem
-{
-protected:
+class ParticleSystem {
+   protected:
 	Random random;
 	std::vector<ParticleDescription> particles;
 
-public:
+   public:
 	ParticleSystem() = default;
 
 	void update(float deltaTime);
 	virtual void render(glm::mat4 MVP) = 0;
-	void emit(const ParticleDescription &particle);
+	void emit(const ParticleDescription& particle);
 
 	virtual ~ParticleSystem() = default;
 };

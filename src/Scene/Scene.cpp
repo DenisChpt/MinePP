@@ -1,38 +1,37 @@
 // Scene.cpp refactorisé - mise à jour des includes
 #include "Scene.hpp"
 
-#include <Frustum.h>
-
 #include "../Application/Application.hpp"
-#include "../Math/Math.hpp"
-#include "../Math/Math.inl"
-#include "../Utils/Utils.hpp"
-#include "../World/BlockTypes.hpp"
-#include "../Game/Behaviors.hpp"
 #include "../Application/Window.hpp"
 #include "../Core/Assets.hpp"
+#include "../Game/Behaviors.hpp"
+#include "../Math/Math.hpp"
+#include "../Utils/Utils.hpp"
+#include "../World/BlockTypes.hpp"
+
+#include <Frustum.h>
+
+#include "../Math/Math.inl"
 
 // Implémentation de Skybox
-Scene::Skybox::Skybox(Assets& assets)
-{
-	cubeMap = assets.loadCubeMap(
-		"assets/textures/skybox/empty.png;"
-		"assets/textures/skybox/empty.png;"
-		"assets/textures/skybox/sun.png;"
-		"assets/textures/skybox/moon.png;"
-		"assets/textures/skybox/empty.png;"
-		"assets/textures/skybox/empty.png");
+Scene::Skybox::Skybox(Assets& assets) {
+	cubeMap = assets.loadCubeMap("assets/textures/skybox/empty.png;"
+								 "assets/textures/skybox/empty.png;"
+								 "assets/textures/skybox/sun.png;"
+								 "assets/textures/skybox/moon.png;"
+								 "assets/textures/skybox/empty.png;"
+								 "assets/textures/skybox/empty.png");
 	shader = assets.loadShaderProgram("assets/shaders/skybox");
 }
 
-void Scene::Skybox::update(const glm::mat4 &projection, const glm::mat4 &cameraView, float deltaTime)
-{
+void Scene::Skybox::update(const glm::mat4& projection,
+						   const glm::mat4& cameraView,
+						   float deltaTime) {
 	rotation += rotationSpeed * deltaTime;
 	transform = projection * glm::mat4(glm::mat3(cameraView));
 }
 
-void Scene::Skybox::render()
-{
+void Scene::Skybox::render() {
 	glDepthFunc(GL_LEQUAL);
 	glDisable(GL_CULL_FACE);
 
@@ -50,14 +49,13 @@ Scene::BlockOutline::BlockOutline(Ref<const CubeMesh> blockMesh, Assets& assets)
 	: outlinedBlockShader(assets.loadShaderProgram("assets/shaders/outline")),
 	  blockMesh(std::move(blockMesh)) {}
 
-void Scene::BlockOutline::render(const glm::mat4 &transform) const
-{
+void Scene::BlockOutline::render(const glm::mat4& transform) const {
 	outlinedBlockShader->bind();
 	outlinedBlockShader->setMat4("MVP", transform);
 	blockMesh->render();
 }
 
-Scene::Scene(Window& window, Assets& assets, const std::string &savePath)
+Scene::Scene(Window& window, Assets& assets, const std::string& savePath)
 	: window(window),
 	  assets(assets),
 	  persistence(std::make_shared<Persistence>(savePath)),
@@ -65,31 +63,29 @@ Scene::Scene(Window& window, Assets& assets, const std::string &savePath)
 		  window,
 		  assets,
 		  persistence,
-		  std::vector{std::static_pointer_cast<WorldBehavior>(std::make_shared<LavaParticleBehavior>(assets)),
-					  std::static_pointer_cast<WorldBehavior>(std::make_shared<BlockBreakParticleBehavior>(assets))},
+		  std::vector{std::static_pointer_cast<WorldBehavior>(
+						  std::make_shared<LavaParticleBehavior>(assets)),
+					  std::static_pointer_cast<WorldBehavior>(
+						  std::make_shared<BlockBreakParticleBehavior>(assets))},
 		  1337)),
 	  skybox(assets),
 	  player(world, persistence),
-	  outline(std::make_shared<CubeMesh>(), assets)
-{
+	  outline(std::make_shared<CubeMesh>(), assets) {
 	TRACE_FUNCTION();
-	
+
 	// Initialize post-processing effects
-	postProcessingEffects = {
-		std::make_shared<CrosshairEffect>(window, assets, true),
-		std::make_shared<ChromaticAberrationEffect>(window, assets, false),
-		std::make_shared<InvertEffect>(window, assets, false),
-		std::make_shared<VignetteEffect>(window, assets, true),
-		std::make_shared<GammaCorrectionEffect>(window, assets, true),
-		std::make_shared<GaussianBlurEffect>(window, assets, false)
-	};
-	
+	postProcessingEffects = {std::make_shared<CrosshairEffect>(window, assets, true),
+							 std::make_shared<ChromaticAberrationEffect>(window, assets, false),
+							 std::make_shared<InvertEffect>(window, assets, false),
+							 std::make_shared<VignetteEffect>(window, assets, true),
+							 std::make_shared<GammaCorrectionEffect>(window, assets, true),
+							 std::make_shared<GaussianBlurEffect>(window, assets, false)};
+
 	onResized(window.getWindowWidth(), window.getWindowHeight());
 	updateMouse();
 }
 
-void Scene::update(float dt)
-{
+void Scene::update(float dt) {
 	TRACE_FUNCTION();
 	deltaTime = dt;
 	player.update(deltaTime);
@@ -97,28 +93,22 @@ void Scene::update(float dt)
 	skybox.update(projectionMatrix, player.getViewMatrix(), deltaTime);
 }
 
-void Scene::toggleMenu()
-{
+void Scene::toggleMenu() {
 	isMenuOpen = !isMenuOpen;
 	updateMouse();
 }
 
-void Scene::updateMouse()
-{
+void Scene::updateMouse() {
 	TRACE_FUNCTION();
-	if (isMenuOpen)
-	{
+	if (isMenuOpen) {
 		player.resetMousePosition();
 		window.unlockMouse();
-	}
-	else
-	{
+	} else {
 		window.lockMouse();
 	}
 }
 
-void Scene::render()
-{
+void Scene::render() {
 	TRACE_FUNCTION();
 	skybox.render();
 
@@ -128,8 +118,8 @@ void Scene::render()
 	const int32_t height = window.getWindowHeight();
 
 	static Ref<Framebuffer> framebuffer = nullptr;
-	if (framebuffer == nullptr || framebuffer->getWidth() != width || framebuffer->getHeight() != height)
-	{
+	if (framebuffer == nullptr || framebuffer->getWidth() != width ||
+		framebuffer->getHeight() != height) {
 		framebuffer = std::make_shared<Framebuffer>(width, height, true, 1);
 	}
 
@@ -141,50 +131,46 @@ void Scene::render()
 
 	world->renderTransparent(mvp, player.getPosition(), frustum, zNear, zFar, opaqueRender);
 
-	if (WorldRayCast ray{player.getPosition(), player.getLookDirection(), *world, Player::Reach})
-	{
+	if (WorldRayCast ray{player.getPosition(), player.getLookDirection(), *world, Player::Reach}) {
 		outline.render(mvp * glm::translate(ray.getHitTarget().position));
 	}
 
-	for (auto &effect : postProcessingEffects)
-	{
+	for (auto& effect : postProcessingEffects) {
 		effect->render();
 	}
 }
 
-void Scene::renderMenu()
-{
+void Scene::renderMenu() {
 	TRACE_FUNCTION();
-	if (ImGui::Begin("Menu"))
-	{
+	if (ImGui::Begin("Menu")) {
 		ImGui::Text("Frame Time: %fms", deltaTime * 1000);
 		glm::vec3 position = player.getPosition();
 		ImGui::Text("Player position: x:%f, y:%f, z:%f", position.x, position.y, position.z);
 		glm::vec3 lookDirection = player.getLookDirection();
-		ImGui::Text("Player direction: x:%f, y:%f, z:%f", lookDirection.x, lookDirection.y, lookDirection.z);
+		ImGui::Text("Player direction: x:%f, y:%f, z:%f",
+					lookDirection.x,
+					lookDirection.y,
+					lookDirection.z);
 
 		ImGui::Spacing();
 		ImGui::Spacing();
 
 		bool isSurvival = player.getIsSurvivalMovement();
-		if (ImGui::Checkbox("Enable \"physics\"", &isSurvival))
-		{
+		if (ImGui::Checkbox("Enable \"physics\"", &isSurvival)) {
 			player.setSurvivalMovement(isSurvival);
 		}
 
 		ImGui::Spacing();
 		ImGui::Spacing();
 
-		if (ImGui::Checkbox("Show intermediate textures", &showIntermediateTextures))
-		{
+		if (ImGui::Checkbox("Show intermediate textures", &showIntermediateTextures)) {
 			window.getFramebufferStack()->setKeepIntermediateTextures(showIntermediateTextures);
 		}
 
 		ImGui::Spacing();
 		ImGui::Spacing();
 
-		for (auto &effect : postProcessingEffects)
-		{
+		for (auto& effect : postProcessingEffects) {
 			effect->renderGui();
 
 			ImGui::Spacing();
@@ -199,8 +185,7 @@ void Scene::renderMenu()
 
 		BlockName::NameArray names = BlockName::getBlockNames();
 		int32_t selected = BlockName::blockTypeToIndex(blockToPlace);
-		if (ImGui::ListBox("Select a block to place", &selected, &names[0], names.size()))
-		{
+		if (ImGui::ListBox("Select a block to place", &selected, &names[0], names.size())) {
 			player.setBlockToPlace(BlockName::BlockNames[selected].first);
 		}
 
@@ -208,55 +193,48 @@ void Scene::renderMenu()
 		ImGui::Spacing();
 
 		int32_t useOcclusion = world->getUseAmbientOcclusion() ? 1 : 0;
-		if (ImGui::SliderInt("Use ambient occlusion", &useOcclusion, 0, 1))
-		{
+		if (ImGui::SliderInt("Use ambient occlusion", &useOcclusion, 0, 1)) {
 			world->setUseAmbientOcclusion(useOcclusion == 1);
 		}
 
 		ImGui::Spacing();
 
 		int32_t distance = world->getViewDistance();
-		if (ImGui::SliderInt("Max render distance", &distance, 1, 64))
-		{
+		if (ImGui::SliderInt("Max render distance", &distance, 1, 64)) {
 			world->setViewDistance(distance);
 		}
 
 		ImGui::Spacing();
 
 		float speed = skybox.getRotationSpeed();
-		if (ImGui::SliderFloat("Night/Day cycle speed", &speed, 0, 10))
-		{
+		if (ImGui::SliderFloat("Night/Day cycle speed", &speed, 0, 10)) {
 			skybox.setRotationSpeed(speed);
 		}
 
 		ImGui::Spacing();
 
 		float movementSpeed = player.getMovementSpeedMultiplier();
-		if (ImGui::SliderFloat("Player movement speed multiplier", &movementSpeed, 1.0f, 10.0f))
-		{
+		if (ImGui::SliderFloat("Player movement speed multiplier", &movementSpeed, 1.0f, 10.0f)) {
 			player.setMovementSpeedMultiplier(movementSpeed);
 		}
 
 		ImGui::Spacing();
 
 		float jumpHeight = player.getJumpHeightMultiplier();
-		if (ImGui::SliderFloat("Player jump height multiplier", &jumpHeight, 1.0f, 10.0f))
-		{
+		if (ImGui::SliderFloat("Player jump height multiplier", &jumpHeight, 1.0f, 10.0f)) {
 			player.setJumpHeightMultiplier(jumpHeight);
 		}
 
 		ImGui::Spacing();
 
 		float gravity = player.getGravityConstant() / 10;
-		if (ImGui::SliderFloat("Gravity", &gravity, -5, 10.0f))
-		{
+		if (ImGui::SliderFloat("Gravity", &gravity, -5, 10.0f)) {
 			player.setGravityConstant(gravity * 10);
 		}
 
 		ImGui::Spacing();
 
-		if (ImGui::Button("Reset gravity"))
-		{
+		if (ImGui::Button("Reset gravity")) {
 			player.setGravityConstant(Player::DefaultGravity);
 		}
 
@@ -266,11 +244,9 @@ void Scene::renderMenu()
 			const uint32_t pathLength = 256;
 			static char textureAtlasPath[pathLength] = "";
 			ImGui::InputText("Custom texture atlas path", textureAtlasPath, pathLength);
-			if (ImGui::Button("Load texture atlas"))
-			{
+			if (ImGui::Button("Load texture atlas")) {
 				Ref<const Texture> atlas = assets.loadTexture(textureAtlasPath);
-				if (atlas != nullptr)
-				{
+				if (atlas != nullptr) {
 					world->setTextureAtlas(atlas);
 				}
 			}
@@ -282,10 +258,8 @@ void Scene::renderMenu()
 			const uint32_t pathLength = 256;
 			static char textureAtlasPath[pathLength] = "";
 			ImGui::InputText("Save file path", textureAtlasPath, pathLength);
-			if (ImGui::Button("Load World"))
-			{
-				if (std::filesystem::exists(textureAtlasPath))
-				{
+			if (ImGui::Button("Load World")) {
+				if (std::filesystem::exists(textureAtlasPath)) {
 					// TODO: Implement proper scene switching with context
 					// Application::instance().setScene(std::make_shared<Scene>(textureAtlasPath));
 				}
@@ -296,72 +270,61 @@ void Scene::renderMenu()
 	ImGui::End();
 }
 
-void Scene::renderIntermediateTextures()
-{
+void Scene::renderIntermediateTextures() {
 	TRACE_FUNCTION();
-	if (ImGui::Begin("Intermediate Textures"))
-	{
-		for (const auto &texture : window.getFramebufferStack()->getIntermediateTextures())
-		{
+	if (ImGui::Begin("Intermediate Textures")) {
+		for (const auto& texture : window.getFramebufferStack()->getIntermediateTextures()) {
 			ImGui::Text("%u", texture->getId());
-			ImGui::Image(reinterpret_cast<ImTextureID>(texture->getId()), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::Image(reinterpret_cast<ImTextureID>(texture->getId()),
+						 ImVec2(200, 200),
+						 ImVec2(0, 1),
+						 ImVec2(1, 0));
 		}
 	}
 	ImGui::End();
 }
 
-void Scene::renderGui()
-{
+void Scene::renderGui() {
 	TRACE_FUNCTION();
-	if (showIntermediateTextures)
-	{
+	if (showIntermediateTextures) {
 		renderIntermediateTextures();
 	}
 
-	if (isMenuOpen)
-	{
+	if (isMenuOpen) {
 		renderMenu();
 	}
 }
 
-void Scene::onResized(int32_t width, int32_t height)
-{
+void Scene::onResized(int32_t width, int32_t height) {
 	TRACE_FUNCTION();
-	float aspectRatio = width == 0 || height == 0 ? 0 : static_cast<float>(width) / static_cast<float>(height);
+	float aspectRatio =
+		width == 0 || height == 0 ? 0 : static_cast<float>(width) / static_cast<float>(height);
 	projectionMatrix = glm::perspective<float>(glm::radians(70.0f), aspectRatio, zNear, zFar);
 }
 
-void Scene::onKeyEvent(int32_t key, int32_t scancode, int32_t action, int32_t mode)
-{
+void Scene::onKeyEvent(int32_t key, int32_t scancode, int32_t action, int32_t mode) {
 	TRACE_FUNCTION();
-	if (key == GLFW_KEY_ESCAPE)
-	{
-		if (action == GLFW_PRESS)
-		{
+	if (key == GLFW_KEY_ESCAPE) {
+		if (action == GLFW_PRESS) {
 			toggleMenu();
 		}
 		return;
 	}
-	if (!isMenuOpen)
-	{
+	if (!isMenuOpen) {
 		player.onKeyEvent(key, scancode, action, mode);
 	}
 }
 
-void Scene::onMouseButtonEvent(int32_t button, int32_t action, int32_t mods)
-{
+void Scene::onMouseButtonEvent(int32_t button, int32_t action, int32_t mods) {
 	TRACE_FUNCTION();
-	if (!isMenuOpen)
-	{
+	if (!isMenuOpen) {
 		player.onMouseButtonEvent(button, action, mods);
 	}
 }
 
-void Scene::onCursorPositionEvent(double x, double y)
-{
+void Scene::onCursorPositionEvent(double x, double y) {
 	TRACE_FUNCTION();
-	if (!isMenuOpen)
-	{
+	if (!isMenuOpen) {
 		player.onCursorPositionEvent(x, y);
 	}
 }

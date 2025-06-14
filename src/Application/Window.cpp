@@ -1,12 +1,11 @@
 #include "Window.hpp"
 
-#include "../Utils/Utils.hpp"
-#include "../Rendering/ColorRenderPass.hpp"
 #include "../Core/Assets.hpp"
+#include "../Rendering/ColorRenderPass.hpp"
+#include "../Utils/Utils.hpp"
 #include "Application.hpp"
 
-Window::Window()
-{
+Window::Window() {
 	TRACE_FUNCTION();
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -20,14 +19,12 @@ Window::Window()
 	window = glfwCreateWindow(windowWidth, windowHeight, name, nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
-	if (window == nullptr)
-	{
+	if (window == nullptr) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		return;
 	}
 
-	if (!setupGlad())
-	{
+	if (!setupGlad()) {
 		std::cerr << "Failed to initialize OpenGL context" << std::endl;
 		window = nullptr;
 		return;
@@ -37,20 +34,19 @@ Window::Window()
 	initGui();
 }
 
-Window::~Window()
-{
+Window::~Window() {
 	TRACE_FUNCTION();
 	shutdownGui();
 	glfwTerminate();
 }
 
-void Window::onWindowError(int32_t errorCode, const char *description)
-{
-	std::cerr << "GLFW: **ERROR** error=" << errorCode << " description=" << description << std::endl;
+void Window::onWindowError(int32_t errorCode, const char* description) {
+	std::cerr << "GLFW: **ERROR** error=" << errorCode << " description=" << description
+			  << std::endl;
 }
 
-void Window::onKeyEvent(GLFWwindow *glfwWindow, int32_t key, int32_t scancode, int32_t action, int32_t mode)
-{
+void Window::onKeyEvent(
+	GLFWwindow* glfwWindow, int32_t key, int32_t scancode, int32_t action, int32_t mode) {
 	TRACE_FUNCTION();
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 	if (window && window->applicationPtr) {
@@ -58,8 +54,7 @@ void Window::onKeyEvent(GLFWwindow *glfwWindow, int32_t key, int32_t scancode, i
 	}
 }
 
-void Window::onResized(GLFWwindow *glfwWindow, int32_t width, int32_t height)
-{
+void Window::onResized(GLFWwindow* glfwWindow, int32_t width, int32_t height) {
 	TRACE_FUNCTION();
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 	if (window) {
@@ -71,8 +66,10 @@ void Window::onResized(GLFWwindow *glfwWindow, int32_t width, int32_t height)
 	}
 }
 
-void Window::onMouseButtonEvent(GLFWwindow *glfwWindow, int32_t button, int32_t action, int32_t mods)
-{
+void Window::onMouseButtonEvent(GLFWwindow* glfwWindow,
+								int32_t button,
+								int32_t action,
+								int32_t mods) {
 	TRACE_FUNCTION();
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 	if (window && window->applicationPtr) {
@@ -80,8 +77,7 @@ void Window::onMouseButtonEvent(GLFWwindow *glfwWindow, int32_t button, int32_t 
 	}
 }
 
-void Window::onCursorPosition(GLFWwindow *glfwWindow, double x, double y)
-{
+void Window::onCursorPosition(GLFWwindow* glfwWindow, double x, double y) {
 	TRACE_FUNCTION();
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 	if (window && window->applicationPtr) {
@@ -89,8 +85,7 @@ void Window::onCursorPosition(GLFWwindow *glfwWindow, double x, double y)
 	}
 }
 
-void Window::onRefreshWindow(GLFWwindow *glfwWindow)
-{
+void Window::onRefreshWindow(GLFWwindow* glfwWindow) {
 	TRACE_FUNCTION();
 	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 	if (window && window->applicationPtr) {
@@ -98,8 +93,7 @@ void Window::onRefreshWindow(GLFWwindow *glfwWindow)
 	}
 }
 
-void Window::setupCallbacks()
-{
+void Window::setupCallbacks() {
 	TRACE_FUNCTION();
 	glfwSetWindowUserPointer(window, this);
 	glfwSetKeyCallback(window, onKeyEvent);
@@ -119,11 +113,9 @@ void Window::setupCallbacks()
 	glfwSetErrorCallback(Window::onWindowError);
 }
 
-bool Window::setupGlad()
-{
+bool Window::setupGlad() {
 	TRACE_FUNCTION();
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cerr << "Failed to initialize OpenGL context" << std::endl;
 		return false;
 	}
@@ -134,56 +126,52 @@ bool Window::setupGlad()
 	return true;
 }
 
-void Window::lockMouse()
-{
+void Window::lockMouse() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void Window::unlockMouse()
-{
+void Window::unlockMouse() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-void Window::pollEvents()
-{
+void Window::pollEvents() {
 	TRACE_FUNCTION();
 	glfwPollEvents();
 }
 
-bool Window::shouldRender()
-{
+bool Window::shouldRender() {
 	return windowWidth > 0 && windowHeight > 0;
 }
 
-void Window::beginFrame()
-{
+void Window::beginFrame() {
 	TRACE_FUNCTION();
 	assert(framebufferStack->empty());
-	resetFrame(); // reset the default framebuffer
+	resetFrame();  // reset the default framebuffer
 
 	static Ref<Framebuffer> framebuffer = nullptr;
-	if (framebuffer == nullptr || framebuffer->getWidth() != windowWidth || framebuffer->getHeight() != windowHeight)
-	{
+	if (framebuffer == nullptr || framebuffer->getWidth() != windowWidth ||
+		framebuffer->getHeight() != windowHeight) {
 		framebuffer = std::make_shared<Framebuffer>(windowWidth, windowHeight, true, 1);
 	}
 
 	framebufferStack->push(framebuffer);
-	resetFrame(); // reset the level one framebuffer
+	resetFrame();  // reset the level one framebuffer
 }
 
-void Window::resetFrame()
-{
+void Window::resetFrame() {
 	TRACE_FUNCTION();
 	glViewport(0, 0, windowWidth, windowHeight);
-	glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w);
+	glClearColor(clearColor.x * clearColor.w,
+				 clearColor.y * clearColor.w,
+				 clearColor.z * clearColor.w,
+				 clearColor.w);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Window::finalizeFrame()
-{
+void Window::finalizeFrame() {
 	TRACE_FUNCTION();
 	assert(framebufferStack->size() == 1);
-	
+
 	if (assetsPtr) {
 		ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0), *assetsPtr);
 	} else {
@@ -192,8 +180,7 @@ void Window::finalizeFrame()
 	}
 }
 
-void Window::swapBuffers()
-{
+void Window::swapBuffers() {
 	TRACE_FUNCTION();
 	framebufferStack->clearIntermediateTextureReferences();
 	glfwSwapBuffers(window);
@@ -204,110 +191,102 @@ void GLAPIENTRY Window::onOpenGlMessage(GLenum source,
 										GLuint id,
 										GLenum severity,
 										GLsizei,
-										const GLchar *message,
-										const void *)
-{
-	if (id == 131185 || id == 131218 || id == 131169 || id == 131076 || id == 131204)
-	{
+										const GLchar* message,
+										const void*) {
+	if (id == 131185 || id == 131218 || id == 131169 || id == 131076 || id == 131204) {
 		return;
 	}
 
 	std::cerr << "---------------" << std::endl;
 	std::cerr << "Debug message (" << id << "): " << message << std::endl;
 
-	switch (source)
-	{
-	case GL_DEBUG_SOURCE_API:
-		std::cerr << "Source: API";
-		break;
-	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-		std::cerr << "Source: Window System";
-		break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER:
-		std::cerr << "Source: Shader Compiler";
-		break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY:
-		std::cerr << "Source: Third Party";
-		break;
-	case GL_DEBUG_SOURCE_APPLICATION:
-		std::cerr << "Source: Application";
-		break;
-	case GL_DEBUG_SOURCE_OTHER:
-		std::cerr << "Source: Other";
-		break;
-	default:
-		break;
+	switch (source) {
+		case GL_DEBUG_SOURCE_API:
+			std::cerr << "Source: API";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+			std::cerr << "Source: Window System";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:
+			std::cerr << "Source: Shader Compiler";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:
+			std::cerr << "Source: Third Party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION:
+			std::cerr << "Source: Application";
+			break;
+		case GL_DEBUG_SOURCE_OTHER:
+			std::cerr << "Source: Other";
+			break;
+		default:
+			break;
 	}
 	std::cerr << std::endl;
 
-	switch (type)
-	{
-	case GL_DEBUG_TYPE_ERROR:
-		std::cerr << "Type: Error";
-		break;
-	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-		std::cerr << "Type: Deprecated Behaviour";
-		break;
-	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-		std::cerr << "Type: Undefined Behaviour";
-		break;
-	case GL_DEBUG_TYPE_PORTABILITY:
-		std::cerr << "Type: Portability";
-		break;
-	case GL_DEBUG_TYPE_PERFORMANCE:
-		std::cerr << "Type: Performance";
-		break;
-	case GL_DEBUG_TYPE_MARKER:
-		std::cerr << "Type: Marker";
-		break;
-	case GL_DEBUG_TYPE_PUSH_GROUP:
-		std::cerr << "Type: Push Group";
-		break;
-	case GL_DEBUG_TYPE_POP_GROUP:
-		std::cerr << "Type: Pop Group";
-		break;
-	case GL_DEBUG_TYPE_OTHER:
-		std::cerr << "Type: Other";
-		break;
-	default:
-		break;
+	switch (type) {
+		case GL_DEBUG_TYPE_ERROR:
+			std::cerr << "Type: Error";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			std::cerr << "Type: Deprecated Behaviour";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			std::cerr << "Type: Undefined Behaviour";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			std::cerr << "Type: Portability";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			std::cerr << "Type: Performance";
+			break;
+		case GL_DEBUG_TYPE_MARKER:
+			std::cerr << "Type: Marker";
+			break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+			std::cerr << "Type: Push Group";
+			break;
+		case GL_DEBUG_TYPE_POP_GROUP:
+			std::cerr << "Type: Pop Group";
+			break;
+		case GL_DEBUG_TYPE_OTHER:
+			std::cerr << "Type: Other";
+			break;
+		default:
+			break;
 	}
 	std::cerr << std::endl;
 
-	switch (severity)
-	{
-	case GL_DEBUG_SEVERITY_HIGH:
-		std::cerr << "Severity: high";
-		break;
-	case GL_DEBUG_SEVERITY_MEDIUM:
-		std::cerr << "Severity: medium";
-		break;
-	case GL_DEBUG_SEVERITY_LOW:
-		std::cerr << "Severity: low";
-		break;
-	case GL_DEBUG_SEVERITY_NOTIFICATION:
-		std::cerr << "Severity: notification";
-		break;
-	default:
-		break;
+	switch (severity) {
+		case GL_DEBUG_SEVERITY_HIGH:
+			std::cerr << "Severity: high";
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			std::cerr << "Severity: medium";
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			std::cerr << "Severity: low";
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			std::cerr << "Severity: notification";
+			break;
+		default:
+			break;
 	}
 	std::cerr << std::endl;
 	std::cerr << std::endl;
 }
 
-glm::dvec2 Window::getCursorPosition()
-{
+glm::dvec2 Window::getCursorPosition() {
 	glm::dvec2 pos;
 	glfwGetCursorPos(window, &pos.x, &pos.y);
 	return pos;
 }
 
-void Window::initGui()
-{
+void Window::initGui() {
 	TRACE_FUNCTION();
 
-	if (window == nullptr)
-	{
+	if (window == nullptr) {
 		return;
 	}
 
@@ -318,24 +297,21 @@ void Window::initGui()
 	ImGui_ImplOpenGL3_Init("#version 450 core");
 }
 
-void Window::shutdownGui()
-{
+void Window::shutdownGui() {
 	TRACE_FUNCTION();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 }
 
-void Window::beginGuiFrame()
-{
+void Window::beginGuiFrame() {
 	TRACE_FUNCTION();
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
-void Window::finalizeGuiFrame()
-{
+void Window::finalizeGuiFrame() {
 	TRACE_FUNCTION();
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

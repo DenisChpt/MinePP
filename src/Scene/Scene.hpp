@@ -1,24 +1,23 @@
 // Scene.hpp refactorisé - intégration de Skybox et BlockOutline
 #pragma once
 
-#include <utility>
-
+#include "../Common.hpp"
+#include "../Game/Effects.hpp"	// Un seul include pour tous les effets
 #include "../Persistence/Persistence.hpp"
-#include "../Rendering/Shaders.hpp"
-#include "../Rendering/Textures.hpp"
 #include "../Rendering/Buffers.hpp"
 #include "../Rendering/Mesh.hpp"
+#include "../Rendering/Shaders.hpp"
+#include "../Rendering/Textures.hpp"
 #include "../World/World.hpp"
-#include "../Common.hpp"
-#include "../Game/Effects.hpp" // Un seul include pour tous les effets
 #include "Player.hpp"
+
+#include <utility>
 
 class Assets;
 class Window;
 class FramebufferStack;
 
-class Scene
-{
+class Scene {
 	Window& window;
 	Assets& assets;
 	Ref<Persistence> persistence;
@@ -46,30 +45,30 @@ class Scene
 		Ref<const ShaderProgram> shader;
 		float rotation = 0;
 		float rotationSpeed = 0.01;
-		
+
 		Skybox(Assets& assets);
 		float getRotationSpeed() const { return rotationSpeed; }
 		void setRotationSpeed(float speed) { rotationSpeed = speed; }
-		void update(const glm::mat4 &projection, const glm::mat4 &cameraView, float deltaTime);
+		void update(const glm::mat4& projection, const glm::mat4& cameraView, float deltaTime);
 		void render();
 	} skybox;
-	
+
 	Player player;
 
 	const float zNear = 0.1f;
 	const float zFar = 1000.0f;
 	glm::mat4 projectionMatrix = glm::mat4(1);
 	float deltaTime = 1.0f;
-	
+
 	// BlockOutline intégré
 	struct BlockOutline {
 		Ref<const ShaderProgram> outlinedBlockShader;
 		Ref<const CubeMesh> blockMesh;
-		
+
 		BlockOutline(Ref<const CubeMesh> blockMesh, Assets& assets);
-		void render(const glm::mat4 &transform) const;
+		void render(const glm::mat4& transform) const;
 	} outline;
-	
+
 	std::vector<Ref<PostProcessEffect>> postProcessingEffects;
 
 	bool isMenuOpen = false;
@@ -78,8 +77,8 @@ class Scene
 	void toggleMenu();
 	void updateMouse();
 
-public:
-	Scene(Window& window, Assets& assets, const std::string &savePath);
+   public:
+	Scene(Window& window, Assets& assets, const std::string& savePath);
 
 	void update(float deltaTime);
 

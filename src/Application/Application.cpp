@@ -4,8 +4,8 @@
 #include "Window.hpp"
 #include "../Core/Assets.hpp"
 
-Application::Application(Window& window, Assets& assets) 
-    : window(window), assets(assets)
+Application::Application(Window &window, Assets &assets)
+	: window(window), assets(assets)
 {
 	window.setApplication(this);
 }

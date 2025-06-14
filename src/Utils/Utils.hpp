@@ -1,112 +1,101 @@
 #pragma once
 
 #include "../Common.hpp"
+
+#include <chrono>
 #include <fstream>
 #include <random>
-#include <chrono>
 
 // Utility functions and classes
-class Util
-{
-    Util() = default;
+class Util {
+	Util() = default;
 
-public:
-    // Hash functions for glm vectors
-    class HashVec2
-    {
-    public:
-        size_t operator()(const glm::ivec2 &coord) const noexcept
-        {
-            size_t hash = coord.x;
-            hash ^= coord.y + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            return hash;
-        }
-    };
-    
-    class HashVec3
-    {
-    public:
-        size_t operator()(const glm::ivec3 &coord) const noexcept
-        {
-            size_t hash = coord.x;
-            hash ^= coord.y + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            hash ^= coord.z + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            return hash;
-        };
-    };
+   public:
+	// Hash functions for glm vectors
+	class HashVec2 {
+	   public:
+		size_t operator()(const glm::ivec2& coord) const noexcept {
+			size_t hash = coord.x;
+			hash ^= coord.y + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+			return hash;
+		}
+	};
 
-    class CompareIVec3
-    {
-    public:
-        int operator()(const glm::ivec3 &lhs, const glm::ivec3 &rhs) const
-        {
-            if (lhs.x < rhs.x)
-                return true;
-            if (lhs.x == rhs.x)
-            {
-                if (lhs.y < rhs.y)
-                    return true;
+	class HashVec3 {
+	   public:
+		size_t operator()(const glm::ivec3& coord) const noexcept {
+			size_t hash = coord.x;
+			hash ^= coord.y + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+			hash ^= coord.z + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+			return hash;
+		};
+	};
 
-                if (lhs.y == rhs.y)
-                {
-                    return lhs.z < rhs.z;
-                }
-                return false;
-            }
-            return false;
-        }
-    };
+	class CompareIVec3 {
+	   public:
+		int operator()(const glm::ivec3& lhs, const glm::ivec3& rhs) const {
+			if (lhs.x < rhs.x)
+				return true;
+			if (lhs.x == rhs.x) {
+				if (lhs.y < rhs.y)
+					return true;
 
-    static Ref<std::string> readBinaryFile(const std::string &path);
-    static int32_t positiveMod(int32_t num, int32_t divisor);
+				if (lhs.y == rhs.y) {
+					return lhs.z < rhs.z;
+				}
+				return false;
+			}
+			return false;
+		}
+	};
+
+	static Ref<std::string> readBinaryFile(const std::string& path);
+	static int32_t positiveMod(int32_t num, int32_t divisor);
 };
 
 // Random number generator
-class Random
-{
-    std::mt19937 randomEngine;
-    std::uniform_int_distribution<std::mt19937::result_type> distribution;
+class Random {
+	std::mt19937 randomEngine;
+	std::uniform_int_distribution<std::mt19937::result_type> distribution;
 
-public:
-    Random();
+   public:
+	Random();
 
-    float getFloat();
-    glm::vec2 getVec2();
-    glm::vec3 getVec3();
+	float getFloat();
+	glm::vec2 getVec2();
+	glm::vec3 getVec3();
 };
 
 // Performance tracing system
-class Trace
-{
-private:
-    static Trace *instancePtr;
+class Trace {
+   private:
+	static Trace* instancePtr;
 
-    std::ofstream traceFile;
-    uint64_t eventCount = 0;
+	std::ofstream traceFile;
+	uint64_t eventCount = 0;
 
-    Trace(const std::string &traceFile);
-    ~Trace();
+	Trace(const std::string& traceFile);
+	~Trace();
 
-public:
-    static void start(const std::string &traceFile);
-    static void end();
-    void writeEvent(std::string eventName, uint64_t start, uint64_t end);
+   public:
+	static void start(const std::string& traceFile);
+	static void end();
+	void writeEvent(std::string eventName, uint64_t start, uint64_t end);
 
-    class TraceTimer
-    {
-        using TimeUnit = std::chrono::microseconds;
-        using Clock = std::chrono::high_resolution_clock;
+	class TraceTimer {
+		using TimeUnit = std::chrono::microseconds;
+		using Clock = std::chrono::high_resolution_clock;
 
-        bool startNewTrace;
-        uint64_t startTime;
-        const std::string name;
+		bool startNewTrace;
+		uint64_t startTime;
+		const std::string name;
 
-        [[nodiscard]] uint64_t getTimestamp() const;
+		[[nodiscard]] uint64_t getTimestamp() const;
 
-    public:
-        explicit TraceTimer(const std::string &name);
-        ~TraceTimer();
-    };
+	   public:
+		explicit TraceTimer(const std::string& name);
+		~TraceTimer();
+	};
 };
 
 #ifdef ENABLE_TRACING
@@ -124,131 +113,111 @@ public:
 #endif
 
 // Inline implementations
-inline Ref<std::string> Util::readBinaryFile(const std::string &path)
-{
-    Ref<std::string> content = std::make_shared<std::string>();
-    std::ifstream file(path, std::ios::in | std::ios::binary);
+inline Ref<std::string> Util::readBinaryFile(const std::string& path) {
+	Ref<std::string> content = std::make_shared<std::string>();
+	std::ifstream file(path, std::ios::in | std::ios::binary);
 
-    if (!file)
-    {
-        std::cerr << "Failed to open the file: " << path << std::endl;
-        return nullptr;
-    }
-    file.seekg(0, std::ios::end);
-    auto length = file.tellg();
+	if (!file) {
+		std::cerr << "Failed to open the file: " << path << std::endl;
+		return nullptr;
+	}
+	file.seekg(0, std::ios::end);
+	auto length = file.tellg();
 
-    if (length == -1)
-    {
-        std::cerr << "Failed to read the file: " << path << std::endl;
-        return nullptr;
-    }
+	if (length == -1) {
+		std::cerr << "Failed to read the file: " << path << std::endl;
+		return nullptr;
+	}
 
-    content->resize(length);
-    file.seekg(0, std::ios::beg);
-    file.read(&content->at(0), length);
+	content->resize(length);
+	file.seekg(0, std::ios::beg);
+	file.read(&content->at(0), length);
 
-    return content;
+	return content;
 }
 
-inline int32_t Util::positiveMod(int32_t num, int32_t divisor)
-{
-    int32_t mod = num % divisor;
+inline int32_t Util::positiveMod(int32_t num, int32_t divisor) {
+	int32_t mod = num % divisor;
 
-    if (mod < 0)
-    {
-        return mod + divisor;
-    }
-    return mod;
+	if (mod < 0) {
+		return mod + divisor;
+	}
+	return mod;
 }
 
 inline Random::Random() : randomEngine(std::random_device()()) {}
 
-inline float Random::getFloat()
-{
-    return distribution(randomEngine) / static_cast<float>(std::numeric_limits<std::mt19937::result_type>::max());
+inline float Random::getFloat() {
+	return distribution(randomEngine) /
+		   static_cast<float>(std::numeric_limits<std::mt19937::result_type>::max());
 }
 
-inline glm::vec2 Random::getVec2()
-{
-    return glm::vec2(getFloat(), getFloat());
+inline glm::vec2 Random::getVec2() {
+	return glm::vec2(getFloat(), getFloat());
 }
 
-inline glm::vec3 Random::getVec3()
-{
-    return glm::vec3(getFloat(), getFloat(), getFloat());
+inline glm::vec3 Random::getVec3() {
+	return glm::vec3(getFloat(), getFloat(), getFloat());
 }
 
-inline uint64_t Trace::TraceTimer::getTimestamp() const
-{
-    return std::chrono::time_point_cast<TimeUnit>(Clock::now()).time_since_epoch().count();
+inline uint64_t Trace::TraceTimer::getTimestamp() const {
+	return std::chrono::time_point_cast<TimeUnit>(Clock::now()).time_since_epoch().count();
 }
 
 // Trace implementation
-inline Trace *Trace::instancePtr = nullptr;
+inline Trace* Trace::instancePtr = nullptr;
 
-inline Trace::Trace(const std::string &traceFile) : traceFile(traceFile)
-{
-    this->traceFile << R"({"otherData": {},)" << '\n'
-                    << R"("traceEvents":[)" << std::endl;
+inline Trace::Trace(const std::string& traceFile) : traceFile(traceFile) {
+	this->traceFile << R"({"otherData": {},)" << '\n' << R"("traceEvents":[)" << std::endl;
 }
 
-inline void Trace::start(const std::string &traceFile)
-{
-    assert(instancePtr == nullptr);
-    instancePtr = new Trace(traceFile);
+inline void Trace::start(const std::string& traceFile) {
+	assert(instancePtr == nullptr);
+	instancePtr = new Trace(traceFile);
 }
 
-inline void Trace::end()
-{
-    assert(instancePtr != nullptr);
-    delete instancePtr;
-    instancePtr = nullptr;
+inline void Trace::end() {
+	assert(instancePtr != nullptr);
+	delete instancePtr;
+	instancePtr = nullptr;
 }
 
-inline void Trace::writeEvent(std::string eventName, uint64_t start, uint64_t end)
-{
-    assert(instancePtr != nullptr);
+inline void Trace::writeEvent(std::string eventName, uint64_t start, uint64_t end) {
+	assert(instancePtr != nullptr);
 
-    if (eventCount > 0)
-    {
-        traceFile << ",\n";
-    }
-    eventCount++;
-    std::replace(eventName.begin(), eventName.end(), '"', '\'');
+	if (eventCount > 0) {
+		traceFile << ",\n";
+	}
+	eventCount++;
+	std::replace(eventName.begin(), eventName.end(), '"', '\'');
 
-    traceFile << "{"
-              << R"("cat":"function",)"
-              << R"("dur":)" << (end - start) << ',' << R"("name":")" << eventName << R"(",)"
-              << R"("ph":"X",)"
-              << R"("pid":0,)"
-              << R"("tid":0,)"
-              << R"("ts":)" << start << "}";
-    traceFile.flush();
+	traceFile << "{"
+			  << R"("cat":"function",)"
+			  << R"("dur":)" << (end - start) << ',' << R"("name":")" << eventName << R"(",)"
+			  << R"("ph":"X",)"
+			  << R"("pid":0,)"
+			  << R"("tid":0,)"
+			  << R"("ts":)" << start << "}";
+	traceFile.flush();
 }
 
-inline Trace::~Trace()
-{
-    this->traceFile << "]\n}" << std::endl;
+inline Trace::~Trace() {
+	this->traceFile << "]\n}" << std::endl;
 }
 
-inline Trace::TraceTimer::TraceTimer(const std::string &name)
-    : startNewTrace(instancePtr == nullptr),
-      startTime(getTimestamp()),
-      name(name)
-{
-    if (startNewTrace)
-    {
-        std::cerr << "Started a new trace session with name " << name << std::endl;
-        Trace::start(name + ".json");
-    }
+inline Trace::TraceTimer::TraceTimer(const std::string& name)
+	: startNewTrace(instancePtr == nullptr), startTime(getTimestamp()), name(name) {
+	if (startNewTrace) {
+		std::cerr << "Started a new trace session with name " << name << std::endl;
+		Trace::start(name + ".json");
+	}
 }
 
-inline Trace::TraceTimer::~TraceTimer()
-{
-    const bool isTracerActive = instancePtr != nullptr;
-    assert(isTracerActive);
-    if (!isTracerActive)
-        return;
+inline Trace::TraceTimer::~TraceTimer() {
+	const bool isTracerActive = instancePtr != nullptr;
+	assert(isTracerActive);
+	if (!isTracerActive)
+		return;
 
-    instancePtr->writeEvent(name, startTime, getTimestamp());
+	instancePtr->writeEvent(name, startTime, getTimestamp());
 }

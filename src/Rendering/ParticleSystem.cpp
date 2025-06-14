@@ -1,13 +1,10 @@
 #include "ParticleSystem.hpp"
 
-void ParticleSystem::update(float deltaTime)
-{
+void ParticleSystem::update(float deltaTime) {
 	std::vector<size_t> particlesToRemove;
-	for (unsigned int i = 0; i < particles.size(); ++i)
-	{
+	for (unsigned int i = 0; i < particles.size(); ++i) {
 		particles[i].lifetime -= deltaTime;
-		if (particles[i].lifetime < 0)
-		{
+		if (particles[i].lifetime < 0) {
 			particlesToRemove.push_back(i);
 			continue;
 		}
@@ -20,15 +17,13 @@ void ParticleSystem::update(float deltaTime)
 		particles[i].rotation += particles[i].angularVelocity * deltaTime;
 	}
 
-	for (int i = particlesToRemove.size() - 1; i >= 0; --i)
-	{
+	for (int i = particlesToRemove.size() - 1; i >= 0; --i) {
 		particles.erase(particles.begin() + i);
 	}
 }
 
-void ParticleSystem::emit(const ParticleDescription &particle)
-{
-	auto &newParticle = particles.emplace_back(particle);
+void ParticleSystem::emit(const ParticleDescription& particle) {
+	auto& newParticle = particles.emplace_back(particle);
 	newParticle.lifetime += particle.lifetimeVariation * random.getFloat();
 	newParticle.velocity += particle.velocityVariation * random.getVec3();
 	newParticle.angularVelocity += particle.angularVelocityVariation * random.getVec3();

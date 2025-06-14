@@ -21,15 +21,18 @@
 // Standard libraries
 #include <algorithm>
 #include <array>
+#include <bitset>
 #include <cassert>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
+#include <queue>
 #include <random>
 #include <set>
 #include <span>
@@ -38,18 +41,15 @@
 #include <tuple>
 #include <unordered_map>
 #include <utility>
-#include <vector>
-#include <queue>
-#include <functional>
 #include <variant>
-#include <bitset>
+#include <vector>
 
 // Type aliases
-template<typename T>
+template <typename T>
 using Ref = std::shared_ptr<T>;
 
-template<typename T>
+template <typename T>
 using WeakRef = std::weak_ptr<T>;
 
-template<typename T>
+template <typename T>
 using Scoped = std::unique_ptr<T>;

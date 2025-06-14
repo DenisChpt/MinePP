@@ -1,7 +1,7 @@
 /**
  * @file Mesh.hpp
  * @brief Gestion unifiée des maillages de blocs et de cubes
- * 
+ *
  * @details Fusionne BlockMesh et CubeMesh pour simplifier la gestion des maillages
  */
 
@@ -14,40 +14,35 @@
  * @class BlockMesh
  * @brief Génère le maillage d'un bloc à partir d'un ensemble statique de sommets
  */
-struct BlockMesh
-{
-	static const std::array<BlockVertex, 6> &getVerticesFromDirection(const glm::ivec3 &vec)
-	{
+struct BlockMesh {
+	static const std::array<BlockVertex, 6>& getVerticesFromDirection(const glm::ivec3& vec) {
 		assert(glm::abs(vec.x) + glm::abs(vec.y) + glm::abs(vec.z) == 1);
 
-		switch (vec.x)
-		{
-		case 1:
-			return vertices[1];
-		case -1:
-			return vertices[2];
-		default:
-			break;
+		switch (vec.x) {
+			case 1:
+				return vertices[1];
+			case -1:
+				return vertices[2];
+			default:
+				break;
 		}
 
-		switch (vec.y)
-		{
-		case 1:
-			return vertices[0];
-		case -1:
-			return vertices[5];
-		default:
-			break;
+		switch (vec.y) {
+			case 1:
+				return vertices[0];
+			case -1:
+				return vertices[5];
+			default:
+				break;
 		}
 
-		switch (vec.z)
-		{
-		case 1:
-			return vertices[4];
-		case -1:
-			return vertices[3];
-		default:
-			break;
+		switch (vec.z) {
+			case 1:
+				return vertices[4];
+			case -1:
+				return vertices[3];
+			default:
+				break;
 		}
 
 		assert(false);
@@ -61,11 +56,10 @@ struct BlockMesh
  * @class CubeMesh
  * @brief Génère un maillage de cube pour l'affichage d'effets (ex. contours de bloc)
  */
-class CubeMesh
-{
+class CubeMesh {
 	Ref<VertexArray> cubeVertexArray;
 
-public:
+   public:
 	CubeMesh();
 	void render() const;
 };

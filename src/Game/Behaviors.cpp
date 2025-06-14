@@ -1,5 +1,6 @@
 // Behaviors.cpp - Implémentation de tous les comportements du monde
 #include "Behaviors.hpp"
+
 #include "../Core/Assets.hpp"
 #include "../World/World.hpp"
 
@@ -7,14 +8,13 @@
 BlockBreakParticleSystem::BlockBreakParticleSystem(Assets& assets)
 	: cubeShader(assets.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
 
-void BlockBreakParticleSystem::render(glm::mat4 MVP)
-{
+void BlockBreakParticleSystem::render(glm::mat4 MVP) {
 	cubeShader->bind();
-	for (const auto &particle : particles)
-	{
+	for (const auto& particle : particles) {
 		cubeShader->setVec4("color", particle.color);
-		cubeShader->setMat4("MVP", MVP * glm::translate(particle.position) * glm::scale(particle.scale) *
-									   glm::rotate(glm::two_pi<float>(), particle.rotation));
+		cubeShader->setMat4("MVP",
+							MVP * glm::translate(particle.position) * glm::scale(particle.scale) *
+								glm::rotate(glm::two_pi<float>(), particle.rotation));
 		cubeMesh.render();
 	}
 }
@@ -23,38 +23,34 @@ void BlockBreakParticleSystem::render(glm::mat4 MVP)
 LavaParticleSystem::LavaParticleSystem(Assets& assets)
 	: cubeShader(assets.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
 
-void LavaParticleSystem::render(glm::mat4 MVP)
-{
+void LavaParticleSystem::render(glm::mat4 MVP) {
 	cubeShader->bind();
-	for (const auto &particle : particles)
-	{
+	for (const auto& particle : particles) {
 		cubeShader->setVec4("color", particle.color);
-		cubeShader->setMat4("MVP", MVP * glm::translate(particle.position) * glm::scale(particle.scale) *
-									   glm::rotate(glm::two_pi<float>(), particle.rotation));
+		cubeShader->setMat4("MVP",
+							MVP * glm::translate(particle.position) * glm::scale(particle.scale) *
+								glm::rotate(glm::two_pi<float>(), particle.rotation));
 		cubeMesh.render();
 	}
 }
 
 // BlockBreakParticleBehavior
 void BlockBreakParticleBehavior::onBlockRemoved(glm::ivec3 blockPos,
-												const BlockData *block,
-												World &world,
-												bool removedByPlayer)
-{
+												const BlockData* block,
+												World& world,
+												bool removedByPlayer) {
 	if (!removedByPlayer)
 		return;
 	if (block == nullptr || block->type == BlockData::BlockType::air)
 		return;
 
 	auto color = block->getColor();
-	for (int i = 0; i < 50; ++i)
-	{
+	for (int i = 0; i < 50; ++i) {
 		emitBlockParticle(glm::vec3(blockPos) + random.getVec3(), color);
 	}
 }
 
-void BlockBreakParticleBehavior::emitBlockParticle(glm::vec3 pos, glm::vec4 color)
-{
+void BlockBreakParticleBehavior::emitBlockParticle(glm::vec3 pos, glm::vec4 color) {
 	particleSystem.emit({
 		.position = pos,
 		.scale = glm::vec3(0.0625),
@@ -74,63 +70,55 @@ void BlockBreakParticleBehavior::emitBlockParticle(glm::vec3 pos, glm::vec4 colo
 	});
 }
 
-void BlockBreakParticleBehavior::update(float dt)
-{
+void BlockBreakParticleBehavior::update(float dt) {
 	particleSystem.update(dt);
 }
 
-void BlockBreakParticleBehavior::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum)
-{
+void BlockBreakParticleBehavior::renderOpaque(glm::mat4 transform,
+											  glm::vec3 playerPos,
+											  const Frustum& frustum) {
 	particleSystem.render(transform);
 }
 
 // LavaParticleBehavior
-void LavaParticleBehavior::onNewBlock(glm::ivec3 blockPos, const BlockData *block, World &world)
-{
+void LavaParticleBehavior::onNewBlock(glm::ivec3 blockPos, const BlockData* block, World& world) {
 	if (block == nullptr || block->type != BlockData::BlockType::lava)
 		return;
 
 	auto blockAbove = world.getBlockAtIfLoaded(blockPos + glm::ivec3(0, 1, 0));
-	if (blockAbove != nullptr && blockAbove->type == BlockData::BlockType::air)
-	{
+	if (blockAbove != nullptr && blockAbove->type == BlockData::BlockType::air) {
 		surfaceLavaPositions.emplace(blockPos);
 	}
 }
 
-void LavaParticleBehavior::onBlockUpdate(glm::ivec3 blockPos, const BlockData *block, World &world)
-{
+void LavaParticleBehavior::onBlockUpdate(glm::ivec3 blockPos,
+										 const BlockData* block,
+										 World& world) {
 	if (block == nullptr || block->type != BlockData::BlockType::lava)
 		return;
 	auto blockAbove = world.getBlockAtIfLoaded(blockPos + glm::ivec3(0, 1, 0));
-	if (blockAbove == nullptr || blockAbove->type == BlockData::BlockType::air)
-	{
+	if (blockAbove == nullptr || blockAbove->type == BlockData::BlockType::air) {
 		surfaceLavaPositions.emplace(blockPos);
-	}
-	else
-	{
+	} else {
 		surfaceLavaPositions.erase(blockPos);
 	}
 }
 
 void LavaParticleBehavior::onBlockRemoved(glm::ivec3 blockPos,
-										  const BlockData *block,
-										  World &world,
-										  bool removedByPlayer)
-{
+										  const BlockData* block,
+										  World& world,
+										  bool removedByPlayer) {
 	if (block == nullptr || block->type != BlockData::BlockType::lava)
 		return;
 
 	surfaceLavaPositions.erase(blockPos);
 }
 
-void LavaParticleBehavior::update(float dt)
-{
+void LavaParticleBehavior::update(float dt) {
 	timeUntilNextEmit -= dt;
-	if (timeUntilNextEmit <= 0)
-	{
+	if (timeUntilNextEmit <= 0) {
 		timeUntilNextEmit = emitAttemptFrequency;
-		for (auto lavaPosition : surfaceLavaPositions)
-		{
+		for (auto lavaPosition : surfaceLavaPositions) {
 			if (random.getFloat() < 0.99f)
 				continue;
 			emitLavaParticles(lavaPosition);
@@ -139,18 +127,15 @@ void LavaParticleBehavior::update(float dt)
 	particleSystem.update(dt);
 }
 
-void LavaParticleBehavior::emitLavaParticles(glm::ivec3 pos)
-{
+void LavaParticleBehavior::emitLavaParticles(glm::ivec3 pos) {
 	float particlesToEmit = glm::log2(random.getFloat() * 8 + 0.01);
-	for (float i = 0; i < particlesToEmit; ++i)
-	{
+	for (float i = 0; i < particlesToEmit; ++i) {
 		const glm::vec2 posOnBlock = random.getVec2();
 		emitLavaParticle(glm::vec3(pos) + glm::vec3(posOnBlock.x, 1, posOnBlock.y));
 	}
 }
 
-void LavaParticleBehavior::emitLavaParticle(glm::vec3 pos)
-{
+void LavaParticleBehavior::emitLavaParticle(glm::vec3 pos) {
 	particleSystem.emit({
 		.position = pos,
 		.scale = glm::vec3(0.0625),
@@ -170,7 +155,8 @@ void LavaParticleBehavior::emitLavaParticle(glm::vec3 pos)
 	});
 }
 
-void LavaParticleBehavior::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum)
-{
+void LavaParticleBehavior::renderOpaque(glm::mat4 transform,
+										glm::vec3 playerPos,
+										const Frustum& frustum) {
 	particleSystem.render(transform);
 }

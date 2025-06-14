@@ -2,23 +2,22 @@
 
 #include "World.hpp"
 
-#include <ranges>
-
 #include "../Application/Window.hpp"
 #include "../Core/Assets.hpp"
-#include "../Rendering/ColorRenderPass.hpp"
 #include "../Rendering/Buffers.hpp"
+#include "../Rendering/ColorRenderPass.hpp"
+
+#include <ranges>
 
 // ChunkPool implementation
-Ref<Chunk> ChunkPool::acquire(glm::ivec2 pos)
-{
-	if (!available.empty())
-	{
+Ref<Chunk> ChunkPool::acquire(glm::ivec2 pos) {
+	if (!available.empty()) {
 		auto chunk = std::shared_ptr<Chunk>(available.front().release());
 		available.pop();
 		chunk->reset(pos);
 		// Debug: log pool reuse
-		// printf("ChunkPool: Reused chunk for position (%d, %d), pool size: %zu\n", pos.x, pos.y, available.size());
+		// printf("ChunkPool: Reused chunk for position (%d, %d), pool size: %zu\n", pos.x, pos.y,
+		// available.size());
 		return chunk;
 	}
 	// Debug: log new allocation
@@ -26,29 +25,28 @@ Ref<Chunk> ChunkPool::acquire(glm::ivec2 pos)
 	return std::make_shared<Chunk>(pos);
 }
 
-void ChunkPool::release(const Ref<Chunk>& chunk)
-{
-	if (available.size() < MAX_SIZE)
-	{
+void ChunkPool::release(const Ref<Chunk>& chunk) {
+	if (available.size() < MAX_SIZE) {
 		chunk->clear();
 		available.push(std::unique_ptr<Chunk>(new Chunk(*chunk)));
 		// Debug: log pool release
 		// printf("ChunkPool: Released chunk, pool size: %zu\n", available.size());
-	}
-	else
-	{
+	} else {
 		// Debug: log pool full
 		// printf("ChunkPool: Pool full, discarding chunk\n");
 	}
 }
 
-World::World(Window& window, Assets& assets, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed)
+World::World(Window& window,
+			 Assets& assets,
+			 const Ref<Persistence>& persistence,
+			 std::vector<Ref<WorldBehavior>> behaviors,
+			 int32_t seed)
 	: window(window),
 	  assets(assets),
 	  behaviors(std::move(behaviors)),
 	  persistence(persistence),
-	  generator(seed)
-{
+	  generator(seed) {
 	TRACE_FUNCTION();
 	opaqueShader = assets.loadShaderProgram("assets/shaders/world_opaque");
 	transparentShader = assets.loadShaderProgram("assets/shaders/world_transparent");
@@ -58,12 +56,10 @@ World::World(Window& window, Assets& assets, const Ref<Persistence> &persistence
 	setTextureAtlas(assets.getAtlasTexture());
 }
 
-Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)
-{
+Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position) {
 	TRACE_FUNCTION();
 	Ref<Chunk> chunk = persistence->getChunk(position);
-	if (chunk != nullptr)
-	{
+	if (chunk != nullptr) {
 		return chunk;
 	}
 	chunk = chunkPool.acquire(position);
@@ -72,34 +68,29 @@ Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)
 	return chunk;
 }
 
-void World::unloadChunk(const Ref<Chunk> &chunk)
-{
+void World::unloadChunk(const Ref<Chunk>& chunk) {
 	const auto chunkPos = chunk->getPosition();
 	chunks.erase(chunkPos);
 
 	// Informer les WorldBehavior que les blocs de ce chunk sont supprimés
-	for (int32_t x = 0; x < Chunk::HorizontalSize; ++x)
-	{
-		for (int32_t y = 0; y < Chunk::VerticalSize; ++y)
-		{
-			for (int32_t z = 0; z < Chunk::HorizontalSize; ++z)
-			{
-				for (const auto &worldBehavior : behaviors)
-				{
+	for (int32_t x = 0; x < Chunk::HorizontalSize; ++x) {
+		for (int32_t y = 0; y < Chunk::VerticalSize; ++y) {
+			for (int32_t z = 0; z < Chunk::HorizontalSize; ++z) {
+				for (const auto& worldBehavior : behaviors) {
 					glm::ivec3 blockPos = {x, y, z};
 					glm::ivec3 globalBlockPos = blockPos + glm::ivec3(chunkPos.x, 0, chunkPos.y);
-					worldBehavior->onBlockRemoved(globalBlockPos, chunk->getBlockAt(blockPos), *this, false);
+					worldBehavior->onBlockRemoved(
+						globalBlockPos, chunk->getBlockAt(blockPos), *this, false);
 				}
 			}
 		}
 	}
-	
+
 	// Release chunk to pool for reuse
 	chunkPool.release(chunk);
 }
 
-void World::update(const glm::vec3 &playerPosition, float deltaTime)
-{
+void World::update(const glm::vec3& playerPosition, float deltaTime) {
 	TRACE_FUNCTION();
 
 	// On incrémente le "temps" pour l'animation
@@ -111,83 +102,69 @@ void World::update(const glm::vec3 &playerPosition, float deltaTime)
 	// Décharger les chunks trop lointains
 	auto chunksCopy = chunks;
 	float unloadDistance = static_cast<float>(viewDistance + 1) * 16 + 8.0f;
-	for (const auto &[chunkPosition, chunk] : chunksCopy)
-	{
-		if (glm::abs(glm::distance(glm::vec2(chunkPosition), playerChunkPosition)) > unloadDistance)
-		{
+	for (const auto& [chunkPosition, chunk] : chunksCopy) {
+		if (glm::abs(glm::distance(glm::vec2(chunkPosition), playerChunkPosition)) >
+			unloadDistance) {
 			unloadChunk(chunk);
 		}
 	}
 
 	// Charger de nouveaux chunks si le joueur s’approche
 	float loadDistance = static_cast<float>(viewDistance) * 16 + 8.0f;
-	for (int32_t i = -viewDistance; i <= viewDistance; i++)
-	{
-		for (int32_t j = -viewDistance; j <= viewDistance; j++)
-		{
+	for (int32_t i = -viewDistance; i <= viewDistance; i++) {
+		for (int32_t j = -viewDistance; j <= viewDistance; j++) {
 			glm::ivec2 position = glm::ivec2(i * 16, j * 16) + glm::ivec2(playerChunkPosition);
 			if (isChunkLoaded(position))
 				continue;
 
 			float distance = glm::abs(glm::distance(glm::vec2(position), playerChunkPosition));
-			if (distance <= loadDistance)
-			{
+			if (distance <= loadDistance) {
 				addChunk(position, generateOrLoadChunk(position));
 			}
 		}
 	}
 
 	// Update des behaviors (particules, etc.)
-	for (auto &behavior : behaviors)
-	{
+	for (auto& behavior : behaviors) {
 		behavior->update(deltaTime);
 	}
 }
 
-void World::sortChunkIndices(glm::vec3 playerPos, const Ref<ChunkIndexVector> &chunkIndices)
-{
+void World::sortChunkIndices(glm::vec3 playerPos, const Ref<ChunkIndexVector>& chunkIndices) {
 	chunkIndices->clear();
-	if (chunkIndices->capacity() < chunks.size())
-	{
+	if (chunkIndices->capacity() < chunks.size()) {
 		chunkIndices->reserve(chunks.size());
 	}
 
 	glm::vec2 playerXZ = glm::vec2(playerPos.x, playerPos.z);
-	for (const auto &[key, value] : chunks)
-	{
+	for (const auto& [key, value] : chunks) {
 		chunkIndices->emplace_back(key, value->distanceToPoint(playerXZ));
 	}
 
 	// Tri du plus proche au plus lointain
-	std::sort(chunkIndices->begin(), chunkIndices->end(),
-			  [](const auto &a, const auto &b)
-			  {
-				  return b.second < a.second; // on inverse pour .reverse_view ensuite
-			  });
+	std::sort(chunkIndices->begin(), chunkIndices->end(), [](const auto& a, const auto& b) {
+		return b.second < a.second;	 // on inverse pour .reverse_view ensuite
+	});
 }
 
-void World::rebuildChunks(const Ref<ChunkIndexVector> &chunkIndices, const Frustum &frustum)
-{
+void World::rebuildChunks(const Ref<ChunkIndexVector>& chunkIndices, const Frustum& frustum) {
 	uint32_t meshesRebuilt = 0;
 
-	// On itère du plus proche au plus lointain (car chunkIndices est trié à l'envers + .reverse_view)
-	for (auto &index : std::ranges::reverse_view(*chunkIndices))
-	{
-		if (meshesRebuilt > MaxRebuildsAllowedPerFrame)
-		{
+	// On itère du plus proche au plus lointain (car chunkIndices est trié à l'envers +
+	// .reverse_view)
+	for (auto& index : std::ranges::reverse_view(*chunkIndices)) {
+		if (meshesRebuilt > MaxRebuildsAllowedPerFrame) {
 			break;
 		}
-		const auto &chunk = chunks[index.first];
-		if (chunk->needsMeshRebuild() && chunk->isVisible(frustum))
-		{
+		const auto& chunk = chunks[index.first];
+		if (chunk->needsMeshRebuild() && chunk->isVisible(frustum)) {
 			chunk->rebuildMesh(*this);
 			meshesRebuilt++;
 		}
 	}
 }
 
-void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum &frustum)
-{
+void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum& frustum) {
 	TRACE_FUNCTION();
 
 	// 1) Tri et rebuild des chunks au besoin
@@ -210,14 +187,13 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Temporairement désactiver le depth test pour déboguer
-	//glDisable(GL_DEPTH_TEST);
+	// glDisable(GL_DEPTH_TEST);
 
-	for (const auto &index : *sortedChunkIndices)
-	{
-		const auto &chunk = chunks[index.first];
+	for (const auto& index : *sortedChunkIndices) {
+		const auto& chunk = chunks[index.first];
 		chunk->setShader(opaqueShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
-		
+
 		// Rendu des blocs opaques
 		chunk->renderOpaque(transform, frustum);
 
@@ -226,8 +202,7 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	}
 
 	// Rendu additionnel : behaviors opaques (ex: particules cubiques)
-	for (const auto &behavior : behaviors)
-	{
+	for (const auto& behavior : behaviors) {
 		behavior->renderOpaque(transform, playerPos, frustum);
 	}
 
@@ -236,19 +211,17 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 
 void World::renderTransparent(glm::mat4 transform,
 							  glm::vec3 playerPos,
-							  const Frustum &frustum,
+							  const Frustum& frustum,
 							  float zNear,
 							  float zFar,
-							  const Ref<Framebuffer> &opaqueRender)
-{
+							  const Ref<Framebuffer>& opaqueRender) {
 	TRACE_FUNCTION();
 
 	// 1) Préparer le framebuffer "accum + revealage"
 	auto width = opaqueRender->getWidth();
 	auto height = opaqueRender->getHeight();
 	static Ref<Framebuffer> framebuffer = nullptr;
-	if (!framebuffer || framebuffer->getWidth() != width || framebuffer->getHeight() != height)
-	{
+	if (!framebuffer || framebuffer->getWidth() != width || framebuffer->getHeight() != height) {
 		framebuffer = std::make_shared<Framebuffer>(width, height, false, 2);
 	}
 
@@ -285,8 +258,7 @@ void World::renderTransparent(glm::mat4 transform,
 	transparentShader->setTexture("opaqueDepth", opaqueRender->getDepthAttachment(), 1);
 
 	// 6) Dessin des chunks semi-transparents (ex: eau)
-	for (const auto &[key, chunk] : chunks)
-	{
+	for (const auto& [key, chunk] : chunks) {
 		chunk->setShader(transparentShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
 		chunk->renderSemiTransparent(transform, frustum);
@@ -306,21 +278,17 @@ void World::renderTransparent(glm::mat4 transform,
 	glDisable(GL_BLEND);
 }
 
-const BlockData *World::getBlockAt(glm::ivec3 position)
-{
+const BlockData* World::getBlockAt(glm::ivec3 position) {
 	return getChunk(getChunkIndex(position))->getBlockAt(Chunk::toChunkCoordinates(position));
 }
 
-bool World::isValidBlockPosition(glm::ivec3 position)
-{
+bool World::isValidBlockPosition(glm::ivec3 position) {
 	return Chunk::isValidPosition(position);
 }
 
-bool World::placeBlock(BlockData block, glm::ivec3 position)
-{
+bool World::placeBlock(BlockData block, glm::ivec3 position) {
 	TRACE_FUNCTION();
-	if (!Chunk::isValidPosition(position))
-	{
+	if (!Chunk::isValidPosition(position)) {
 		return false;
 	}
 
@@ -329,8 +297,7 @@ bool World::placeBlock(BlockData block, glm::ivec3 position)
 	auto oldBlock = chunk->getBlockAt(positionInChunk);
 
 	// Notifier les behaviors qu'un bloc est retiré
-	for (const auto &behavior : behaviors)
-	{
+	for (const auto& behavior : behaviors) {
 		behavior->onBlockRemoved(position, oldBlock, *this, true);
 	}
 
@@ -338,59 +305,50 @@ bool World::placeBlock(BlockData block, glm::ivec3 position)
 	chunk->placeBlock(block, positionInChunk);
 
 	// Notifier qu'on a ajouté un bloc
-	for (const auto &behavior : behaviors)
-	{
+	for (const auto& behavior : behaviors) {
 		behavior->onNewBlock(position, &block, *this);
 	}
 
 	// Marquer les voisins comme "dirty" si besoin, + onBlockUpdate
 	constexpr std::array<glm::ivec3, 6> blocksAround = {
 		{{0, 0, 1}, {1, 0, 0}, {0, 0, -1}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}}};
-	for (const glm::ivec3 &offset : blocksAround)
-	{
+	for (const glm::ivec3& offset : blocksAround) {
 		glm::ivec3 neighbor = offset + positionInChunk;
 		glm::ivec3 neighborWorldPosition = position + offset;
-		if (!Chunk::isInBounds(neighbor.x, neighbor.y, neighbor.z))
-		{
-			const auto &chunkN = getChunk(getChunkIndex(neighborWorldPosition));
+		if (!Chunk::isInBounds(neighbor.x, neighbor.y, neighbor.z)) {
+			const auto& chunkN = getChunk(getChunkIndex(neighborWorldPosition));
 			chunkN->setDirty();
 		}
-		for (const auto &behavior : behaviors)
-		{
-			behavior->onBlockUpdate(neighborWorldPosition, getBlockAt(neighborWorldPosition), *this);
+		for (const auto& behavior : behaviors) {
+			behavior->onBlockUpdate(
+				neighborWorldPosition, getBlockAt(neighborWorldPosition), *this);
 		}
 	}
 
 	return true;
 }
 
-glm::ivec2 World::getChunkIndex(glm::ivec3 position)
-{
-	return {
-		position.x - Util::positiveMod(position.x, Chunk::HorizontalSize),
-		position.z - Util::positiveMod(position.z, Chunk::HorizontalSize)};
+glm::ivec2 World::getChunkIndex(glm::ivec3 position) {
+	return {position.x - Util::positiveMod(position.x, Chunk::HorizontalSize),
+			position.z - Util::positiveMod(position.z, Chunk::HorizontalSize)};
 }
 
-Ref<Chunk> World::getChunk(glm::ivec2 position)
-{
+Ref<Chunk> World::getChunk(glm::ivec2 position) {
 	TRACE_FUNCTION();
-	if (!isChunkLoaded(position))
-	{
+	if (!isChunkLoaded(position)) {
 		addChunk(position, generateOrLoadChunk(position));
 	}
 	return chunks.at(position);
 }
 
-void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
-{
+void World::addChunk(glm::ivec2 position, const Ref<Chunk>& chunk) {
 	TRACE_FUNCTION();
 	chunks[position] = chunk;
 	chunk->setShader(opaqueShader);
 
 	// Marquer les voisins comme dirty
 	std::array<glm::ivec2, 4> chunksAround = {{{0, 16}, {16, 0}, {0, -16}, {-16, 0}}};
-	for (const glm::ivec2 &offset : chunksAround)
-	{
+	for (const glm::ivec2& offset : chunksAround) {
 		glm::ivec2 neighborPosition = position + offset;
 		if (!isChunkLoaded(neighborPosition))
 			continue;
@@ -398,14 +356,10 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 	}
 
 	// Notifier behaviors pour tous les blocs de ce chunk
-	for (int32_t x = 0; x < Chunk::HorizontalSize; ++x)
-	{
-		for (int32_t y = 0; y < Chunk::VerticalSize; ++y)
-		{
-			for (int32_t z = 0; z < Chunk::HorizontalSize; ++z)
-			{
-				for (const auto &worldBehavior : behaviors)
-				{
+	for (int32_t x = 0; x < Chunk::HorizontalSize; ++x) {
+		for (int32_t y = 0; y < Chunk::VerticalSize; ++y) {
+			for (int32_t z = 0; z < Chunk::HorizontalSize; ++z) {
+				for (const auto& worldBehavior : behaviors) {
 					glm::ivec3 blockPos = {x, y, z};
 					glm::ivec3 globalPos = blockPos + glm::ivec3(position.x, 0, position.y);
 					worldBehavior->onNewBlock(globalPos, chunk->getBlockAt(blockPos), *this);
@@ -415,23 +369,19 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 	}
 }
 
-void World::setTextureAtlas(const Ref<const Texture> &texture)
-{
+void World::setTextureAtlas(const Ref<const Texture>& texture) {
 	textureAtlas = texture;
 	// Don't set texture here - it will be set during rendering when shader is bound
 }
 
-const BlockData *World::getBlockAtIfLoaded(glm::ivec3 position) const
-{
+const BlockData* World::getBlockAtIfLoaded(glm::ivec3 position) const {
 	glm::ivec2 index = getChunkIndex(position);
-	if (!isChunkLoaded(index))
-	{
+	if (!isChunkLoaded(index)) {
 		return nullptr;
 	}
 	return chunks.at(index)->getBlockAt(Chunk::toChunkCoordinates(position));
 }
 
-bool World::isChunkLoaded(glm::ivec2 position) const
-{
+bool World::isChunkLoaded(glm::ivec2 position) const {
 	return chunks.contains(position);
 }
