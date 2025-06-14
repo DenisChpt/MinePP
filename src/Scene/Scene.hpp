@@ -13,12 +13,14 @@
 #include "../Game/Effects.hpp" // Un seul include pour tous les effets
 #include "Player.hpp"
 
-class Context;
 class Assets;
+class Window;
+class FramebufferStack;
 
 class Scene
 {
-	Context& context;
+	Window& window;
+	Assets& assets;
 	Ref<Persistence> persistence;
 	Ref<World> world;
 
@@ -77,7 +79,7 @@ class Scene
 	void updateMouse();
 
 public:
-	Scene(Context& context, const std::string &savePath);
+	Scene(Window& window, Assets& assets, const std::string &savePath);
 
 	void update(float deltaTime);
 

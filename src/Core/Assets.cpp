@@ -8,7 +8,8 @@
 #include <fstream>
 
 Assets::Assets() {
-    // Constructor - atlas will be loaded separately
+    // Load texture atlas on initialization
+    loadTextureAtlas();
 }
 
 Assets::~Assets() {

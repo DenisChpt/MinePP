@@ -8,7 +8,6 @@
 #include "../Core/Assets.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 #include "../Rendering/Buffers.hpp"
-#include "../Core/Context.hpp"
 
 // ChunkPool implementation
 Ref<Chunk> ChunkPool::acquire(glm::ivec2 pos)
@@ -43,19 +42,20 @@ void ChunkPool::release(const Ref<Chunk>& chunk)
 	}
 }
 
-World::World(Context& context, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed)
-	: context(context),
+World::World(Window& window, Assets& assets, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed)
+	: window(window),
+	  assets(assets),
 	  behaviors(std::move(behaviors)),
 	  persistence(persistence),
 	  generator(seed)
 {
 	TRACE_FUNCTION();
-	opaqueShader = context.getAssets().loadShaderProgram("assets/shaders/world_opaque");
-	transparentShader = context.getAssets().loadShaderProgram("assets/shaders/world_transparent");
-	blendShader = context.getAssets().loadShaderProgram("assets/shaders/world_blend");
+	opaqueShader = assets.loadShaderProgram("assets/shaders/world_opaque");
+	transparentShader = assets.loadShaderProgram("assets/shaders/world_transparent");
+	blendShader = assets.loadShaderProgram("assets/shaders/world_blend");
 
 	// On charge la texture atlas (unique) générée par TextureAtlas
-	setTextureAtlas(context.getAssets().getAtlasTexture());
+	setTextureAtlas(assets.getAtlasTexture());
 }
 
 Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position)
@@ -262,7 +262,7 @@ void World::renderTransparent(glm::mat4 transform,
 	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
 	// 4) Bind du FBO
-	context.getWindow().getFramebufferStack()->push(framebuffer);
+	window.getFramebufferStack()->push(framebuffer);
 	glEnable(GL_BLEND);
 
 	// On configure un blend spécial (Weighted Blended OIT)
@@ -293,7 +293,7 @@ void World::renderTransparent(glm::mat4 transform,
 	}
 
 	// On pop pour repasser au framebuffer précédent
-	context.getWindow().getFramebufferStack()->pop();
+	window.getFramebufferStack()->pop();
 
 	// 7) Composition finale via world_blend.frag
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

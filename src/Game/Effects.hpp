@@ -7,19 +7,18 @@
 #include "../Application/Window.hpp"
 #include "../Common.hpp"
 
-class Context;
-
 // Classe de base PostProcessEffect
 class PostProcessEffect
 {
 protected:
-	Context& context;
+	Window& window;
+	Assets& assets;
 	bool enabled;
 	Ref<const ShaderProgram> shader;
 	Ref<Framebuffer> framebuffer;
 
 public:
-	explicit PostProcessEffect(Context& context, const Ref<const ShaderProgram> &shader, bool enabled = false);
+	explicit PostProcessEffect(Window& window, Assets& assets, const Ref<const ShaderProgram> &shader, bool enabled = false);
 
 	Ref<const ShaderProgram> getShader() { return shader; };
 
@@ -39,7 +38,7 @@ class ChromaticAberrationEffect : public PostProcessEffect
 	float aberrationBOffset = -0.005;
 
 public:
-	ChromaticAberrationEffect(Context& context, bool enabled);
+	ChromaticAberrationEffect(Window& window, Assets& assets, bool enabled);
 
 	void renderGui() override;
 	void update() override;
@@ -53,7 +52,7 @@ class CrosshairEffect : public PostProcessEffect
 	float crosshairHorizontalWidth = 0.15f;
 
 public:
-	CrosshairEffect(Context& context, bool enabled);
+	CrosshairEffect(Window& window, Assets& assets, bool enabled);
 
 	void renderGui() override;
 	void update() override;
@@ -65,7 +64,7 @@ class GammaCorrectionEffect : public PostProcessEffect
 	float power = 0.85;
 
 public:
-	GammaCorrectionEffect(Context& context, bool enabled);
+	GammaCorrectionEffect(Window& window, Assets& assets, bool enabled);
 
 	void update() override;
 	void renderGui() override;
@@ -93,7 +92,7 @@ private:
 	Ref<const ShaderProgram> getBlurShader(int32_t blurStDev);
 
 public:
-	GaussianBlurEffect(Context& context, bool enabled);
+	GaussianBlurEffect(Window& window, Assets& assets, bool enabled);
 
 	void update() override;
 	void renderGui() override;
@@ -103,7 +102,7 @@ public:
 class InvertEffect : public PostProcessEffect
 {
 public:
-	InvertEffect(Context& context, bool enabled);
+	InvertEffect(Window& window, Assets& assets, bool enabled);
 
 	void update() override;
 	void renderGui() override;
@@ -116,7 +115,7 @@ class VignetteEffect : public PostProcessEffect
 	float vignetteStart = 2;
 
 public:
-	VignetteEffect(Context& context, bool enabled);
+	VignetteEffect(Window& window, Assets& assets, bool enabled);
 
 	void update() override;
 	void renderGui() override;

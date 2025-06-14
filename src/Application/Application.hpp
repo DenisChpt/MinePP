@@ -14,7 +14,6 @@
 
 #include "../Scene/Scene.hpp"
 #include "../Common.hpp"
-#include "../Core/Context.hpp"
 
 class Application
 {
@@ -22,7 +21,8 @@ private:
 	using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 	using Clock = std::chrono::steady_clock;
 
-	Context& context;
+	Window& window;
+	Assets& assets;
 	Ref<Scene> scene;
 	TimePoint lastTick = Clock::now();
 
@@ -37,13 +37,13 @@ private:
 	friend Window;
 
 public:
-	Application(Context& context);
+	Application(Window& window, Assets& assets);
 	~Application();
 
 	void setScene(const Ref<Scene> &newScene) { scene = newScene; };
-	int32_t getWindowWidth() { return context.getWindow().getWindowWidth(); }
-	int32_t getWindowHeight() { return context.getWindow().getWindowHeight(); }
-	Window &getWindow() { return context.getWindow(); };
+	int32_t getWindowWidth() { return window.getWindowWidth(); }
+	int32_t getWindowHeight() { return window.getWindowHeight(); }
+	Window &getWindow() { return window; };
 	int32_t run();
 
 	Application(const Application &) = delete;

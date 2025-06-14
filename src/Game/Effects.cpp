@@ -1,12 +1,12 @@
 // Effects.cpp - Implémentation de tous les effets post-process
 #include "Effects.hpp"
 
-#include "../Core/Context.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 
 // PostProcessEffect implementation
-PostProcessEffect::PostProcessEffect(Context& context, const Ref<const ShaderProgram> &shader, bool enabled)
-	: context(context),
+PostProcessEffect::PostProcessEffect(Window& window, Assets& assets, const Ref<const ShaderProgram> &shader, bool enabled)
+	: window(window),
+	  assets(assets),
 	  shader(shader),
 	  enabled(enabled) {}
 
@@ -14,7 +14,6 @@ void PostProcessEffect::render()
 {
 	if (!enabled) return;
 	
-	Window& window = context.getWindow();
 	int32_t width = window.getWindowWidth();
 	int32_t height = window.getWindowHeight();
 	
@@ -33,12 +32,12 @@ void PostProcessEffect::render()
 	ColorRenderPass::renderTextureWithEffect(colorSource->getColorAttachment(0), shader);
 
 	Ref<Framebuffer> resultFbo = framebufferStack->pop();
-	ColorRenderPass::renderTexture(resultFbo->getColorAttachment(0), context.getAssetManager());
+	ColorRenderPass::renderTexture(resultFbo->getColorAttachment(0), assets);
 }
 
 // ChromaticAberrationEffect implementation
-ChromaticAberrationEffect::ChromaticAberrationEffect(Context& context, bool enabled)
-	: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
+ChromaticAberrationEffect::ChromaticAberrationEffect(Window& window, Assets& assets, bool enabled)
+	: PostProcessEffect(window, assets, assets.loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
 
 void ChromaticAberrationEffect::renderGui()
 {
@@ -61,8 +60,8 @@ void ChromaticAberrationEffect::update()
 }
 
 // CrosshairEffect implementation
-CrosshairEffect::CrosshairEffect(Context& context, bool enabled)
-	: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/crosshair"), enabled) {}
+CrosshairEffect::CrosshairEffect(Window& window, Assets& assets, bool enabled)
+	: PostProcessEffect(window, assets, assets.loadShaderProgram("assets/shaders/crosshair"), enabled) {}
 
 void CrosshairEffect::renderGui()
 {
@@ -77,7 +76,6 @@ void CrosshairEffect::renderGui()
 
 void CrosshairEffect::update()
 {
-	Window& window = context.getWindow();
 	auto width = window.getWindowWidth();
 	auto height = window.getWindowHeight();
 	float aspectRatio = width == 0 || height == 0 ? 0 : static_cast<float>(width) / static_cast<float>(height);
@@ -89,8 +87,8 @@ void CrosshairEffect::update()
 }
 
 // GammaCorrectionEffect implementation
-GammaCorrectionEffect::GammaCorrectionEffect(Context& context, bool enabled)
-	: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/gamma_correction"), enabled) {}
+GammaCorrectionEffect::GammaCorrectionEffect(Window& window, Assets& assets, bool enabled)
+	: PostProcessEffect(window, assets, assets.loadShaderProgram("assets/shaders/gamma_correction"), enabled) {}
 
 void GammaCorrectionEffect::update() 
 { 
@@ -173,8 +171,8 @@ Ref<const ShaderProgram> GaussianBlurEffect::getBlurShader(int32_t blurStDev)
 	return shaders.at(blurStDev);
 }
 
-GaussianBlurEffect::GaussianBlurEffect(Context& context, bool enabled) 
-	: PostProcessEffect(context, nullptr, enabled) {}
+GaussianBlurEffect::GaussianBlurEffect(Window& window, Assets& assets, bool enabled) 
+	: PostProcessEffect(window, assets, nullptr, enabled) {}
 
 void GaussianBlurEffect::update() 
 { 
@@ -191,8 +189,8 @@ void GaussianBlurEffect::renderGui()
 }
 
 // InvertEffect implementation
-InvertEffect::InvertEffect(Context& context, bool enabled)
-	: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
+InvertEffect::InvertEffect(Window& window, Assets& assets, bool enabled)
+	: PostProcessEffect(window, assets, assets.loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
 
 void InvertEffect::update() {}
 
@@ -202,8 +200,8 @@ void InvertEffect::renderGui()
 }
 
 // VignetteEffect implementation
-VignetteEffect::VignetteEffect(Context& context, bool enabled)
-	: PostProcessEffect(context, context.getAssets().loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
+VignetteEffect::VignetteEffect(Window& window, Assets& assets, bool enabled)
+	: PostProcessEffect(window, assets, assets.loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
 
 void VignetteEffect::update()
 {

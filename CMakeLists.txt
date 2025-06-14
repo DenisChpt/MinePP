@@ -14,10 +14,10 @@ endif ()
 
 # Liste explicite des fichiers sources
 set(MinePPSources
+    src/main.cpp
     src/Application/Application.cpp
     src/Application/Window.cpp
     src/Core/Assets.cpp
-    src/Core/Context.cpp
     src/Game/Behaviors.cpp
     src/Game/Effects.cpp
     src/Persistence/Persistence.cpp
@@ -42,7 +42,6 @@ set(MinePPHeaders
     src/Application/Application.hpp
     src/Application/Window.hpp
     src/Core/Assets.hpp
-    src/Core/Context.hpp
     src/Game/Behaviors.hpp
     src/Game/Effects.hpp
     src/Math/Math.hpp

@@ -23,7 +23,8 @@
 #include "Chunk.hpp"
 #include "WorldGenerator.hpp"
 
-class Context;
+class Window;
+class Assets;
 class Framebuffer;
 
 // ChunkPool for efficient chunk memory management
@@ -50,7 +51,8 @@ class World
 	Ref<const ShaderProgram> blendShader;
 	bool useAmbientOcclusion = true;
 
-	Context& context;
+	Window& window;
+	Assets& assets;
 	Ref<Persistence> persistence;
 	WorldGenerator generator;
 
@@ -66,9 +68,11 @@ class World
 	void rebuildChunks(const Ref<ChunkIndexVector> &chunkIndices, const Frustum &frustum);
 
 public:
-	World(Context& context, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed);
-	Context& getContext() { return context; }
-	const Context& getContext() const { return context; }
+	World(Window& window, Assets& assets, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed);
+	Window& getWindow() { return window; }
+	const Window& getWindow() const { return window; }
+	Assets& getAssets() { return assets; }
+	const Assets& getAssets() const { return assets; }
 
 	Ref<Chunk> getChunk(glm::ivec2 position);
 	void addChunk(glm::ivec2 position, const Ref<Chunk> &chunk);

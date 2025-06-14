@@ -2,10 +2,12 @@
 
 #include "../Utils/Utils.hpp"
 #include "Window.hpp"
+#include "../Core/Assets.hpp"
 
-Application::Application(Context& context) : context(context)
+Application::Application(Window& window, Assets& assets) 
+    : window(window), assets(assets)
 {
-	context.getWindow().setApplication(this);
+	window.setApplication(this);
 }
 
 Application::~Application()
@@ -15,15 +17,15 @@ Application::~Application()
 int32_t Application::run()
 {
 	TRACE_FUNCTION();
-	if (!scene || !context.getWindow().isValid())
+	if (!scene || !window.isValid())
 	{
 		return -1;
 	}
 
 	lastTick = Clock::now();
-	while (!context.getWindow().shouldClose())
+	while (!window.shouldClose())
 	{
-		context.getWindow().pollEvents();
+		window.pollEvents();
 		updateAndRender();
 	}
 	return 0;
@@ -39,19 +41,35 @@ void Application::updateAndRender()
 
 	scene->update(deltaTime);
 
-	if (context.getWindow().shouldRender())
+	if (window.shouldRender())
 	{
 		TRACE_SCOPE("Window::render");
-		context.getWindow().beginFrame();
+		window.beginFrame();
 		scene->render();
-		context.getWindow().finalizeFrame();
+		window.finalizeFrame();
 
-		context.getWindow().beginGuiFrame();
+		window.beginGuiFrame();
 		scene->renderGui();
-		context.getWindow().finalizeGuiFrame();
-
-		context.getWindow().swapBuffers();
+		window.finalizeGuiFrame();
 	}
+
+	window.swapBuffers();
+}
+
+void Application::onRefreshWindow()
+{
+	if (window.shouldRender())
+	{
+		window.beginFrame();
+		scene->render();
+		window.finalizeFrame();
+
+		window.beginGuiFrame();
+		scene->renderGui();
+		window.finalizeGuiFrame();
+	}
+
+	window.swapBuffers();
 }
 
 void Application::onKeyEvent(int32_t key, int32_t scancode, int32_t action, int32_t mode)
@@ -66,45 +84,14 @@ void Application::onMouseButtonEvent(int32_t button, int32_t action, int32_t mod
 	scene->onMouseButtonEvent(button, action, mods);
 }
 
-void Application::onResized(int32_t width, int32_t height)
-{
-	TRACE_FUNCTION();
-	scene->onResized(width, height);
-}
-
-void Application::onRefreshWindow()
-{
-	TRACE_FUNCTION();
-	updateAndRender();
-}
-
 void Application::onCursorPositionEvent(double x, double y)
 {
 	TRACE_FUNCTION();
 	scene->onCursorPositionEvent(x, y);
 }
 
-// Main function moved from main.cpp
-#include "../Scene/Scene.hpp"
-#include "../Core/Context.hpp"
-
-int main(int argc, char **argv)
+void Application::onResized(int32_t width, int32_t height)
 {
-    START_TRACE("startup.json");
-    
-    Context context;
-    Application app(context);
-    
-    END_TRACE();
-
-    START_TRACE("scene-creation.json");
-    std::string savePath = argc > 1 ? argv[1] : "default.glc";
-    app.setScene(std::make_shared<Scene>(context, savePath));
-    END_TRACE();
-
-    START_TRACE("runtime.json");
-    int result = app.run();
-    END_TRACE();
-
-    return result;
+	TRACE_FUNCTION();
+	scene->onResized(width, height);
 }
