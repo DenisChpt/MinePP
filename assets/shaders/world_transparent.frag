@@ -1,6 +1,6 @@
 #version 450 core
 
-flat in uint textureIndex;
+flat in uint textureIdx;
 
 in float vert_lighting;
 in vec3 vert_pos;
@@ -27,7 +27,7 @@ void main() {
     if (gl_FragCoord.z > texelFetch(opaqueDepth, ivec2(gl_FragCoord.xy), 0).r + 0.000005){
         discard;
     }
-    vec4 texture = texture(atlas, vec3(vert_uv, textureIndex));
+    vec4 texture = texture(atlas, vec3(vert_uv, textureIdx));
     if (texture.a == 1) discard; // opaque objects are already drawn
     accumTexture = vec4(texture.xyz * vert_lighting, texture.w) * weight(gl_FragCoord.z, texture.w);
     revealageTexture = vec4(texture.w);

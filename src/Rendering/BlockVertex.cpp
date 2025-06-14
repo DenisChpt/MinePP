@@ -3,50 +3,78 @@
 
 BlockVertex::BlockVertex(const glm::ivec3 &position, const glm::bvec2 &uv)
 {
-	offset(position.x, position.y, position.z);
+	setPosition(position.x, position.y, position.z);
 	setUv(uv.x, uv.y);
 }
 
-void BlockVertex::setUv(bool x, bool y)
+void BlockVertex::setPosition(uint8_t x, uint8_t y, uint8_t z)
 {
-	uint8_t uv = x | (y << 1);
-	assert((((data >> 19) & 0xff) + uv) <= 0xff && "UV Coordinates are out of bounds");
+	assert(x <= 31 && "X coordinate must be <= 31");
+	assert(z <= 31 && "Z coordinate must be <= 31");
+	assert(y <= 255 && "Y coordinate must be <= 255");
+	
+	// data[0] = x(5 bits) + z_low(3 bits)
+	data[0] = (x & 0x1F) | ((z & 0x07) << 5);
+	
+	// data[1] = z_high(2 bits) + u(1 bit) + v(1 bit) + spare(4 bits)
+	data[1] = (data[1] & 0xFC) | ((z >> 3) & 0x03);
+	
+	// data[2] = y(8 bits)
+	data[2] = y;
+}
 
-	data += uv << 19;
-};
-
-void BlockVertex::setTextureIndex(uint8_t tileIndex)
+void BlockVertex::setUv(bool u, bool v)
 {
-	// Efface les bits 20 à 27 puis insère la nouvelle valeur
-	data &= ~(0xFF << 21);
-	data |= (tileIndex & 0xFF) << 21;
+	// UV bits are in data[1] at positions 2-3
+	data[1] = (data[1] & 0xF3) | (u ? (1 << 2) : 0) | (v ? (1 << 3) : 0);
+}
+
+void BlockVertex::setTextureIndexInternal(uint8_t tileIndex)
+{
+	// Texture index is data[3]
+	data[3] = tileIndex;
 }
 
 void BlockVertex::offset(uint32_t x, uint32_t y, uint32_t z)
 {
-	assert((((data >> 9) & 0x1fu) + x) <= 16 && "Coordinate is out of bounds");
-	assert((((data >> 14) & 0x1fu) + z) <= 16 && "Coordinate is out of bounds");
-	assert(((data & 0x1ffu) + y) <= 256 && "Coordinate is out of bounds");
-
-	data += y;
-	data += x << 9;
-	data += z << 14;
+	// Extract current position
+	uint8_t currentX = data[0] & 0x1F;
+	uint8_t currentZ = ((data[0] >> 5) & 0x07) | ((data[1] & 0x03) << 3);
+	uint8_t currentY = data[2];
+	
+	// Add offset
+	uint8_t newX = currentX + x;
+	uint8_t newY = currentY + y;
+	uint8_t newZ = currentZ + z;
+	
+	// Validate new position
+	assert(newX <= 31 && "X coordinate out of bounds");
+	assert(newZ <= 31 && "Z coordinate out of bounds");
+	assert(newY <= 255 && "Y coordinate out of bounds");
+	
+	// Set new position
+	setPosition(newX, newY, newZ);
 }
 
 void BlockVertex::setAnimated()
 {
-	data |= 0b1 << 28;
+	// Animated flag is bit 2 in data[4]
+	data[4] |= (1 << 2);
 }
 
 glm::ivec3 BlockVertex::getPosition() const
 {
-	return {(data >> 9) & 0x1fu, data & 0x1ffu, (data >> 14) & 0x1fu};
+	uint8_t x = data[0] & 0x1F;
+	uint8_t z = ((data[0] >> 5) & 0x07) | ((data[1] & 0x03) << 3);
+	uint8_t y = data[2];
+	return glm::ivec3(x, y, z);
 }
 
 void BlockVertex::setOcclusionLevel(uint8_t occlusionLevel)
 {
-	assert(occlusionLevel < 4 && "The occlusion level is out of bounds");
-	data |= occlusionLevel << 29;
+	assert(occlusionLevel < 4 && "Occlusion level must be < 4");
+	// Occlusion bits are 0-1 in data[4]
+	data[4] = (data[4] & 0xFC) | (occlusionLevel & 0x03);
 }
 
 void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type, const Assets& assets)
@@ -81,5 +109,12 @@ void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type, c
 	// Récupère la configuration de texture pour ce type de bloc via Assets
 	BlockTextureData btd = assets.getBlockTextureData(type);
 	// Stocke l'index correspondant à la face dans le vertex
-	setTextureIndex(btd.faceIndices[faceIndex]);
+	uint8_t textureIdx = btd.faceIndices[faceIndex];
+	
+	// Debug temporaire pour l'eau
+	if (type == BlockData::BlockType::water) {
+		printf("Water block: face=%d, textureIdx=%d\n", faceIndex, textureIdx);
+	}
+	
+	setTextureIndexInternal(textureIdx);
 }
