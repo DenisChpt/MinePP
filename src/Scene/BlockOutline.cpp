@@ -8,7 +8,7 @@ BlockOutline::BlockOutline(Ref<const CubeMesh> blockMesh, Assets& assets)
 
 void BlockOutline::render(const glm::mat4 &transform) const
 {
-	outlinedBlockShader->setMat4("MVP", transform);
 	outlinedBlockShader->bind();
+	outlinedBlockShader->setMat4("MVP", transform);
 	blockMesh->render();
 }

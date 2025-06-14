@@ -1,7 +1,7 @@
 #version 450 core
 
 uniform sampler2D colorTexture;
-uniform float power = 2.2;
+uniform float power;
 
 layout(location = 0) out vec4 color;
 

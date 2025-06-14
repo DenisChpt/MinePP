@@ -29,7 +29,10 @@ void Chunk::renderOpaque(const glm::mat4 &transform, const Frustum &frustum)
 		return;
 	}
 
-	shader->bind();
+	if (!shader) return;
+	
+	// Don't rebind shader - World already bound it
+	// Just set the MVP matrix for this chunk
 	shader->setMat4("MVP", transform * glm::translate(glm::vec3(worldPosition.x, 0, worldPosition.y)));
 
 	if (solidVertexCount != 0)
@@ -46,7 +49,10 @@ void Chunk::renderSemiTransparent(const glm::mat4 &transform, const Frustum &fru
 		return;
 	}
 
-	shader->bind();
+	if (!shader) return;
+	
+	// Don't rebind shader - World already bound it
+	// Just set the MVP matrix for this chunk
 	shader->setMat4("MVP", transform * glm::translate(glm::vec3(worldPosition.x, 0, worldPosition.y)));
 
 	glDisable(GL_CULL_FACE);

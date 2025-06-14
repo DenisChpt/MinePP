@@ -3,7 +3,7 @@
 
 #include "PostProcessEffect.hpp"
 #include "../../Application/Window.hpp"			// Ajouté pour CrosshairEffect
-#include "../../Rendering/ProceduralShader.hpp" // Ajouté pour GaussianBlurEffect
+#include "../../Rendering/Shaders.hpp" // Ajouté pour GaussianBlurEffect
 #include "../../Core/Context.hpp"
 #include "../../Core/Assets.hpp"
 

@@ -14,7 +14,7 @@
 #include <Frustum.h>
 
 #include "../Persistence/Persistence.hpp"
-#include "../Rendering/ShaderProgram.hpp"
+#include "../Rendering/Shaders.hpp"
 #include "../Rendering/Textures.hpp"
 #include "../Scene/Behaviors/WorldBehavior.hpp"
 #include "../Common.hpp"

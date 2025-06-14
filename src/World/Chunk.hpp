@@ -17,7 +17,7 @@
 #include "../Math/Math.hpp"
 #include "../Rendering/BlockMesh.hpp"
 #include "../Rendering/BlockVertex.hpp"
-#include "../Rendering/ShaderProgram.hpp"
+#include "../Rendering/Shaders.hpp"
 #include "../Rendering/Buffers.hpp"
 #include "../Common.hpp"
 #include "BlockTypes.hpp"

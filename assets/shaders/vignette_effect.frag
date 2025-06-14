@@ -1,8 +1,8 @@
 #version 450 core
 
 uniform sampler2D colorTexture;
-uniform float intensity = 2;
-uniform float start = 2.0f;
+uniform float intensity;
+uniform float start;
 
 in vec3 vert_pos;
 

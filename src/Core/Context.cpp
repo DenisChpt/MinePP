@@ -7,7 +7,7 @@ Context::Context() {
     assets = std::make_unique<Assets>();
     window = std::make_unique<Window>();
     window->setAssets(assets.get());
-    assets->loadTextureAtlas();
+    assets->loadTextureAtlas("assets/textures/textures.json");
 }
 
 Context::~Context() = default;

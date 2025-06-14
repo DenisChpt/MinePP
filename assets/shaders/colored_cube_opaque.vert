@@ -2,7 +2,7 @@
 
 layout(location = 0) in uint vertexData;
 
-uniform mat4 MVP = mat4(1);
+uniform mat4 MVP;
 
 out vec3 vert_pos;
 out vec2 vert_uv;

@@ -1,6 +1,5 @@
 #include "Assets.hpp"
-#include "../Rendering/Shader.hpp"
-#include "../Rendering/ShaderProgram.hpp"
+#include "../Rendering/Shaders.hpp"
 #include "../Rendering/Textures.hpp"
 #include "../Utils/Utils.hpp"
 #include <lodepng.h>

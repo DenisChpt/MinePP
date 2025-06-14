@@ -26,6 +26,8 @@ void PostProcessEffect::render()
 	Ref<Framebuffer> colorSource = framebufferStack->peek();
 	framebufferStack->push(framebuffer);
 
+	// Bind shader before calling update so uniforms can be set
+	shader->bind();
 	update();
 	ColorRenderPass::renderTextureWithEffect(colorSource->getColorAttachment(0), shader);
 

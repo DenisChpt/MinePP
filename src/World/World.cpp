@@ -162,19 +162,26 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	int totalFrames = 32;
 	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
-	// 3) Envoi au shader
+	// 3) Configure shader
+	opaqueShader->bind();
+	if (textureAtlas) {
+		opaqueShader->setTexture("atlas", textureAtlas, 0);
+	}
 	opaqueShader->setUInt("textureAnimation", currentFrame);
+	opaqueShader->setVec3("lightDirection", glm::normalize(glm::vec3(1, 1, 1)));
 
 	// 4) Rendu
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Temporairement désactiver le depth test pour déboguer
+	//glDisable(GL_DEPTH_TEST);
 
 	for (const auto &index : *sortedChunkIndices)
 	{
 		const auto &chunk = chunks[index.first];
 		chunk->setShader(opaqueShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
-
+		
 		// Rendu des blocs opaques
 		chunk->renderOpaque(transform, frustum);
 
@@ -230,12 +237,16 @@ void World::renderTransparent(glm::mat4 transform,
 	glClear(GL_COLOR_BUFFER_BIT);
 	framebuffer->clearColorAttachment(1, glm::vec4(1));
 
-	// 5) Paramètres du shader transparent
+	// 5) Configure shader
+	transparentShader->bind();
+	if (textureAtlas) {
+		transparentShader->setTexture("atlas", textureAtlas, 0);
+	}
 	transparentShader->setUInt("textureAnimation", currentFrame);
+	transparentShader->setVec3("lightDirection", glm::normalize(glm::vec3(1, 1, 1)));
 	transparentShader->setFloat("zNear", zNear);
 	transparentShader->setFloat("zFar", zFar);
 	transparentShader->setTexture("opaqueDepth", opaqueRender->getDepthAttachment(), 1);
-	transparentShader->bind();
 
 	// 6) Dessin des chunks semi-transparents (ex: eau)
 	for (const auto &[key, chunk] : chunks)
@@ -338,6 +349,7 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 {
 	TRACE_FUNCTION();
 	chunks[position] = chunk;
+	chunk->setShader(opaqueShader);
 
 	// Marquer les voisins comme dirty
 	std::array<glm::ivec2, 4> chunksAround = {{{0, 16}, {16, 0}, {0, -16}, {-16, 0}}};
@@ -370,10 +382,7 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk> &chunk)
 void World::setTextureAtlas(const Ref<const Texture> &texture)
 {
 	textureAtlas = texture;
-	if (textureAtlas && opaqueShader && transparentShader) {
-		opaqueShader->setTexture("atlas", textureAtlas, 0);
-		transparentShader->setTexture("atlas", textureAtlas, 0);
-	}
+	// Don't set texture here - it will be set during rendering when shader is bound
 }
 
 const BlockData *World::getBlockAtIfLoaded(glm::ivec3 position) const

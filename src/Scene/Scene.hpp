@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "../Persistence/Persistence.hpp"
-#include "../Rendering/ShaderProgram.hpp"
+#include "../Rendering/Shaders.hpp"
 #include "../Rendering/Textures.hpp"
 #include "../Rendering/Buffers.hpp"
 #include "../World/World.hpp"

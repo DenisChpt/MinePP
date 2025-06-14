@@ -2,8 +2,8 @@
 
 layout(location = 0) in uint vertexData;
 
-uniform mat4 MVP = mat4(1);
-uniform vec3 lightDirection = vec3(1, 1, 1);
+uniform mat4 MVP;
+uniform vec3 lightDirection;
 uniform uint textureAnimation;
 
 flat out uint textureIndex;

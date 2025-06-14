@@ -10,13 +10,20 @@
 #pragma once
 
 #include "Buffers.hpp"
-#include "ShaderProgram.hpp"
+#include "Shaders.hpp"
 
 class Assets;
 
 class ColorRenderPass
 {
 	Ref<const ShaderProgram> shader;
+	
+	struct TextureBinding {
+		std::string name;
+		Ref<Texture> texture;
+		int32_t slot;
+	};
+	std::vector<TextureBinding> textureBindings;
 
 public:
 	explicit ColorRenderPass(const Ref<const ShaderProgram> &shader);

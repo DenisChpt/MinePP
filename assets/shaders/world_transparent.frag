@@ -8,8 +8,8 @@ in vec2 vert_uv;
 
 uniform sampler2DArray atlas;
 uniform sampler2D opaqueDepth;
-uniform float zFar = 500.0f;
-uniform float zNear = 0.1f;
+uniform float zFar;
+uniform float zNear;
 
 layout(location = 0) out vec4 accumTexture;
 layout(location = 1) out vec4 revealageTexture;
