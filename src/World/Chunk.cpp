@@ -4,7 +4,12 @@
 #include "World.hpp"
 
 Chunk::Chunk(const glm::ivec2& worldPosition)
-	: worldPosition(worldPosition), aabb(glm::vec3(0), glm::vec3(0)) {
+	: worldPosition(worldPosition), aabb(glm::vec3(0), glm::vec3(0)),
+	  solidVertices(std::make_shared<std::vector<BlockVertex>>()),
+	  semiTransparentVertices(std::make_shared<std::vector<BlockVertex>>()) {
+	// Start with initial capacity instead of max capacity
+	solidVertices->reserve(InitialVertexCapacity);
+	semiTransparentVertices->reserve(InitialVertexCapacity);
 	init();
 }
 
@@ -74,11 +79,82 @@ const BlockData* Chunk::getBlockAtOptimized(const glm::ivec3& pos, const World& 
 	return nullptr;
 }
 
+/**
+ * @brief Updates peak vertex usage statistics
+ * 
+ * @details Called after mesh rebuild to track maximum vertex usage.
+ *          This information is used to optimize future allocations.
+ */
+void Chunk::updatePeakUsage() {
+	peakSolidVertexCount = std::max(peakSolidVertexCount, solidVertexCount);
+	peakSemiTransparentVertexCount = std::max(peakSemiTransparentVertexCount, semiTransparentVertexCount);
+	rebuildCount++;
+}
+
+/**
+ * @brief Ensures vertex vectors have sufficient capacity
+ * 
+ * @details Implements progressive reallocation strategy to minimize memory usage
+ *          while avoiding frequent reallocations. Uses growth factor and peak usage
+ *          statistics to determine optimal capacity.
+ * 
+ * @param requiredSolidCapacity Minimum capacity needed for solid vertices
+ * @param requiredTransparentCapacity Minimum capacity needed for transparent vertices
+ */
+void Chunk::ensureVertexCapacity(int32_t requiredSolidCapacity, int32_t requiredTransparentCapacity) {
+	// For solid vertices
+	if (solidVertices->capacity() < requiredSolidCapacity) {
+		// Use peak usage as a guide for allocation
+		int32_t targetCapacity = requiredSolidCapacity;
+		if (rebuildCount > 5 && peakSolidVertexCount > 0) {
+			// After several rebuilds, use peak usage plus growth factor
+			targetCapacity = static_cast<int32_t>(peakSolidVertexCount * VertexBufferGrowthFactor);
+		}
+		targetCapacity = std::max(targetCapacity, requiredSolidCapacity);
+		targetCapacity = std::min(targetCapacity, MaxVertexCount);
+		
+		solidVertices->reserve(targetCapacity);
+	}
+	
+	// For semi-transparent vertices
+	if (semiTransparentVertices->capacity() < requiredTransparentCapacity) {
+		int32_t targetCapacity = requiredTransparentCapacity;
+		if (rebuildCount > 5 && peakSemiTransparentVertexCount > 0) {
+			targetCapacity = static_cast<int32_t>(peakSemiTransparentVertexCount * VertexBufferGrowthFactor);
+		}
+		targetCapacity = std::max(targetCapacity, requiredTransparentCapacity);
+		targetCapacity = std::min(targetCapacity, MaxVertexCount);
+		
+		semiTransparentVertices->reserve(targetCapacity);
+	}
+}
+
+/**
+ * @brief Checks if a block at the given position is not air
+ * 
+ * @param pos Position to check (can be outside chunk bounds)
+ * @param chunk The chunk containing the block
+ * @param world World reference for checking adjacent chunks
+ * @return true if the block exists and is not air, false otherwise
+ */
 bool hasNonAirAt(const glm::ivec3& pos, const Chunk& chunk, const World& world) {
 	const BlockData* block = chunk.getBlockAtOptimized(pos, world);
 	return block != nullptr && block->blockClass != BlockData::BlockClass::air;
 }
 
+/**
+ * @brief Calculates ambient occlusion level for a vertex
+ * 
+ * @details Implements smooth lighting by checking the occlusion from neighboring blocks.
+ *          The occlusion level is calculated based on the presence of blocks at the
+ *          sides and corner positions relative to the vertex.
+ * 
+ * @param blockPos Position of the block
+ * @param vertOffset Offset of the vertex from the block position
+ * @param chunk The chunk containing the block
+ * @param world World reference for checking adjacent chunks
+ * @return Occlusion level from 0 (fully occluded) to 3 (no occlusion)
+ */
 uint8_t calculateOcclusionLevel(const glm::ivec3& blockPos,
 								const glm::ivec3& vertOffset,
 								const Chunk& chunk,
@@ -95,12 +171,21 @@ uint8_t calculateOcclusionLevel(const glm::ivec3& blockPos,
 	return 3 - (side1 + side2 + corner);
 }
 
+/**
+ * @brief Rebuilds the mesh for this chunk based on visible block faces
+ * 
+ * @details This method iterates through all blocks in the chunk and generates
+ *          vertices for faces that are exposed (not occluded by neighboring blocks).
+ *          It separates solid and semi-transparent geometry for proper rendering order.
+ *          The method also applies ambient occlusion if enabled.
+ * 
+ * @param world Reference to the world to access neighboring chunks
+ * 
+ * @note This method should be called when the chunk is marked as dirty
+ * @warning This is a performance-critical method that should be optimized
+ */
 void Chunk::rebuildMesh(const World& world) {
 	TRACE_FUNCTION();
-	static Ref<std::vector<BlockVertex>> solidVertices =
-		std::make_shared<std::vector<BlockVertex>>(MaxVertexCount);
-	static Ref<std::vector<BlockVertex>> semiTransparentVertices =
-		std::make_shared<std::vector<BlockVertex>>(MaxVertexCount);
 
 	solidVertexCount = 0;
 	semiTransparentVertexCount = 0;
@@ -156,10 +241,20 @@ void Chunk::rebuildMesh(const World& world) {
 
 							if (blockClass == BlockData::BlockClass::semiTransparent ||
 								blockClass == BlockData::BlockClass::transparent) {
-								semiTransparentVertices->at(semiTransparentVertexCount) = vert;
+								// Ensure capacity before adding
+								if (semiTransparentVertexCount >= semiTransparentVertices->size()) {
+									ensureVertexCapacity(solidVertexCount, semiTransparentVertexCount + 1000);
+									semiTransparentVertices->resize(semiTransparentVertices->capacity());
+								}
+								(*semiTransparentVertices)[semiTransparentVertexCount] = vert;
 								semiTransparentVertexCount++;
 							} else {
-								solidVertices->at(solidVertexCount) = vert;
+								// Ensure capacity before adding
+								if (solidVertexCount >= solidVertices->size()) {
+									ensureVertexCapacity(solidVertexCount + 1000, semiTransparentVertexCount);
+									solidVertices->resize(solidVertices->capacity());
+								}
+								(*solidVertices)[solidVertexCount] = vert;
 								solidVertexCount++;
 							}
 						}
@@ -168,8 +263,12 @@ void Chunk::rebuildMesh(const World& world) {
 			}
 		}
 	}
+	
+	// Update statistics
+	updatePeakUsage();
+	
 	{
-		TRACE_SCOPE("Chunk::rebuildMesh::WalkBlocks");
+		TRACE_SCOPE("Chunk::rebuildMesh::UploadToGPU");
 		int32_t vertexCount = solidVertexCount + semiTransparentVertexCount;
 
 		if (!mesh) {
@@ -178,15 +277,32 @@ void Chunk::rebuildMesh(const World& world) {
 		}
 
 		Ref<VertexBuffer> buffer = mesh->getVertexBuffer();
-		if (buffer->getSize() < vertexCount) {
-			int32_t dataSize = glm::min(vertexCount + 1000, MaxVertexCount);
-			buffer->bufferDynamicData(*solidVertices, dataSize, 0);
-		} else {
-			buffer->bufferDynamicSubData(*solidVertices, solidVertexCount, 0, 0);
+		
+		// Always use bufferDynamicData to avoid issues with bufferDynamicSubData
+		// The overhead is minimal compared to mesh generation
+		int32_t bufferSize = glm::max(vertexCount, glm::min(vertexCount + 1000, MaxVertexCount));
+		
+		// Create combined buffer
+		std::vector<BlockVertex> combinedBuffer;
+		combinedBuffer.reserve(bufferSize);
+		
+		// Add solid vertices
+		if (solidVertexCount > 0) {
+			combinedBuffer.insert(combinedBuffer.end(), 
+				solidVertices->begin(), solidVertices->begin() + solidVertexCount);
 		}
-
-		buffer->bufferDynamicSubData(
-			*semiTransparentVertices, semiTransparentVertexCount, 0, solidVertexCount);
+		
+		// Add semi-transparent vertices
+		if (semiTransparentVertexCount > 0) {
+			combinedBuffer.insert(combinedBuffer.end(), 
+				semiTransparentVertices->begin(), semiTransparentVertices->begin() + semiTransparentVertexCount);
+		}
+		
+		// Pad to buffer size
+		combinedBuffer.resize(bufferSize);
+		
+		// Upload to GPU
+		buffer->bufferDynamicData(combinedBuffer, bufferSize, 0);
 		renderState = RenderState::ready;
 	}
 }
@@ -197,7 +313,14 @@ glm::ivec3 Chunk::toChunkCoordinates(const glm::ivec3& globalPosition) {
 			Util::positiveMod(globalPosition.z, HorizontalSize)};
 }
 
-// ChunkPool methods
+/**
+ * @brief Resets the chunk for reuse by the ChunkPool
+ * 
+ * @details Clears all blocks and reinitializes the chunk with a new position.
+ *          This method is used by the ChunkPool to recycle chunk objects.
+ * 
+ * @param newPosition The new world position for this chunk
+ */
 void Chunk::reset(glm::ivec2 newPosition) {
 	worldPosition = newPosition;
 	init();
@@ -210,8 +333,45 @@ void Chunk::reset(glm::ivec2 newPosition) {
 			}
 		}
 	}
+
+	// Ensure vertex vectors are allocated with initial capacity
+	if (!solidVertices) {
+		solidVertices = std::make_shared<std::vector<BlockVertex>>();
+		solidVertices->reserve(InitialVertexCapacity);
+	} else {
+		// Shrink to initial capacity if much larger
+		if (solidVertices->capacity() > InitialVertexCapacity * 4) {
+			solidVertices->clear();
+			solidVertices->shrink_to_fit();
+			solidVertices->reserve(InitialVertexCapacity);
+		}
+	}
+	
+	if (!semiTransparentVertices) {
+		semiTransparentVertices = std::make_shared<std::vector<BlockVertex>>();
+		semiTransparentVertices->reserve(InitialVertexCapacity);
+	} else {
+		// Shrink to initial capacity if much larger
+		if (semiTransparentVertices->capacity() > InitialVertexCapacity * 4) {
+			semiTransparentVertices->clear();
+			semiTransparentVertices->shrink_to_fit();
+			semiTransparentVertices->reserve(InitialVertexCapacity);
+		}
+	}
+	
+	// Reset statistics for new chunk
+	peakSolidVertexCount = 0;
+	peakSemiTransparentVertexCount = 0;
+	rebuildCount = 0;
 }
 
+/**
+ * @brief Clears the chunk's mesh data
+ * 
+ * @details Resets the render state and releases the mesh resources.
+ *          This method is typically called when a chunk is being deallocated
+ *          or returned to the pool.
+ */
 void Chunk::clear() {
 	// Reset render state and clear mesh
 	renderState = RenderState::initial;

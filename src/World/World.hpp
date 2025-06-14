@@ -17,6 +17,7 @@
 #include "../Rendering/Textures.hpp"
 #include "../Utils/Utils.hpp"
 #include "Chunk.hpp"
+#include "ChunkRegion.hpp"
 #include "WorldGenerator.hpp"
 
 #include <Frustum.h>
@@ -40,6 +41,7 @@ class ChunkPool {
 
 class World {
 	std::unordered_map<glm::ivec2, Ref<Chunk>, Util::HashVec2> chunks;
+	std::unordered_map<glm::ivec2, std::unique_ptr<ChunkRegion>, Util::HashVec2> regions;
 	std::vector<Ref<WorldBehavior>> behaviors;
 	ChunkPool chunkPool;
 	using ChunkIndexVector = std::vector<std::pair<glm::vec2, float>>;
@@ -64,6 +66,18 @@ class World {
 	void unloadChunk(const Ref<Chunk>& chunk);
 	void sortChunkIndices(glm::vec3 playerPos, const Ref<ChunkIndexVector>& chunkIndices);
 	void rebuildChunks(const Ref<ChunkIndexVector>& chunkIndices, const Frustum& frustum);
+	
+	/**
+	 * @brief Manages regions for hierarchical culling
+	 */
+	void addChunkToRegion(const Ref<Chunk>& chunk);
+	void removeChunkFromRegion(const glm::ivec2& chunkPos);
+	
+	/**
+	 * @brief Performs hierarchical frustum culling
+	 * @return Number of chunks culled
+	 */
+	int32_t performHierarchicalCulling(const Frustum& frustum, std::vector<Ref<Chunk>>& visibleChunks);
 
    public:
 	World(Window& window,

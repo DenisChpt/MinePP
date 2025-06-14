@@ -4,6 +4,7 @@
 
 #include "../Application/Window.hpp"
 #include "../Core/Assets.hpp"
+#include "ChunkRegion.hpp"
 #include "../Rendering/Buffers.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 
@@ -54,6 +55,11 @@ World::World(Window& window,
 
 	// On charge la texture atlas (unique) générée par TextureAtlas
 	setTextureAtlas(assets.getAtlasTexture());
+	
+	// Initialize regions for any existing chunks (from persistence)
+	for (const auto& [pos, chunk] : chunks) {
+		addChunkToRegion(chunk);
+	}
 }
 
 Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position) {
@@ -70,6 +76,7 @@ Ref<Chunk> World::generateOrLoadChunk(glm::ivec2 position) {
 
 void World::unloadChunk(const Ref<Chunk>& chunk) {
 	const auto chunkPos = chunk->getPosition();
+	removeChunkFromRegion(chunkPos);
 	chunks.erase(chunkPos);
 
 	// Informer les WorldBehavior que les blocs de ce chunk sont supprimés
@@ -101,7 +108,7 @@ void World::update(const glm::vec3& playerPosition, float deltaTime) {
 
 	// Décharger les chunks trop lointains
 	auto chunksCopy = chunks;
-	float unloadDistance = static_cast<float>(viewDistance + 1) * 16 + 8.0f;
+	float unloadDistance = static_cast<float>(viewDistance + 1) * Chunk::HorizontalSize + Chunk::HorizontalSize / 2.0f;
 	for (const auto& [chunkPosition, chunk] : chunksCopy) {
 		if (glm::abs(glm::distance(glm::vec2(chunkPosition), playerChunkPosition)) >
 			unloadDistance) {
@@ -119,7 +126,8 @@ void World::update(const glm::vec3& playerPosition, float deltaTime) {
 
 			float distance = glm::abs(glm::distance(glm::vec2(position), playerChunkPosition));
 			if (distance <= loadDistance) {
-				addChunk(position, generateOrLoadChunk(position));
+				auto chunk = generateOrLoadChunk(position);
+				addChunk(position, chunk);
 			}
 		}
 	}
@@ -167,15 +175,33 @@ void World::rebuildChunks(const Ref<ChunkIndexVector>& chunkIndices, const Frust
 void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum& frustum) {
 	TRACE_FUNCTION();
 
-	// 1) Tri et rebuild des chunks au besoin
-	static auto sortedChunkIndices = std::make_shared<ChunkIndexVector>();
-	sortChunkIndices(playerPos, sortedChunkIndices);
-	rebuildChunks(sortedChunkIndices, frustum);
+	// 1) Hierarchical culling
+	static std::vector<Ref<Chunk>> visibleChunks;
+	int32_t culledChunks = performHierarchicalCulling(frustum, visibleChunks);
+	
+	// 2) Sort visible chunks by distance
+	glm::vec2 playerXZ = glm::vec2(playerPos.x, playerPos.z);
+	std::sort(visibleChunks.begin(), visibleChunks.end(), 
+		[&playerXZ](const Ref<Chunk>& a, const Ref<Chunk>& b) {
+			return a->distanceToPoint(playerXZ) < b->distanceToPoint(playerXZ);
+		});
+	
+	// 3) Rebuild meshes for visible chunks that need it
+	uint32_t meshesRebuilt = 0;
+	for (const auto& chunk : visibleChunks) {
+		if (meshesRebuilt > MaxRebuildsAllowedPerFrame) {
+			break;
+		}
+		if (chunk->needsMeshRebuild()) {
+			chunk->rebuildMesh(*this);
+			meshesRebuilt++;
+		}
+	}
 
 	int totalFrames = 32;
 	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
-	// 3) Configure shader
+	// 4) Configure shader
 	opaqueShader->bind();
 	if (textureAtlas) {
 		opaqueShader->setTexture("atlas", textureAtlas, 0);
@@ -183,18 +209,15 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	opaqueShader->setUInt("textureAnimation", currentFrame);
 	opaqueShader->setVec3("lightDirection", glm::normalize(glm::vec3(1, 1, 1)));
 
-	// 4) Rendu
+	// 5) Render visible chunks
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// Temporairement désactiver le depth test pour déboguer
-	// glDisable(GL_DEPTH_TEST);
 
-	for (const auto& index : *sortedChunkIndices) {
-		const auto& chunk = chunks[index.first];
+	for (const auto& chunk : visibleChunks) {
 		chunk->setShader(opaqueShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
 
-		// Rendu des blocs opaques
+		// Render opaque blocks
 		chunk->renderOpaque(transform, frustum);
 
 		// Rendu des blocs "semi-transparents" (ex: verre) qui se dessinent aussi dans ce pass
@@ -225,10 +248,16 @@ void World::renderTransparent(glm::mat4 transform,
 		framebuffer = std::make_shared<Framebuffer>(width, height, false, 2);
 	}
 
-	// 2) Tri + rebuild
-	static auto sortedChunkIndices = std::make_shared<ChunkIndexVector>();
-	sortChunkIndices(playerPos, sortedChunkIndices);
-	rebuildChunks(sortedChunkIndices, frustum);
+	// 2) Use hierarchical culling from opaque pass
+	static std::vector<Ref<Chunk>> visibleChunks;
+	performHierarchicalCulling(frustum, visibleChunks);
+	
+	// Sort visible chunks by distance (far to near for transparency)
+	glm::vec2 playerXZ = glm::vec2(playerPos.x, playerPos.z);
+	std::sort(visibleChunks.begin(), visibleChunks.end(), 
+		[&playerXZ](const Ref<Chunk>& a, const Ref<Chunk>& b) {
+			return a->distanceToPoint(playerXZ) > b->distanceToPoint(playerXZ);
+		});
 
 	// 3) Calcul de la frame courante (même totalFrames = 8, par ex)
 	int totalFrames = 8;
@@ -257,8 +286,8 @@ void World::renderTransparent(glm::mat4 transform,
 	transparentShader->setFloat("zFar", zFar);
 	transparentShader->setTexture("opaqueDepth", opaqueRender->getDepthAttachment(), 1);
 
-	// 6) Dessin des chunks semi-transparents (ex: eau)
-	for (const auto& [key, chunk] : chunks) {
+	// 6) Dessin des chunks semi-transparents (ex: eau) - only visible chunks
+	for (const auto& chunk : visibleChunks) {
 		chunk->setShader(transparentShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
 		chunk->renderSemiTransparent(transform, frustum);
@@ -345,6 +374,9 @@ void World::addChunk(glm::ivec2 position, const Ref<Chunk>& chunk) {
 	TRACE_FUNCTION();
 	chunks[position] = chunk;
 	chunk->setShader(opaqueShader);
+	
+	// Add to region for hierarchical culling
+	addChunkToRegion(chunk);
 
 	// Marquer les voisins comme dirty
 	std::array<glm::ivec2, 4> chunksAround = {{{0, 16}, {16, 0}, {0, -16}, {-16, 0}}};
@@ -384,4 +416,88 @@ const BlockData* World::getBlockAtIfLoaded(glm::ivec3 position) const {
 
 bool World::isChunkLoaded(glm::ivec2 position) const {
 	return chunks.contains(position);
+}
+
+/**
+ * @brief Adds a chunk to its corresponding region
+ * 
+ * @details Creates the region if it doesn't exist yet
+ */
+void World::addChunkToRegion(const Ref<Chunk>& chunk) {
+	glm::ivec2 regionPos = ChunkRegion::chunkToRegionPos(chunk->getPosition());
+	
+	// Create region if it doesn't exist
+	if (!regions.contains(regionPos)) {
+		regions[regionPos] = std::make_unique<ChunkRegion>(regionPos);
+	}
+	
+	regions[regionPos]->addChunk(chunk);
+}
+
+/**
+ * @brief Removes a chunk from its region
+ * 
+ * @details Removes empty regions to save memory
+ */
+void World::removeChunkFromRegion(const glm::ivec2& chunkPos) {
+	glm::ivec2 regionPos = ChunkRegion::chunkToRegionPos(chunkPos);
+	
+	auto it = regions.find(regionPos);
+	if (it != regions.end()) {
+		it->second->removeChunk(chunkPos);
+		
+		// Remove empty regions
+		if (it->second->isEmpty()) {
+			regions.erase(it);
+		}
+	}
+}
+
+/**
+ * @brief Performs hierarchical frustum culling
+ * 
+ * @details First culls entire regions, then individual chunks within visible regions
+ */
+int32_t World::performHierarchicalCulling(const Frustum& frustum, std::vector<Ref<Chunk>>& visibleChunks) {
+	TRACE_FUNCTION();
+	
+	visibleChunks.clear();
+	visibleChunks.reserve(chunks.size());
+	
+	int32_t chunksculled = 0;
+	int32_t regionsCulled = 0;
+	
+	// Debug: check if we have regions
+	if (regions.empty()) {
+		// Fallback: if no regions, use all chunks
+		for (const auto& [pos, chunk] : chunks) {
+			if (chunk->isVisible(frustum)) {
+				visibleChunks.push_back(chunk);
+			} else {
+				chunksculled++;
+			}
+		}
+		return chunksculled;
+	}
+	
+	// First pass: cull regions
+	for (const auto& [regionPos, region] : regions) {
+		if (!region->isVisible(frustum)) {
+			// Entire region is not visible
+			regionsCulled++;
+			chunksculled += region->getChunks().size();
+			continue;
+		}
+		
+		// Second pass: check individual chunks in visible regions
+		for (const auto& chunk : region->getChunks()) {
+			if (chunk->isVisible(frustum)) {
+				visibleChunks.push_back(chunk);
+			} else {
+				chunksculled++;
+			}
+		}
+	}
+	
+	return chunksculled;
 }

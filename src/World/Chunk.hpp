@@ -33,6 +33,17 @@ class Chunk {
 
 	static constexpr int32_t BlockCount = HorizontalSize * HorizontalSize * VerticalSize;
 	static constexpr int32_t MaxVertexCount = BlockCount * 8;
+	
+	/**
+	 * @brief Initial vertex capacity for dynamic allocation
+	 * @details Starting with a reasonable capacity based on typical chunk complexity
+	 */
+	static constexpr int32_t InitialVertexCapacity = 8192;
+	
+	/**
+	 * @brief Growth factor for vertex buffer reallocation
+	 */
+	static constexpr float VertexBufferGrowthFactor = 1.5f;
 
    private:
 	enum class RenderState { initial, ready, dirty };
@@ -49,7 +60,27 @@ class Chunk {
 	BlockData data[HorizontalSize][VerticalSize][HorizontalSize];
 	AABB aabb;
 
+	/**
+	 * @brief Temporary vertex storage for mesh building
+	 * 
+	 * @details These vectors are used to store vertices during mesh reconstruction,
+	 *          replacing static variables to ensure thread safety. They are allocated
+	 *          once per chunk and reused for each rebuild operation.
+	 */
+	Ref<std::vector<BlockVertex>> solidVertices;
+	Ref<std::vector<BlockVertex>> semiTransparentVertices;
+
+	/**
+	 * @brief Statistics for optimizing memory allocation
+	 * @details Track peak usage to optimize future allocations
+	 */
+	int32_t peakSolidVertexCount = 0;
+	int32_t peakSemiTransparentVertexCount = 0;
+	int32_t rebuildCount = 0;
+
 	void init();
+	void updatePeakUsage();
+	void ensureVertexCapacity(int32_t requiredSolidCapacity, int32_t requiredTransparentCapacity);
 
    public:
 	explicit Chunk(const glm::ivec2& worldPosition);
@@ -89,8 +120,8 @@ class Chunk {
 
 	[[nodiscard]] float distanceToPoint(const glm::vec2& point) const {
 		glm::vec2 referencePoint = {
-			glm::clamp(point.x, (float)worldPosition.x, (float)worldPosition.x + 16.0f),
-			glm::clamp(point.y, (float)worldPosition.y, (float)worldPosition.y + 16.0f)};
+			glm::clamp(point.x, (float)worldPosition.x, (float)worldPosition.x + (float)HorizontalSize),
+			glm::clamp(point.y, (float)worldPosition.y, (float)worldPosition.y + (float)HorizontalSize)};
 
 		return glm::distance(referencePoint, point);
 	}
@@ -116,6 +147,17 @@ class Chunk {
 	// Methods for ChunkPool
 	void reset(glm::ivec2 newPosition);
 	void clear();
+	
+	/**
+	 * @brief Get memory usage statistics
+	 * @return Pair of (current total vertex capacity, peak total vertex usage)
+	 */
+	[[nodiscard]] std::pair<int32_t, int32_t> getMemoryStats() const {
+		int32_t currentCapacity = 0;
+		if (solidVertices) currentCapacity += solidVertices->capacity();
+		if (semiTransparentVertices) currentCapacity += semiTransparentVertices->capacity();
+		return {currentCapacity, peakSolidVertexCount + peakSemiTransparentVertexCount};
+	}
 
 	friend Persistence;
 };

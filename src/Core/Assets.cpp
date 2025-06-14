@@ -281,8 +281,6 @@ void Assets::TextureAtlas::loadAtlas(const std::string& jsonPath, Assets& assets
 
 	atlasTexture->unbind();
 
-	std::cout << "Texture atlas created successfully with " << textureData.size()
-			  << " textures for " << mapping.size() << " block types." << std::endl;
 }
 
 BlockTextureData Assets::TextureAtlas::getBlockTextureData(BlockData::BlockType type) const {

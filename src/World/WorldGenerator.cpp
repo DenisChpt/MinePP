@@ -1,8 +1,9 @@
 #include "WorldGenerator.hpp"
+#include "WorldConstants.hpp"
 
 WorldGenerator::WorldGenerator(int32_t seed) : seed(seed), noise(seed) {
-	noise.SetFractalOctaves(5);
-	noise.SetFractalLacunarity(1.75);
+	noise.SetFractalOctaves(WorldConstants::Noise::FractalOctaves);
+	noise.SetFractalLacunarity(WorldConstants::Noise::FractalLacunarity);
 	noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
 	noise.SetFractalType(FastNoiseLite::FractalType_FBm);
 }
@@ -18,23 +19,23 @@ void WorldGenerator::populateChunk(const Ref<Chunk>& chunkRef) {
 		for (int32_t z = 0; z < Chunk::HorizontalSize; z++) {
 			float noiseX = (position.x + static_cast<float>(x));
 			float noiseY = (position.y + static_cast<float>(z));
-			float noiseValue = noise.GetNoise(noiseX, noiseY) / 2.0f + 0.5f;
-			int32_t height = 45 + static_cast<int32_t>(noiseValue * 45);
+			float noiseValue = noise.GetNoise(noiseX, noiseY) / WorldConstants::Noise::NormalizeScale + WorldConstants::Noise::NormalizeOffset;
+			int32_t height = WorldConstants::Terrain::BaseHeight + static_cast<int32_t>(noiseValue * WorldConstants::Terrain::HeightVariation);
 
 			for (int32_t y = 0; y < height; y++) {
 				int32_t dy = height - y;
 				BlockData::BlockType blockToPlace = BlockData::BlockType::stone;
 
-				if (dy == 1) {
-					if (y <= 64 && y >= 63) {
+				if (dy == WorldConstants::Layers::SurfaceLayerDepth) {
+					if (y <= WorldConstants::Terrain::BeachUpperBound && y >= WorldConstants::Terrain::BeachLowerBound) {
 						blockToPlace = BlockData::BlockType::sand;
-					} else if (y < 63) {
+					} else if (y < WorldConstants::Terrain::BeachLowerBound) {
 						blockToPlace = BlockData::BlockType::stone;
 					} else {
 						blockToPlace = BlockData::BlockType::grass;
 					}
-				} else if (dy < 5) {
-					if (y < 64) {
+				} else if (dy < WorldConstants::Layers::SubsurfaceLayerDepth) {
+					if (y < WorldConstants::Terrain::SeaLevel) {
 						blockToPlace = BlockData::BlockType::stone;
 					} else {
 						blockToPlace = BlockData::BlockType::dirt;
@@ -44,10 +45,10 @@ void WorldGenerator::populateChunk(const Ref<Chunk>& chunkRef) {
 				chunk.placeBlock(blockToPlace, x, y, z);
 			}
 
-			for (int32_t y = 64; y >= height; y--) {
+			for (int32_t y = WorldConstants::Terrain::SeaLevel; y >= height; y--) {
 				chunk.placeBlock(BlockData::BlockType::water, x, y, z);
 			}
-			chunk.placeBlock(BlockData::BlockType::bedrock, x, 0, z);
+			chunk.placeBlock(BlockData::BlockType::bedrock, x, WorldConstants::Terrain::BedrockLevel, z);
 		}
 	}
 }
