@@ -12,8 +12,62 @@ elseif (CMAKE_BUILD_TYPE MATCHES Debug)
 	set(CMAKE_CXX_FLAGS "-g")
 endif ()
 
-file(GLOB_RECURSE MinePPSources src/*.cpp src/*.hpp)
-add_executable(MinePP ${MinePPSources})
+# Liste explicite des fichiers sources
+set(MinePPSources
+    src/Application/Application.cpp
+    src/Application/Window.cpp
+    src/Core/Assets.cpp
+    src/Core/Context.cpp
+    src/Game/Behaviors.cpp
+    src/Game/Effects.cpp
+    src/Persistence/Persistence.cpp
+    src/Physics/MovementSimulation.cpp
+    src/Rendering/BlockVertex.cpp
+    src/Rendering/ColorRenderPass.cpp
+    src/Rendering/Framebuffers.cpp
+    src/Rendering/Mesh.cpp
+    src/Rendering/ParticleSystem.cpp
+    src/Rendering/Shaders.cpp
+    src/Rendering/Textures.cpp
+    src/Scene/Player.cpp
+    src/Scene/Scene.cpp
+    src/World/Chunk.cpp
+    src/World/World.cpp
+    src/World/WorldGenerator.cpp
+)
+
+# Headers principaux (pour l'IDE)
+set(MinePPHeaders
+    src/Common.hpp
+    src/Application/Application.hpp
+    src/Application/Window.hpp
+    src/Core/Assets.hpp
+    src/Core/Context.hpp
+    src/Game/Behaviors.hpp
+    src/Game/Effects.hpp
+    src/Math/Math.hpp
+    src/Math/Math.inl
+    src/Persistence/Persistence.hpp
+    src/Physics/MovementSimulation.hpp
+    src/Rendering/BlockVertex.hpp
+    src/Rendering/Buffers.hpp
+    src/Rendering/ColorRenderPass.hpp
+    src/Rendering/Framebuffers.hpp
+    src/Rendering/Mesh.hpp
+    src/Rendering/ParticleSystem.hpp
+    src/Rendering/Shaders.hpp
+    src/Rendering/Textures.hpp
+    src/Scene/Camera.hpp
+    src/Scene/Player.hpp
+    src/Scene/Scene.hpp
+    src/Utils/Utils.hpp
+    src/World/BlockTypes.hpp
+    src/World/Chunk.hpp
+    src/World/World.hpp
+    src/World/WorldGenerator.hpp
+)
+
+add_executable(MinePP ${MinePPSources} ${MinePPHeaders})
 target_precompile_headers(MinePP PRIVATE src/Common.hpp)
 
 # glfw

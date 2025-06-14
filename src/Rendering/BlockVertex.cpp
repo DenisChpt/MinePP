@@ -110,11 +110,5 @@ void BlockVertex::setType(const glm::ivec3 &offset, BlockData::BlockType type, c
 	BlockTextureData btd = assets.getBlockTextureData(type);
 	// Stocke l'index correspondant à la face dans le vertex
 	uint8_t textureIdx = btd.faceIndices[faceIndex];
-	
-	// Debug temporaire pour l'eau
-	if (type == BlockData::BlockType::water) {
-		printf("Water block: face=%d, textureIdx=%d\n", faceIndex, textureIdx);
-	}
-	
 	setTextureIndexInternal(textureIdx);
 }
