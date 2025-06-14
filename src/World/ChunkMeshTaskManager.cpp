@@ -34,8 +34,9 @@ void ChunkMeshTaskManager::submitChunk(Chunk* chunk) {
         return;
     }
     
-    // Create a new task
-    auto task = std::make_shared<ChunkMeshTask>(chunk->getPosition());
+    // Create a new task - always use Full LOD for now
+    // TODO: Implement proper LOD strategy
+    auto task = std::make_shared<ChunkMeshTask>(chunk->getPosition(), LODLevel::Full);
     
     // Add to active tasks
     {
@@ -57,7 +58,7 @@ void ChunkMeshTaskManager::processMeshTask(Chunk* chunk, std::shared_ptr<ChunkMe
         // Build the mesh using ChunkMeshBuilder
         // Get ambient occlusion setting from world (thread-safe getter)
         bool useAmbientOcclusion = world.getUseAmbientOcclusion();
-        ChunkMeshBuilder::buildMesh(*chunk, world, assets, useAmbientOcclusion, task->getMeshData());
+        ChunkMeshBuilder::buildMesh(*chunk, world, assets, useAmbientOcclusion, task->getMeshData(), task->getLODLevel());
         
         // Mark as completed
         task->setStatus(MeshTaskStatus::Complete);
@@ -98,7 +99,7 @@ void ChunkMeshTaskManager::processCompletedTasks() {
         
         if (task->isComplete()) {
             // Apply the mesh data to the chunk (must be done on main thread for OpenGL)
-            chunk->applyMeshData(task->getMeshData());
+            chunk->applyMeshData(task->getMeshData(), task->getLODLevel());
         }
     }
 }

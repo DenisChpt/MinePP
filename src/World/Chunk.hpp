@@ -21,8 +21,10 @@
 #include "../Rendering/Shaders.hpp"
 #include "BlockTypes.hpp"
 #include "ChunkMeshBuilder.hpp"
+#include "LODLevel.hpp"
 
 #include <Frustum.h>
+#include <array>
 
 class Persistence;
 class World;
@@ -48,13 +50,23 @@ class Chunk {
 
    private:
 	enum class RenderState { initial, ready, dirty };
-	int32_t solidVertexCount;
-	int32_t semiTransparentVertexCount;
-	Ref<VertexArray> mesh;
+	
+	// LOD-specific data
+	struct LODData {
+		int32_t solidVertexCount = 0;
+		int32_t semiTransparentVertexCount = 0;
+		Ref<VertexArray> mesh;
+		bool isGenerated = false;
+	};
+	
+	// Store data for each LOD level
+	std::array<LODData, static_cast<size_t>(LODLevel::Count)> lodData;
+	
+	// Current LOD level being used
+	LODLevel currentLOD = LODLevel::Full;
+	
 	Ref<const ShaderProgram> shader;
-
 	bool useAmbientOcclusion = true;
-
 	RenderState renderState;
 	glm::ivec2 worldPosition;
 
@@ -123,6 +135,24 @@ class Chunk {
 	void rebuildMesh(const World& world);
 	
 	/**
+	 * @brief Select and set appropriate LOD based on distance
+	 * @param distanceInChunks Distance from camera in chunk units
+	 */
+	void selectLOD(float distanceInChunks);
+	
+	/**
+	 * @brief Get the current LOD level
+	 */
+	LODLevel getCurrentLOD() const { return currentLOD; }
+	
+	/**
+	 * @brief Check if a specific LOD level is generated
+	 */
+	bool isLODGenerated(LODLevel lod) const { 
+		return lodData[static_cast<size_t>(lod)].isGenerated; 
+	}
+	
+	/**
 	 * @brief Apply pre-built mesh data to this chunk
 	 * 
 	 * @details This method is used to apply mesh data that was built
@@ -130,14 +160,23 @@ class Chunk {
 	 *          the main thread as it uploads data to GPU.
 	 * 
 	 * @param meshData The mesh data to apply
+	 * @param lod The LOD level this mesh data is for
 	 */
-	void applyMeshData(const ChunkMeshData& meshData);
+	void applyMeshData(const ChunkMeshData& meshData, LODLevel lod = LODLevel::Full);
 
 	[[nodiscard]] bool needsMeshRebuild() const {
-		return !mesh || renderState != RenderState::ready;
+		// Check if current LOD needs rebuilding
+		const auto& lod = lodData[static_cast<size_t>(currentLOD)];
+		return !lod.isGenerated || !lod.mesh || renderState != RenderState::ready;
 	};
 	void setShader(const Ref<const ShaderProgram>& newShader) { shader = newShader; };
-	void setDirty() { renderState = RenderState::dirty; };
+	void setDirty() { 
+		renderState = RenderState::dirty; 
+		// Invalidate all LODs when chunk is modified
+		for (auto& lod : lodData) {
+			lod.isGenerated = false;
+		}
+	};
 	void setUseAmbientOcclusion(bool enabled) {
 		if (enabled == useAmbientOcclusion) {
 			return;
@@ -160,6 +199,11 @@ class Chunk {
 
 		renderState = RenderState::dirty;
 		getBlock(x, y, z) = block;
+		
+		// Invalidate all LODs when chunk is modified
+		for (auto& lod : lodData) {
+			lod.isGenerated = false;
+		}
 	}
 
 	[[nodiscard]] float distanceToPoint(const glm::vec2& point) const {

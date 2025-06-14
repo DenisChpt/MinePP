@@ -25,9 +25,11 @@ set(MinePPSources
     src/Rendering/BlockVertex.cpp
     src/Rendering/ColorRenderPass.cpp
     src/Rendering/Framebuffers.cpp
+    src/Rendering/InstancedParticleRenderer.cpp
     src/Rendering/Mesh.cpp
     src/Rendering/ParticleSystem.cpp
     src/Rendering/Shaders.cpp
+    src/Rendering/SimpleCubeMesh.cpp
     src/Rendering/Textures.cpp
     src/Scene/Player.cpp
     src/Scene/Scene.cpp
@@ -57,9 +59,11 @@ set(MinePPHeaders
     src/Rendering/Buffers.hpp
     src/Rendering/ColorRenderPass.hpp
     src/Rendering/Framebuffers.hpp
+    src/Rendering/InstancedParticleRenderer.hpp
     src/Rendering/Mesh.hpp
     src/Rendering/ParticleSystem.hpp
     src/Rendering/Shaders.hpp
+    src/Rendering/SimpleCubeMesh.hpp
     src/Rendering/Textures.hpp
     src/Scene/Camera.hpp
     src/Scene/Player.hpp
@@ -72,6 +76,7 @@ set(MinePPHeaders
     src/World/ChunkMeshTask.hpp
     src/World/ChunkMeshTaskManager.hpp
     src/World/ChunkRegion.hpp
+    src/World/LODLevel.hpp
     src/World/World.hpp
     src/World/WorldConstants.hpp
     src/World/WorldGenerator.hpp

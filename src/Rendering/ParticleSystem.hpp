@@ -13,6 +13,7 @@
 
 #include "../Common.hpp"
 #include "../Utils/Utils.hpp"
+#include "InstancedParticleRenderer.hpp"
 
 struct ParticleDescription {
 	glm::vec3 position{0, 0, 0};
@@ -42,6 +43,9 @@ class ParticleSystem {
    protected:
 	Random random;
 	std::vector<ParticleDescription> particles;
+	
+	// Prepare instance data for rendering
+	std::vector<ParticleInstanceData> prepareInstanceData(const glm::mat4& viewProjection) const;
 
    public:
 	ParticleSystem() = default;
@@ -49,6 +53,9 @@ class ParticleSystem {
 	void update(float deltaTime);
 	virtual void render(glm::mat4 MVP) = 0;
 	void emit(const ParticleDescription& particle);
+	
+	// Get current particle count
+	size_t getParticleCount() const { return particles.size(); }
 
 	virtual ~ParticleSystem() = default;
 };

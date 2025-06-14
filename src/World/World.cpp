@@ -6,6 +6,7 @@
 #include "../Core/Assets.hpp"
 #include "../Core/PerformanceMonitor.hpp"
 #include "ChunkRegion.hpp"
+#include "LODLevel.hpp"
 #include "../Rendering/Buffers.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 
@@ -216,15 +217,27 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	{
 		PERF_TIMER("World::meshSubmit");
 		for (const auto& chunk : visibleChunks) {
-			if (chunk->needsMeshRebuild()) {
-				meshTaskManager->submitChunk(chunk.get());
+			// Calculate distance for LOD determination
+			float distanceInChunks = chunk->distanceToPoint(playerXZ) / static_cast<float>(Chunk::HorizontalSize);
+			LODLevel requiredLOD = LODSelector::selectLOD(distanceInChunks);
+			
+			// Submit task for the required LOD if not generated
+			if (!chunk->isLODGenerated(requiredLOD)) {
+				// For now, always generate Full LOD first
+				// TODO: Implement proper LOD generation strategy
+				if (!chunk->isLODGenerated(LODLevel::Full)) {
+					meshTaskManager->submitChunk(chunk.get());
+				}
 			}
 		}
 	}
 	
 	// 4) Process completed mesh tasks (apply generated meshes)
+	// Process twice to ensure fast visual updates when blocks are broken
 	{
 		PERF_TIMER("World::meshApply");
+		meshTaskManager->processCompletedTasks();
+		// Process again in case new tasks completed while we were processing
 		meshTaskManager->processCompletedTasks();
 	}
 	
@@ -248,6 +261,10 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (const auto& chunk : visibleChunks) {
+		// Select appropriate LOD based on distance
+		float distanceInChunks = chunk->distanceToPoint(playerXZ) / static_cast<float>(Chunk::HorizontalSize);
+		chunk->selectLOD(distanceInChunks);
+		
 		chunk->setShader(opaqueShader);
 		chunk->setUseAmbientOcclusion(useAmbientOcclusion);
 
@@ -366,6 +383,9 @@ bool World::placeBlock(BlockData block, glm::ivec3 position) {
 
 	// Placer le nouveau bloc
 	chunk->placeBlock(block, positionInChunk);
+	
+	// Submit chunk for immediate rebuild
+	submitChunkForRebuild(chunk.get());
 
 	// Notifier qu'on a ajouté un bloc
 	for (const auto& behavior : behaviors) {
@@ -381,6 +401,8 @@ bool World::placeBlock(BlockData block, glm::ivec3 position) {
 		if (!Chunk::isInBounds(neighbor.x, neighbor.y, neighbor.z)) {
 			const auto& chunkN = getChunk(getChunkIndex(neighborWorldPosition));
 			chunkN->setDirty();
+			// Also submit neighbor chunk for immediate rebuild
+			submitChunkForRebuild(chunkN.get());
 		}
 		for (const auto& behavior : behaviors) {
 			behavior->onBlockUpdate(
@@ -542,4 +564,10 @@ size_t World::getActiveMeshTasks() const {
 
 size_t World::getCompletedMeshTasks() const {
 	return meshTaskManager->getCompletedTaskCount();
+}
+
+void World::submitChunkForRebuild(Chunk* chunk) {
+	if (chunk && chunk->needsMeshRebuild()) {
+		meshTaskManager->submitChunk(chunk);
+	}
 }

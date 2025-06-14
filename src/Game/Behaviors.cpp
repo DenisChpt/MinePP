@@ -3,35 +3,60 @@
 
 #include "../Core/Assets.hpp"
 #include "../World/World.hpp"
+#include "../Core/PerformanceMonitor.hpp"
+
+// Static member definitions
+std::unique_ptr<InstancedParticleRenderer> BlockBreakParticleSystem::instancedRenderer = nullptr;
+std::unique_ptr<InstancedParticleRenderer> LavaParticleSystem::instancedRenderer = nullptr;
 
 // BlockBreakParticleSystem
-BlockBreakParticleSystem::BlockBreakParticleSystem(Assets& assets)
-	: cubeShader(assets.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
-
-void BlockBreakParticleSystem::render(glm::mat4 MVP) {
-	cubeShader->bind();
-	for (const auto& particle : particles) {
-		cubeShader->setVec4("color", particle.color);
-		cubeShader->setMat4("MVP",
-							MVP * glm::translate(particle.position) * glm::scale(particle.scale) *
-								glm::rotate(glm::two_pi<float>(), particle.rotation));
-		cubeMesh.render();
+void BlockBreakParticleSystem::initializeStaticResources() {
+	if (!instancedRenderer) {
+		instancedRenderer = std::make_unique<InstancedParticleRenderer>();
 	}
 }
 
+BlockBreakParticleSystem::BlockBreakParticleSystem(Assets& assets)
+	: instancedShader(assets.loadShaderProgram("assets/shaders/particle_instanced")) {
+	initializeStaticResources();
+}
+
+void BlockBreakParticleSystem::render(glm::mat4 MVP) {
+	if (particles.empty()) return;
+	
+	// Prepare instance data
+	auto instanceData = prepareInstanceData(MVP);
+	
+	// Render all particles in a single draw call
+	instancedRenderer->render(instanceData, instancedShader);
+	
+	// Record performance metric
+	PerformanceMonitor::getInstance().recordCount("Block Break Particles", particles.size());
+}
+
 // LavaParticleSystem
+void LavaParticleSystem::initializeStaticResources() {
+	if (!instancedRenderer) {
+		instancedRenderer = std::make_unique<InstancedParticleRenderer>();
+	}
+}
+
 LavaParticleSystem::LavaParticleSystem(Assets& assets)
-	: cubeShader(assets.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
+	: instancedShader(assets.loadShaderProgram("assets/shaders/particle_instanced")) {
+	initializeStaticResources();
+}
 
 void LavaParticleSystem::render(glm::mat4 MVP) {
-	cubeShader->bind();
-	for (const auto& particle : particles) {
-		cubeShader->setVec4("color", particle.color);
-		cubeShader->setMat4("MVP",
-							MVP * glm::translate(particle.position) * glm::scale(particle.scale) *
-								glm::rotate(glm::two_pi<float>(), particle.rotation));
-		cubeMesh.render();
-	}
+	if (particles.empty()) return;
+	
+	// Prepare instance data
+	auto instanceData = prepareInstanceData(MVP);
+	
+	// Render all particles in a single draw call
+	instancedRenderer->render(instanceData, instancedShader);
+	
+	// Record performance metric
+	PerformanceMonitor::getInstance().recordCount("Lava Particles", particles.size());
 }
 
 // BlockBreakParticleBehavior

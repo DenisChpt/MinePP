@@ -1,4 +1,5 @@
 #include "ParticleSystem.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
 void ParticleSystem::update(float deltaTime) {
 	std::vector<size_t> particlesToRemove;
@@ -29,4 +30,29 @@ void ParticleSystem::emit(const ParticleDescription& particle) {
 	newParticle.angularVelocity += particle.angularVelocityVariation * random.getVec3();
 	newParticle.scaleVelocity += particle.scaleVelocityVariation * random.getVec3();
 	newParticle.color = newParticle.startColor;
+}
+
+std::vector<ParticleInstanceData> ParticleSystem::prepareInstanceData(const glm::mat4& viewProjection) const {
+	std::vector<ParticleInstanceData> instanceData;
+	instanceData.reserve(particles.size());
+	
+	for (const auto& particle : particles) {
+		ParticleInstanceData instance;
+		
+		// Build transform matrix for this particle
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, particle.position);
+		model = glm::rotate(model, particle.rotation.x, glm::vec3(1, 0, 0));
+		model = glm::rotate(model, particle.rotation.y, glm::vec3(0, 1, 0));
+		model = glm::rotate(model, particle.rotation.z, glm::vec3(0, 0, 1));
+		model = glm::scale(model, particle.scale);
+		
+		// Combine with view-projection matrix
+		instance.transform = viewProjection * model;
+		instance.color = particle.color;
+		
+		instanceData.push_back(instance);
+	}
+	
+	return instanceData;
 }

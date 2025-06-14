@@ -31,22 +31,28 @@ class WorldBehavior {
 
 // BlockBreakParticleSystem
 class BlockBreakParticleSystem : public ParticleSystem {
-	CubeMesh cubeMesh{};
-	Ref<const ShaderProgram> cubeShader;
+	static std::unique_ptr<InstancedParticleRenderer> instancedRenderer;
+	Ref<const ShaderProgram> instancedShader;
 
    public:
 	BlockBreakParticleSystem(Assets& assets);
 	void render(glm::mat4 MVP) override;
+	
+	// Initialize static resources
+	static void initializeStaticResources();
 };
 
 // LavaParticleSystem
 class LavaParticleSystem : public ParticleSystem {
-	CubeMesh cubeMesh{};
-	Ref<const ShaderProgram> cubeShader;
+	static std::unique_ptr<InstancedParticleRenderer> instancedRenderer;
+	Ref<const ShaderProgram> instancedShader;
 
    public:
 	LavaParticleSystem(Assets& assets);
 	void render(glm::mat4 MVP) override;
+	
+	// Initialize static resources
+	static void initializeStaticResources();
 };
 
 // BlockBreakParticleBehavior

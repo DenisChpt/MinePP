@@ -125,4 +125,10 @@ class World {
 	// Mesh task manager stats
 	size_t getActiveMeshTasks() const;
 	size_t getCompletedMeshTasks() const;
+	
+	/**
+	 * @brief Submit a chunk for immediate mesh rebuilding
+	 * @details This is called when a block is placed/removed to ensure fast visual updates
+	 */
+	void submitChunkForRebuild(Chunk* chunk);
 };

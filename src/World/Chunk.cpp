@@ -15,9 +15,15 @@ Chunk::Chunk(const glm::ivec2& worldPosition)
 }
 
 void Chunk::init() {
-	solidVertexCount = 0;
-	semiTransparentVertexCount = 0;
-	mesh = nullptr;
+	// Initialize all LOD data
+	for (auto& lod : lodData) {
+		lod.solidVertexCount = 0;
+		lod.semiTransparentVertexCount = 0;
+		lod.mesh = nullptr;
+		lod.isGenerated = false;
+	}
+	
+	currentLOD = LODLevel::Full;
 	renderState = RenderState::initial;
 
 	glm::vec3 position = glm::vec3(worldPosition.x, 0, worldPosition.y);
@@ -27,7 +33,9 @@ void Chunk::init() {
 
 void Chunk::renderOpaque(const glm::mat4& transform, const Frustum& frustum) {
 	TRACE_FUNCTION();
-	if (!mesh || !isVisible(frustum)) {
+	
+	const auto& lod = lodData[static_cast<size_t>(currentLOD)];
+	if (!lod.mesh || !isVisible(frustum)) {
 		return;
 	}
 
@@ -39,14 +47,16 @@ void Chunk::renderOpaque(const glm::mat4& transform, const Frustum& frustum) {
 	shader->setMat4("MVP",
 					transform * glm::translate(glm::vec3(worldPosition.x, 0, worldPosition.y)));
 
-	if (solidVertexCount != 0) {
-		mesh->renderVertexSubStream(solidVertexCount, 0);
+	if (lod.solidVertexCount != 0) {
+		lod.mesh->renderVertexSubStream(lod.solidVertexCount, 0);
 	}
 }
 
 void Chunk::renderSemiTransparent(const glm::mat4& transform, const Frustum& frustum) {
 	TRACE_FUNCTION();
-	if (!mesh || !isVisible(frustum)) {
+	
+	const auto& lod = lodData[static_cast<size_t>(currentLOD)];
+	if (!lod.mesh || !isVisible(frustum)) {
 		return;
 	}
 
@@ -59,8 +69,8 @@ void Chunk::renderSemiTransparent(const glm::mat4& transform, const Frustum& fru
 					transform * glm::translate(glm::vec3(worldPosition.x, 0, worldPosition.y)));
 
 	glDisable(GL_CULL_FACE);
-	if (semiTransparentVertexCount != 0) {
-		mesh->renderVertexSubStream(semiTransparentVertexCount, solidVertexCount);
+	if (lod.semiTransparentVertexCount != 0) {
+		lod.mesh->renderVertexSubStream(lod.semiTransparentVertexCount, lod.solidVertexCount);
 	}
 	glEnable(GL_CULL_FACE);
 }
@@ -87,8 +97,10 @@ const BlockData* Chunk::getBlockAtOptimized(const glm::ivec3& pos, const World& 
  *          This information is used to optimize future allocations.
  */
 void Chunk::updatePeakUsage() {
-	peakSolidVertexCount = std::max(peakSolidVertexCount, solidVertexCount);
-	peakSemiTransparentVertexCount = std::max(peakSemiTransparentVertexCount, semiTransparentVertexCount);
+	// Update peak usage based on full LOD
+	const auto& fullLod = lodData[static_cast<size_t>(LODLevel::Full)];
+	peakSolidVertexCount = std::max(peakSolidVertexCount, fullLod.solidVertexCount);
+	peakSemiTransparentVertexCount = std::max(peakSemiTransparentVertexCount, fullLod.semiTransparentVertexCount);
 	rebuildCount++;
 }
 
@@ -187,82 +199,15 @@ void Chunk::rebuildMesh(const World& world) {
 	TRACE_FUNCTION();
 	PERF_TIMER("Chunk::rebuildMesh");
 
-	// Use ChunkMeshBuilder to generate mesh data
+	// Use ChunkMeshBuilder to generate mesh data for full LOD
 	ChunkMeshData meshData;
 	{
 		TRACE_SCOPE("Chunk::rebuildMesh::BuildMesh");
-		ChunkMeshBuilder::buildMesh(*this, world, world.getAssets(), useAmbientOcclusion, meshData);
+		ChunkMeshBuilder::buildMesh(*this, world, world.getAssets(), useAmbientOcclusion, meshData, LODLevel::Full);
 	}
 	
-	// Update counts
-	solidVertexCount = meshData.solidVertexCount;
-	semiTransparentVertexCount = meshData.semiTransparentVertexCount;
-	
-	// Copy mesh data to internal buffers
-	{
-		TRACE_SCOPE("Chunk::rebuildMesh::CopyData");
-		ensureVertexCapacity(solidVertexCount, semiTransparentVertexCount);
-		
-		if (solidVertexCount > 0) {
-			solidVertices->resize(solidVertexCount);
-			std::copy(meshData.solidVertices.begin(), 
-			         meshData.solidVertices.begin() + solidVertexCount,
-			         solidVertices->begin());
-		} else {
-			solidVertices->clear();
-		}
-		
-		if (semiTransparentVertexCount > 0) {
-			semiTransparentVertices->resize(semiTransparentVertexCount);
-			std::copy(meshData.semiTransparentVertices.begin(),
-			         meshData.semiTransparentVertices.begin() + semiTransparentVertexCount,
-			         semiTransparentVertices->begin());
-		} else {
-			semiTransparentVertices->clear();
-		}
-	}
-	
-	// Update statistics
-	updatePeakUsage();
-	
-	{
-		TRACE_SCOPE("Chunk::rebuildMesh::UploadToGPU");
-		int32_t vertexCount = solidVertexCount + semiTransparentVertexCount;
-
-		if (!mesh) {
-			mesh = std::make_shared<VertexArray>();
-			mesh->addVertexAttributes(BlockVertex::vertexAttributes(), sizeof(BlockVertex));
-		}
-
-		Ref<VertexBuffer> buffer = mesh->getVertexBuffer();
-		
-		// Always use bufferDynamicData to avoid issues with bufferDynamicSubData
-		// The overhead is minimal compared to mesh generation
-		int32_t bufferSize = glm::max(vertexCount, glm::min(vertexCount + 1000, MaxVertexCount));
-		
-		// Create combined buffer
-		std::vector<BlockVertex> combinedBuffer;
-		combinedBuffer.reserve(bufferSize);
-		
-		// Add solid vertices
-		if (solidVertexCount > 0) {
-			combinedBuffer.insert(combinedBuffer.end(), 
-				solidVertices->begin(), solidVertices->begin() + solidVertexCount);
-		}
-		
-		// Add semi-transparent vertices
-		if (semiTransparentVertexCount > 0) {
-			combinedBuffer.insert(combinedBuffer.end(), 
-				semiTransparentVertices->begin(), semiTransparentVertices->begin() + semiTransparentVertexCount);
-		}
-		
-		// Pad to buffer size
-		combinedBuffer.resize(bufferSize);
-		
-		// Upload to GPU
-		buffer->bufferDynamicData(combinedBuffer, bufferSize, 0);
-		renderState = RenderState::ready;
-	}
+	// Apply the mesh data
+	applyMeshData(meshData, LODLevel::Full);
 }
 
 /**
@@ -270,31 +215,33 @@ void Chunk::rebuildMesh(const World& world) {
  * 
  * @details Copies the mesh data and uploads it to GPU
  */
-void Chunk::applyMeshData(const ChunkMeshData& meshData) {
+void Chunk::applyMeshData(const ChunkMeshData& meshData, LODLevel lod) {
 	TRACE_FUNCTION();
 	
-	// Update counts
-	solidVertexCount = meshData.solidVertexCount;
-	semiTransparentVertexCount = meshData.semiTransparentVertexCount;
+	auto& lodData = this->lodData[static_cast<size_t>(lod)];
+	
+	// Update counts for this LOD
+	lodData.solidVertexCount = meshData.solidVertexCount;
+	lodData.semiTransparentVertexCount = meshData.semiTransparentVertexCount;
 	
 	// Copy mesh data to internal buffers
 	{
 		TRACE_SCOPE("Chunk::applyMeshData::CopyData");
-		ensureVertexCapacity(solidVertexCount, semiTransparentVertexCount);
+		ensureVertexCapacity(lodData.solidVertexCount, lodData.semiTransparentVertexCount);
 		
-		if (solidVertexCount > 0) {
-			solidVertices->resize(solidVertexCount);
+		if (lodData.solidVertexCount > 0) {
+			solidVertices->resize(lodData.solidVertexCount);
 			std::copy(meshData.solidVertices.begin(), 
-			         meshData.solidVertices.begin() + solidVertexCount,
+			         meshData.solidVertices.begin() + lodData.solidVertexCount,
 			         solidVertices->begin());
 		} else {
 			solidVertices->clear();
 		}
 		
-		if (semiTransparentVertexCount > 0) {
-			semiTransparentVertices->resize(semiTransparentVertexCount);
+		if (lodData.semiTransparentVertexCount > 0) {
+			semiTransparentVertices->resize(lodData.semiTransparentVertexCount);
 			std::copy(meshData.semiTransparentVertices.begin(),
-			         meshData.semiTransparentVertices.begin() + semiTransparentVertexCount,
+			         meshData.semiTransparentVertices.begin() + lodData.semiTransparentVertexCount,
 			         semiTransparentVertices->begin());
 		} else {
 			semiTransparentVertices->clear();
@@ -307,14 +254,14 @@ void Chunk::applyMeshData(const ChunkMeshData& meshData) {
 	// Upload to GPU
 	{
 		TRACE_SCOPE("Chunk::applyMeshData::UploadToGPU");
-		int32_t vertexCount = solidVertexCount + semiTransparentVertexCount;
+		int32_t vertexCount = lodData.solidVertexCount + lodData.semiTransparentVertexCount;
 
-		if (!mesh) {
-			mesh = std::make_shared<VertexArray>();
-			mesh->addVertexAttributes(BlockVertex::vertexAttributes(), sizeof(BlockVertex));
+		if (!lodData.mesh) {
+			lodData.mesh = std::make_shared<VertexArray>();
+			lodData.mesh->addVertexAttributes(BlockVertex::vertexAttributes(), sizeof(BlockVertex));
 		}
 
-		Ref<VertexBuffer> buffer = mesh->getVertexBuffer();
+		Ref<VertexBuffer> buffer = lodData.mesh->getVertexBuffer();
 		
 		// Always use bufferDynamicData to avoid issues with bufferDynamicSubData
 		int32_t bufferSize = glm::max(vertexCount, glm::min(vertexCount + 1000, MaxVertexCount));
@@ -324,12 +271,12 @@ void Chunk::applyMeshData(const ChunkMeshData& meshData) {
 		combinedBuffer.reserve(bufferSize);
 		
 		// Add vertices
-		if (solidVertexCount > 0) {
+		if (lodData.solidVertexCount > 0) {
 			combinedBuffer.insert(combinedBuffer.end(), 
 				solidVertices->begin(), solidVertices->end());
 		}
 		
-		if (semiTransparentVertexCount > 0) {
+		if (lodData.semiTransparentVertexCount > 0) {
 			combinedBuffer.insert(combinedBuffer.end(), 
 				semiTransparentVertices->begin(), semiTransparentVertices->end());
 		}
@@ -339,8 +286,17 @@ void Chunk::applyMeshData(const ChunkMeshData& meshData) {
 		
 		// Upload to GPU
 		buffer->bufferDynamicData(combinedBuffer, bufferSize, 0);
-		renderState = RenderState::ready;
+		lodData.isGenerated = true;
+		
+		// Mark as ready if this is the full LOD
+		if (lod == LODLevel::Full) {
+			renderState = RenderState::ready;
+		}
 	}
+}
+
+void Chunk::selectLOD(float distanceInChunks) {
+	currentLOD = LODSelector::selectLOD(distanceInChunks);
 }
 
 glm::ivec3 Chunk::toChunkCoordinates(const glm::ivec3& globalPosition) {
@@ -403,9 +359,15 @@ void Chunk::reset(glm::ivec2 newPosition) {
  *          or returned to the pool.
  */
 void Chunk::clear() {
-	// Reset render state and clear mesh
+	// Reset render state and clear all LOD meshes
 	renderState = RenderState::initial;
-	solidVertexCount = 0;
-	semiTransparentVertexCount = 0;
-	mesh = nullptr;
+	
+	for (auto& lod : lodData) {
+		lod.solidVertexCount = 0;
+		lod.semiTransparentVertexCount = 0;
+		lod.mesh = nullptr;
+		lod.isGenerated = false;
+	}
+	
+	currentLOD = LODLevel::Full;
 }

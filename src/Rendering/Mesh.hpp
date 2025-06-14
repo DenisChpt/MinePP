@@ -58,8 +58,15 @@ struct BlockMesh {
  */
 class CubeMesh {
 	Ref<VertexArray> cubeVertexArray;
+	Ref<VertexBuffer> vertexBuffer;
+	GLsizei vertexCount = 0;
 
    public:
 	CubeMesh();
 	void render() const;
+	
+	// For instanced rendering
+	const VertexArray& getVertexArray() const { return *cubeVertexArray; }
+	const VertexBuffer& getVertexBuffer() const { return *vertexBuffer; }
+	GLsizei getVertexCount() const { return vertexCount; }
 };

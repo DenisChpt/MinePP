@@ -12,6 +12,7 @@
 #include "../Common.hpp"
 #include "../Rendering/BlockVertex.hpp"
 #include "BlockTypes.hpp"
+#include "LODLevel.hpp"
 #include <vector>
 
 class Chunk;
@@ -103,7 +104,8 @@ public:
                          const World& world,
                          const Assets& assets,
                          bool useAmbientOcclusion,
-                         ChunkMeshData& outMeshData);
+                         ChunkMeshData& outMeshData,
+                         LODLevel lod = LODLevel::Full);
     
     /**
      * @brief Estimate the number of vertices a chunk might need

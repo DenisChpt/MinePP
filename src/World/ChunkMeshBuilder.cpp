@@ -34,7 +34,8 @@ void ChunkMeshBuilder::buildMesh(const Chunk& chunk,
                                 const World& world,
                                 const Assets& assets,
                                 bool useAmbientOcclusion,
-                                ChunkMeshData& outMeshData) {
+                                ChunkMeshData& outMeshData,
+                                LODLevel lod) {
     TRACE_FUNCTION();
     PERF_TIMER("ChunkMeshBuilder::buildMesh");
     
@@ -55,12 +56,15 @@ void ChunkMeshBuilder::buildMesh(const Chunk& chunk,
         {0, 0, -1},
     }};
     
-    // Iterate through all blocks in the chunk
+    // Get block skip factor based on LOD
+    int skipFactor = LODSelector::getBlockSkipFactor(lod);
+    
+    // Iterate through all blocks in the chunk with LOD-based stepping
     {
         PERF_TIMER("ChunkMeshBuilder::blockIteration");
-        for (int32_t x = Chunk::HorizontalSize - 1; x >= 0; --x) {
-            for (int32_t y = Chunk::VerticalSize - 1; y >= 0; --y) {
-                for (int32_t z = Chunk::HorizontalSize - 1; z >= 0; --z) {
+        for (int32_t x = Chunk::HorizontalSize - 1; x >= 0; x -= skipFactor) {
+            for (int32_t y = Chunk::VerticalSize - 1; y >= 0; y -= skipFactor) {
+                for (int32_t z = Chunk::HorizontalSize - 1; z >= 0; z -= skipFactor) {
                 glm::ivec3 blockPos = {x, y, z};
                 const BlockData* blockData = chunk.getBlockAt(blockPos);
                 if (!blockData || blockData->blockClass == BlockData::BlockClass::air) {
@@ -85,13 +89,15 @@ void ChunkMeshBuilder::buildMesh(const Chunk& chunk,
                     }
                     
                     // Generate vertices for this face
+                    // For lower LODs, we simply skip blocks rather than scaling vertices
                     for (const auto& vertex : BlockMesh::getVerticesFromDirection(offset)) {
                         BlockVertex vert = vertex;
                         vert.offset(x, y, z);
                         vert.setType(offset, type, assets);
                         
                         uint8_t occlusionLevel = 3;
-                        if (useAmbientOcclusion) {
+                        if (useAmbientOcclusion && lod == LODLevel::Full) {
+                            // Only calculate ambient occlusion for full LOD
                             if (offset.y == -1) {
                                 occlusionLevel = 0;
                             } else {

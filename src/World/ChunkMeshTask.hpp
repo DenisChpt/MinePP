@@ -10,6 +10,7 @@
 
 #include "../Common.hpp"
 #include "ChunkMeshBuilder.hpp"
+#include "LODLevel.hpp"
 #include <atomic>
 #include <memory>
 
@@ -36,6 +37,7 @@ private:
     glm::ivec2 chunkPosition;
     std::atomic<MeshTaskStatus> status{MeshTaskStatus::Pending};
     ChunkMeshData meshData;
+    LODLevel lodLevel;
     
     // Optional error message if task failed
     std::string errorMessage;
@@ -45,9 +47,10 @@ public:
      * @brief Construct a new mesh task
      * 
      * @param position The chunk position
+     * @param lod The LOD level for this task
      */
-    explicit ChunkMeshTask(const glm::ivec2& position) 
-        : chunkPosition(position) {}
+    explicit ChunkMeshTask(const glm::ivec2& position, LODLevel lod = LODLevel::Full) 
+        : chunkPosition(position), lodLevel(lod) {}
     
     /**
      * @brief Get the chunk position
@@ -96,6 +99,11 @@ public:
     [[nodiscard]] bool isComplete() const { 
         return status.load() == MeshTaskStatus::Complete; 
     }
+    
+    /**
+     * @brief Get the LOD level for this task
+     */
+    [[nodiscard]] LODLevel getLODLevel() const { return lodLevel; }
 };
 
 using ChunkMeshTaskPtr = std::shared_ptr<ChunkMeshTask>;
