@@ -152,3 +152,4 @@ inline std::optional<glm::ivec3> AxisPlane::rayHitsToBlockPosition(const glm::ve
         return std::nullopt;
     return glm::floor((hit1 + hit2) / 2.0f);
 }
+

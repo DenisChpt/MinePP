@@ -1,8 +1,7 @@
-#include "Math.hpp"
-#include "../World/World.hpp"
-#include "../World/BlockTypes.hpp"
+// WorldRayCast implementation
+// This file should be included AFTER World.hpp and BlockTypes.hpp
 
-WorldRayCast::WorldRayCast(glm::vec3 position, glm::vec3 direction, World &world, float reach = 10.0f)
+inline WorldRayCast::WorldRayCast(glm::vec3 position, glm::vec3 direction, World &world, float reach)
 {
     successful = false;
 

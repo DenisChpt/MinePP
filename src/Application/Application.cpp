@@ -84,3 +84,28 @@ void Application::onCursorPositionEvent(double x, double y)
 	TRACE_FUNCTION();
 	scene->onCursorPositionEvent(x, y);
 }
+
+// Main function moved from main.cpp
+#include "../Scene/Scene.hpp"
+#include "../Core/Context.hpp"
+
+int main(int argc, char **argv)
+{
+    START_TRACE("startup.json");
+    
+    Context context;
+    Application app(context);
+    
+    END_TRACE();
+
+    START_TRACE("scene-creation.json");
+    std::string savePath = argc > 1 ? argv[1] : "default.glc";
+    app.setScene(std::make_shared<Scene>(context, savePath));
+    END_TRACE();
+
+    START_TRACE("runtime.json");
+    int result = app.run();
+    END_TRACE();
+
+    return result;
+}

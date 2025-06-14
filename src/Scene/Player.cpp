@@ -1,6 +1,7 @@
 #include "Player.hpp"
 
 #include "../Math/Math.hpp"
+#include "../Math/Math.inl"
 
 Player::Player(const Ref<World> &world, const Ref<Persistence> &persistence)
 	: camera(persistence->getCamera()),

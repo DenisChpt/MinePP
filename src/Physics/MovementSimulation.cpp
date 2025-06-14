@@ -1,6 +1,7 @@
 #include "MovementSimulation.hpp"
 
 #include "../Math/Math.hpp"
+#include "../Math/Math.inl"
 #include "../Scene/Player.hpp"
 
 bool MovementSimulation::canMove(const glm::vec3 &from, const glm::vec3 &to, World &world)

@@ -5,6 +5,7 @@
 
 #include "../Application/Application.hpp"
 #include "../Math/Math.hpp"
+#include "../Math/Math.inl"
 #include "../Utils/Utils.hpp"
 #include "../World/BlockTypes.hpp"
 #include "Behaviors/ParticleBehaviors.hpp"
