@@ -18,6 +18,7 @@
 #include "../Utils/Utils.hpp"
 #include "Chunk.hpp"
 #include "ChunkRegion.hpp"
+#include "ChunkMeshTaskManager.hpp"
 #include "WorldGenerator.hpp"
 
 #include <Frustum.h>
@@ -44,6 +45,7 @@ class World {
 	std::unordered_map<glm::ivec2, std::unique_ptr<ChunkRegion>, Util::HashVec2> regions;
 	std::vector<Ref<WorldBehavior>> behaviors;
 	ChunkPool chunkPool;
+	std::unique_ptr<ChunkMeshTaskManager> meshTaskManager;
 	using ChunkIndexVector = std::vector<std::pair<glm::vec2, float>>;
 	Ref<const Texture> textureAtlas;
 	Ref<const ShaderProgram> opaqueShader;
@@ -119,4 +121,8 @@ class World {
 
 	// ChunkPool stats
 	size_t getChunkPoolSize() const { return chunkPool.size(); }
+	
+	// Mesh task manager stats
+	size_t getActiveMeshTasks() const;
+	size_t getCompletedMeshTasks() const;
 };

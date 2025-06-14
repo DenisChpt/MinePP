@@ -57,6 +57,9 @@ World::World(Window& window,
 	// On charge la texture atlas (unique) générée par TextureAtlas
 	setTextureAtlas(assets.getAtlasTexture());
 	
+	// Initialize mesh task manager after World is partially constructed
+	meshTaskManager = std::make_unique<ChunkMeshTaskManager>(*this, assets);
+	
 	// Initialize regions for any existing chunks (from persistence)
 	for (const auto& [pos, chunk] : chunks) {
 		addChunkToRegion(chunk);
@@ -134,6 +137,13 @@ void World::update(const glm::vec3& playerPosition, float deltaTime) {
 		}
 	}
 
+	// Process completed mesh generation tasks
+	// This must be done in the main thread for OpenGL operations
+	{
+		PERF_TIMER("World::processCompletedMeshTasks");
+		meshTaskManager->processCompletedTasks();
+	}
+
 	// Update des behaviors (particules, etc.)
 	for (auto& behavior : behaviors) {
 		behavior->update(deltaTime);
@@ -158,18 +168,13 @@ void World::sortChunkIndices(glm::vec3 playerPos, const Ref<ChunkIndexVector>& c
 }
 
 void World::rebuildChunks(const Ref<ChunkIndexVector>& chunkIndices, const Frustum& frustum) {
-	uint32_t meshesRebuilt = 0;
-
-	// On itère du plus proche au plus lointain (car chunkIndices est trié à l'envers +
-	// .reverse_view)
+	// Submit chunks to the mesh task manager instead of rebuilding directly
+	// Iterate from closest to farthest (chunkIndices is sorted in reverse)
 	for (auto& index : std::ranges::reverse_view(*chunkIndices)) {
-		if (meshesRebuilt > MaxRebuildsAllowedPerFrame) {
-			break;
-		}
 		const auto& chunk = chunks[index.first];
 		if (chunk->needsMeshRebuild() && chunk->isVisible(frustum)) {
-			chunk->rebuildMesh(*this);
-			meshesRebuilt++;
+			// Submit to thread pool for async mesh generation
+			meshTaskManager->submitChunk(chunk.get());
 		}
 	}
 }
@@ -207,26 +212,30 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 			return a->distanceToPoint(playerXZ) < b->distanceToPoint(playerXZ);
 		});
 	
-	// 3) Rebuild meshes for visible chunks that need it
-	uint32_t meshesRebuilt = 0;
+	// 3) Submit visible chunks that need rebuilding to mesh task manager
 	{
-		PERF_TIMER("World::meshRebuild");
+		PERF_TIMER("World::meshSubmit");
 		for (const auto& chunk : visibleChunks) {
-			if (meshesRebuilt > MaxRebuildsAllowedPerFrame) {
-				break;
-			}
 			if (chunk->needsMeshRebuild()) {
-				chunk->rebuildMesh(*this);
-				meshesRebuilt++;
+				meshTaskManager->submitChunk(chunk.get());
 			}
 		}
 	}
-	PerformanceMonitor::getInstance().recordCount("Meshes Rebuilt", meshesRebuilt);
+	
+	// 4) Process completed mesh tasks (apply generated meshes)
+	{
+		PERF_TIMER("World::meshApply");
+		meshTaskManager->processCompletedTasks();
+	}
+	
+	// Record mesh task statistics
+	PerformanceMonitor::getInstance().recordCount("Active Mesh Tasks", meshTaskManager->getActiveTaskCount());
+	PerformanceMonitor::getInstance().recordCount("Completed Mesh Tasks", meshTaskManager->getCompletedTaskCount());
 
 	int totalFrames = 32;
 	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
 
-	// 4) Configure shader
+	// 5) Configure shader
 	opaqueShader->bind();
 	if (textureAtlas) {
 		opaqueShader->setTexture("atlas", textureAtlas, 0);
@@ -234,7 +243,7 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	opaqueShader->setUInt("textureAnimation", currentFrame);
 	opaqueShader->setVec3("lightDirection", glm::normalize(glm::vec3(1, 1, 1)));
 
-	// 5) Render visible chunks
+	// 6) Render visible chunks
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -525,4 +534,12 @@ int32_t World::performHierarchicalCulling(const Frustum& frustum, std::vector<Re
 	}
 	
 	return chunksculled;
+}
+
+size_t World::getActiveMeshTasks() const {
+	return meshTaskManager->getActiveTaskCount();
+}
+
+size_t World::getCompletedMeshTasks() const {
+	return meshTaskManager->getCompletedTaskCount();
 }

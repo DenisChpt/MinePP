@@ -31,8 +31,10 @@ set(MinePPSources
     src/Rendering/Textures.cpp
     src/Scene/Player.cpp
     src/Scene/Scene.cpp
+    src/Utils/ThreadPool.cpp
     src/World/Chunk.cpp
     src/World/ChunkMeshBuilder.cpp
+    src/World/ChunkMeshTaskManager.cpp
     src/World/ChunkRegion.cpp
     src/World/World.cpp
     src/World/WorldGenerator.cpp
@@ -62,11 +64,13 @@ set(MinePPHeaders
     src/Scene/Camera.hpp
     src/Scene/Player.hpp
     src/Scene/Scene.hpp
+    src/Utils/ThreadPool.hpp
     src/Utils/Utils.hpp
     src/World/BlockTypes.hpp
     src/World/Chunk.hpp
     src/World/ChunkMeshBuilder.hpp
     src/World/ChunkMeshTask.hpp
+    src/World/ChunkMeshTaskManager.hpp
     src/World/ChunkRegion.hpp
     src/World/World.hpp
     src/World/WorldConstants.hpp
