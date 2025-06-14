@@ -1,5 +1,5 @@
 #pragma once
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 class Window;
 class AssetManager;

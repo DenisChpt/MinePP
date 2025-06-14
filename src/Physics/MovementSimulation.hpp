@@ -17,7 +17,7 @@
 #pragma once
 
 #include "../World/World.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 namespace MovementSimulation
 {

@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 
 #define SERIALIZE_DATA
 

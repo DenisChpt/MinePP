@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../Rendering/VertexArray.hpp"
+#include "../Rendering/Buffers.hpp"
 
 class CubeMesh
 {

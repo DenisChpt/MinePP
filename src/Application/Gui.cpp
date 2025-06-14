@@ -1,6 +1,6 @@
 #include "Gui.hpp"
 
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 #include "Window.hpp"
 
 Gui::Gui(Window& window)

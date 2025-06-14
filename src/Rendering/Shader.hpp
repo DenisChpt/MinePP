@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 class AssetManager;
 

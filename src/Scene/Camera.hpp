@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 struct MovementDirection
 {

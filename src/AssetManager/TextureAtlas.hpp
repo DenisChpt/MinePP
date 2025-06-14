@@ -11,9 +11,9 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
-#include "../Rendering/Texture.hpp"
-#include "../World/BlockData.hpp"
+#include "../Common.hpp"
+#include "../Rendering/Textures.hpp"
+#include "../World/BlockTypes.hpp"
 #include <array>
 #include <unordered_map>
 #include <string>

@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "../Util/Random.hpp"
-#include "../MinePP.hpp"
+#include "../Utils/Utils.hpp"
+#include "../Common.hpp"
 
 struct ParticleDescription
 {

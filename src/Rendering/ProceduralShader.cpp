@@ -1,6 +1,6 @@
 #include "ProceduralShader.hpp"
 
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 
 Ref<const ShaderProgram> ProceduralShader::getShader() const
 {

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "Chunk.hpp"
 
 class WorldGenerator

@@ -4,9 +4,9 @@
 #include <Frustum.h>
 
 #include "../Application/Application.hpp"
-#include "../Math/WorldRayCast.hpp"
-#include "../Performance/Trace.hpp"
-#include "../World/BlockName.hpp"
+#include "../Math/Math.hpp"
+#include "../Utils/Utils.hpp"
+#include "../World/BlockTypes.hpp"
 #include "Behaviors/ParticleBehaviors.hpp"
 #include "../Core/Context.hpp"
 #include "../Application/Window.hpp"

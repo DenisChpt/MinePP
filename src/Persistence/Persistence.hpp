@@ -13,9 +13,9 @@
 #pragma once
 
 #include "../Scene/Camera.hpp"
-#include "../Util/Util.hpp"
+#include "../Utils/Utils.hpp"
 #include "../World/Chunk.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 class Persistence
 {

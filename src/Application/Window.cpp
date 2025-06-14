@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
 #include "../AssetManager/AssetManager.hpp"
 #include "Application.hpp"

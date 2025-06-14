@@ -12,7 +12,7 @@
 
 #include <Frustum.h>
 
-#include "../../World/BlockData.hpp"
+#include "../../World/BlockTypes.hpp"
 
 class World;
 struct BlockData;

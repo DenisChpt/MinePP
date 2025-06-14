@@ -2,7 +2,7 @@
 
 #include "../AssetManager/AssetManager.hpp"
 #include "../Application/Application.hpp"
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 
 ColorRenderPass::ColorRenderPass(const Ref<const ShaderProgram> &shader) : shader(shader)
 {

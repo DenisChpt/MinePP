@@ -12,7 +12,7 @@
 
 #include "../Physics/MovementSimulation.hpp"
 #include "../World/World.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "Camera.hpp"
 
 class Player

@@ -5,10 +5,10 @@
 
 #include "../Persistence/Persistence.hpp"
 #include "../Rendering/ShaderProgram.hpp"
-#include "../Rendering/Texture.hpp"
-#include "../Rendering/VertexArray.hpp"
+#include "../Rendering/Textures.hpp"
+#include "../Rendering/Buffers.hpp"
 #include "../World/World.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "BlockOutline.hpp"
 #include "Effects/PostProcessEffects.hpp" // Un seul include pour tous les effets
 #include "Player.hpp"

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../Rendering/ShaderProgram.hpp"
-#include "../Rendering/VertexArray.hpp"
-#include "../MinePP.hpp"
+#include "../Rendering/Buffers.hpp"
+#include "../Common.hpp"
 
 class AssetManager;
 

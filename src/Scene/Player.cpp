@@ -1,6 +1,6 @@
 #include "Player.hpp"
 
-#include "../Math/WorldRayCast.hpp"
+#include "../Math/Math.hpp"
 
 Player::Player(const Ref<World> &world, const Ref<Persistence> &persistence)
 	: camera(persistence->getCamera()),
@@ -143,7 +143,7 @@ void Player::onMouseButtonEvent(int32_t button, int32_t action, int32_t)
 	{
 		if (WorldRayCast ray{camera.getPosition(), camera.getLookDirection(), *world, Reach})
 		{
-			blockToPlace = ray.getHitTarget().block.type;
+			blockToPlace = ray.getHitTarget().block->type;
 		}
 	}
 }

@@ -14,7 +14,7 @@ endif ()
 
 file(GLOB_RECURSE MinePPSources src/*.cpp src/*.hpp)
 add_executable(MinePP ${MinePPSources})
-target_precompile_headers(MinePP PRIVATE src/MinePP.hpp)
+target_precompile_headers(MinePP PRIVATE src/Common.hpp)
 
 # glfw
 add_subdirectory(external/glfw EXCLUDE_FROM_ALL)

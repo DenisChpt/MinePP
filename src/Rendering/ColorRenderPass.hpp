@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "FullscreenQuad.hpp"
+#include "Buffers.hpp"
 #include "ShaderProgram.hpp"
 
 class AssetManager;

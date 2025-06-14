@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "Shader.hpp"
-#include "Texture.hpp"
+#include "Textures.hpp"
 
 class AssetManager;
 

@@ -15,9 +15,10 @@
 
 #include "../Persistence/Persistence.hpp"
 #include "../Rendering/ShaderProgram.hpp"
-#include "../Rendering/Texture.hpp"
+#include "../Rendering/Textures.hpp"
 #include "../Scene/Behaviors/WorldBehavior.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
+#include "../Utils/Utils.hpp"
 #include "Chunk.hpp"
 #include "WorldGenerator.hpp"
 

@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
-#include "Texture.hpp"
+#include "../Common.hpp"
+#include "Textures.hpp"
 
 class Framebuffer
 {

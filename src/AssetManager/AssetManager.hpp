@@ -3,7 +3,7 @@
 
 #include "../Rendering/Shader.hpp"
 #include "../Rendering/ShaderProgram.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "AssetRegistries.hpp"
 
 class AssetManager

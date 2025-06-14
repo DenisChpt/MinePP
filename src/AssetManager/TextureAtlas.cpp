@@ -1,9 +1,9 @@
 // File: src/TextureAtlas.cpp
 
 #include "TextureAtlas.hpp"
-#include "../Util/Util.hpp"
+#include "../Utils/Utils.hpp"
 #include "AssetManager.hpp"
-#include "../Rendering/Image.hpp"
+#include "../Rendering/Textures.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>

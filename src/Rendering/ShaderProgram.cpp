@@ -1,7 +1,7 @@
 #include "ShaderProgram.hpp"
 
 #include "../AssetManager/AssetManager.hpp"
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 #include "Shader.hpp"
 
 ShaderProgram::ShaderProgram(const Ref<const Shader> &vertexShader, const Ref<const Shader> &fragmentShader)

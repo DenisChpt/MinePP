@@ -12,7 +12,7 @@
 #pragma once
 
 #include "../Rendering/ShaderProgram.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 template <typename T>
 class AssetRegistry

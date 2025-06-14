@@ -13,7 +13,7 @@
 #pragma once
 
 #include "../Scene/Scene.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "../Core/Context.hpp"
 
 class Application

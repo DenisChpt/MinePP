@@ -4,9 +4,8 @@
 #include "AssetRegistry.hpp"
 #include "../Rendering/Shader.hpp"
 #include "../Rendering/ShaderProgram.hpp"
-#include "../Rendering/Image.hpp"
-#include "../Rendering/Texture.hpp"
-#include "../Util/Util.hpp"
+#include "../Rendering/Textures.hpp"
+#include "../Utils/Utils.hpp"
 
 class AssetManager;
 

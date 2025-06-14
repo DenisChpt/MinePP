@@ -16,7 +16,7 @@
 #pragma once
 
 #include "../Rendering/FramebufferStack.hpp"
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 
 class Application;
 

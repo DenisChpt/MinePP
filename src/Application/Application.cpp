@@ -1,6 +1,6 @@
 #include "Application.hpp"
 
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 #include "Window.hpp"
 #include "Gui.hpp"
 

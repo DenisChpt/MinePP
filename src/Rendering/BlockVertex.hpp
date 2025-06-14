@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "../World/BlockData.hpp"
-#include "../MinePP.hpp"
-#include "VertexArray.hpp"
+#include "../World/BlockTypes.hpp"
+#include "../Common.hpp"
+#include "Buffers.hpp"
 
 class TextureAtlas;
 

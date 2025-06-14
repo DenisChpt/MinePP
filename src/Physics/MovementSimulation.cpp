@@ -1,6 +1,6 @@
 #include "MovementSimulation.hpp"
 
-#include "../Math/WorldRayCast.hpp"
+#include "../Math/Math.hpp"
 #include "../Scene/Player.hpp"
 
 bool MovementSimulation::canMove(const glm::vec3 &from, const glm::vec3 &to, World &world)

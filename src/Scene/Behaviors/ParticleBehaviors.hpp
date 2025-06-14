@@ -3,6 +3,7 @@
 #include "../../Rendering/ParticleSystem.hpp"
 #include "../../World/World.hpp"
 #include "../CubeMesh.hpp"
+#include "../../Utils/Utils.hpp"
 
 class AssetManager;
 

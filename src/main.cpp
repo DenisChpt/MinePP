@@ -14,9 +14,9 @@
 
 
 #include "Application/Application.hpp"
-#include "Performance/Trace.hpp"
+#include "Utils/Utils.hpp"
 #include "Core/Context.hpp"
-#include "MinePP.hpp"
+#include "Common.hpp"
 
 int main(int argc, char **argv)
 {

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../MinePP.hpp"
+#include "../Common.hpp"
 #include "FrameBuffer.hpp"
 
 class FramebufferStack

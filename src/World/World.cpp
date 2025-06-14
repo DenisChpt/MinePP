@@ -7,7 +7,7 @@
 #include "../Application/Window.hpp"
 #include "../AssetManager/AssetManager.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
-#include "../Rendering/FullscreenQuad.hpp"
+#include "../Rendering/Buffers.hpp"
 #include "../AssetManager/TextureAtlas.hpp"
 #include "../Core/Context.hpp"
 

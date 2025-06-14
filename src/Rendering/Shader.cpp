@@ -1,7 +1,7 @@
 #include "Shader.hpp"
 
 #include "../AssetManager/AssetManager.hpp"
-#include "../Performance/Trace.hpp"
+#include "../Utils/Utils.hpp"
 
 Shader::Shader(const std::string &source, uint32_t type)
 {

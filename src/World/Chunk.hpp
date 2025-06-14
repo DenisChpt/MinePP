@@ -14,13 +14,13 @@
 
 #include <Frustum.h>
 
-#include "../Math/AABB.hpp"
+#include "../Math/Math.hpp"
 #include "../Rendering/BlockMesh.hpp"
 #include "../Rendering/BlockVertex.hpp"
 #include "../Rendering/ShaderProgram.hpp"
-#include "../Rendering/VertexArray.hpp"
-#include "../MinePP.hpp"
-#include "BlockData.hpp"
+#include "../Rendering/Buffers.hpp"
+#include "../Common.hpp"
+#include "BlockTypes.hpp"
 
 class Persistence;
 class World;

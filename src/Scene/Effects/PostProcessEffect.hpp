@@ -3,7 +3,7 @@
 #include "../../AssetManager/AssetManager.hpp"
 #include "../../Rendering/FrameBuffer.hpp"
 #include "../../Rendering/ShaderProgram.hpp"
-#include "../../MinePP.hpp"
+#include "../../Common.hpp"
 
 class Context;
 
