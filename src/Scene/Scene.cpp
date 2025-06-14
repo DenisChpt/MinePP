@@ -4,6 +4,7 @@
 #include "../Application/Application.hpp"
 #include "../Application/Window.hpp"
 #include "../Core/Assets.hpp"
+#include "../Core/PerformanceMonitor.hpp"
 #include "../Game/Behaviors.hpp"
 #include "../Math/Math.hpp"
 #include "../Utils/Utils.hpp"
@@ -88,6 +89,8 @@ Scene::Scene(Window& window, Assets& assets, const std::string& savePath)
 void Scene::update(float dt) {
 	TRACE_FUNCTION();
 	deltaTime = dt;
+	PerformanceMonitor::getInstance().recordTime("Frame Time", deltaTime * 1000.0f);
+	PerformanceMonitor::getInstance().recordCount("FPS", static_cast<int32_t>(1.0f / deltaTime));
 	player.update(deltaTime);
 	world->update(player.getPosition(), deltaTime);
 	skybox.update(projectionMatrix, player.getViewMatrix(), deltaTime);
@@ -110,6 +113,7 @@ void Scene::updateMouse() {
 
 void Scene::render() {
 	TRACE_FUNCTION();
+	PERF_TIMER("Scene::render");
 	skybox.render();
 
 	const glm::mat4 mvp = projectionMatrix * player.getViewMatrix();
@@ -166,6 +170,8 @@ void Scene::renderMenu() {
 		if (ImGui::Checkbox("Show intermediate textures", &showIntermediateTextures)) {
 			window.getFramebufferStack()->setKeepIntermediateTextures(showIntermediateTextures);
 		}
+		
+		ImGui::Checkbox("Show performance metrics", &showPerformanceMetrics);
 
 		ImGui::Spacing();
 		ImGui::Spacing();
@@ -288,6 +294,10 @@ void Scene::renderGui() {
 	TRACE_FUNCTION();
 	if (showIntermediateTextures) {
 		renderIntermediateTextures();
+	}
+
+	if (showPerformanceMetrics) {
+		PerformanceMonitor::getInstance().renderImGui();
 	}
 
 	if (isMenuOpen) {

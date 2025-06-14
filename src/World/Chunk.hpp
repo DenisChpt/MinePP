@@ -58,8 +58,40 @@ class Chunk {
 	RenderState renderState;
 	glm::ivec2 worldPosition;
 
-	BlockData data[HorizontalSize][VerticalSize][HorizontalSize];
+	/**
+	 * @brief Linear storage for block data
+	 * 
+	 * @details Stored in XYZ order (x changes fastest, then y, then z).
+	 *          Index calculation: x + y * HorizontalSize + z * HorizontalSize * VerticalSize
+	 */
+	std::array<BlockData, BlockCount> data;
 	AABB aabb;
+	
+	/**
+	 * @brief Convert 3D coordinates to linear index
+	 * 
+	 * @param x X coordinate (0 to HorizontalSize-1)
+	 * @param y Y coordinate (0 to VerticalSize-1) 
+	 * @param z Z coordinate (0 to HorizontalSize-1)
+	 * @return Linear index in the data array
+	 */
+	[[nodiscard]] static constexpr int32_t getLinearIndex(int32_t x, int32_t y, int32_t z) {
+		// Use standard XYZ order: x + y * HorizontalSize + z * HorizontalSize * VerticalSize
+		return x + y * HorizontalSize + z * HorizontalSize * VerticalSize;
+	}
+	
+	/**
+	 * @brief Get block data at position
+	 */
+	[[nodiscard]] BlockData& getBlock(int32_t x, int32_t y, int32_t z) {
+		assert(isInBounds(x, y, z));
+		return data[getLinearIndex(x, y, z)];
+	}
+	
+	[[nodiscard]] const BlockData& getBlock(int32_t x, int32_t y, int32_t z) const {
+		assert(isInBounds(x, y, z));
+		return data[getLinearIndex(x, y, z)];
+	}
 
 	/**
 	 * @brief Temporary vertex storage for mesh building
@@ -127,7 +159,7 @@ class Chunk {
 		assert(isInBounds(x, y, z));
 
 		renderState = RenderState::dirty;
-		data[x][y][z] = block;
+		getBlock(x, y, z) = block;
 	}
 
 	[[nodiscard]] float distanceToPoint(const glm::vec2& point) const {
@@ -139,7 +171,7 @@ class Chunk {
 	}
 
 	[[nodiscard]] const BlockData* getBlockAt(const glm::ivec3& position) const {
-		return &data[position.x][position.y][position.z];
+		return &getBlock(position.x, position.y, position.z);
 	}
 
 	static bool isInBounds(int32_t x, int32_t y, int32_t z) {

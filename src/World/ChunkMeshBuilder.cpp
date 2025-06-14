@@ -2,6 +2,7 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "../Core/Assets.hpp"
+#include "../Core/PerformanceMonitor.hpp"
 
 bool ChunkMeshBuilder::hasNonAirAt(const glm::ivec3& pos, const Chunk& chunk, const World& world) {
     const BlockData* block = chunk.getBlockAtOptimized(pos, world);
@@ -35,6 +36,7 @@ void ChunkMeshBuilder::buildMesh(const Chunk& chunk,
                                 bool useAmbientOcclusion,
                                 ChunkMeshData& outMeshData) {
     TRACE_FUNCTION();
+    PERF_TIMER("ChunkMeshBuilder::buildMesh");
     
     // Clear output data
     outMeshData.clear();
@@ -54,9 +56,11 @@ void ChunkMeshBuilder::buildMesh(const Chunk& chunk,
     }};
     
     // Iterate through all blocks in the chunk
-    for (int32_t x = Chunk::HorizontalSize - 1; x >= 0; --x) {
-        for (int32_t y = Chunk::VerticalSize - 1; y >= 0; --y) {
-            for (int32_t z = Chunk::HorizontalSize - 1; z >= 0; --z) {
+    {
+        PERF_TIMER("ChunkMeshBuilder::blockIteration");
+        for (int32_t x = Chunk::HorizontalSize - 1; x >= 0; --x) {
+            for (int32_t y = Chunk::VerticalSize - 1; y >= 0; --y) {
+                for (int32_t z = Chunk::HorizontalSize - 1; z >= 0; --z) {
                 glm::ivec3 blockPos = {x, y, z};
                 const BlockData* blockData = chunk.getBlockAt(blockPos);
                 if (!blockData || blockData->blockClass == BlockData::BlockClass::air) {
@@ -110,12 +114,15 @@ void ChunkMeshBuilder::buildMesh(const Chunk& chunk,
                 }
             }
         }
+        }
     }
 }
 
 int32_t ChunkMeshBuilder::estimateVertexCount(const Chunk& chunk) {
     // Simple estimation: count non-air blocks and multiply by average faces
     int32_t nonAirBlocks = 0;
+    
+    // Use same iteration order as buildMesh for cache efficiency
     for (int32_t x = 0; x < Chunk::HorizontalSize; ++x) {
         for (int32_t y = 0; y < Chunk::VerticalSize; ++y) {
             for (int32_t z = 0; z < Chunk::HorizontalSize; ++z) {

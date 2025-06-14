@@ -1,6 +1,7 @@
 #include "Chunk.hpp"
 
 #include "../Core/Assets.hpp"
+#include "../Core/PerformanceMonitor.hpp"
 #include "World.hpp"
 
 Chunk::Chunk(const glm::ivec2& worldPosition)
@@ -69,7 +70,7 @@ const BlockData* Chunk::getBlockAtOptimized(const glm::ivec3& pos, const World& 
 	if (pos.y >= 0 && pos.y < Chunk::VerticalSize) {
 		if (pos.x >= 0 && pos.x < Chunk::HorizontalSize && pos.z >= 0 &&
 			pos.z < Chunk::HorizontalSize) {
-			return &data[pos.x][pos.y][pos.z];
+			return &getBlock(pos.x, pos.y, pos.z);
 		} else {
 			return world.getBlockAtIfLoaded(
 				glm::ivec3(pos.x + worldPos.x, pos.y, pos.z + worldPos.y));
@@ -184,6 +185,7 @@ uint8_t calculateOcclusionLevel(const glm::ivec3& blockPos,
  */
 void Chunk::rebuildMesh(const World& world) {
 	TRACE_FUNCTION();
+	PERF_TIMER("Chunk::rebuildMesh");
 
 	// Use ChunkMeshBuilder to generate mesh data
 	ChunkMeshData meshData;
@@ -360,13 +362,7 @@ void Chunk::reset(glm::ivec2 newPosition) {
 	init();
 
 	// Clear all blocks to air
-	for (int32_t x = 0; x < HorizontalSize; ++x) {
-		for (int32_t y = 0; y < VerticalSize; ++y) {
-			for (int32_t z = 0; z < HorizontalSize; ++z) {
-				data[x][y][z] = BlockData{BlockData::BlockType::air};
-			}
-		}
-	}
+	std::fill(data.begin(), data.end(), BlockData{BlockData::BlockType::air});
 
 	// Ensure vertex vectors are allocated with initial capacity
 	if (!solidVertices) {

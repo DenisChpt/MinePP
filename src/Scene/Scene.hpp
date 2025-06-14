@@ -73,6 +73,7 @@ class Scene {
 
 	bool isMenuOpen = false;
 	bool showIntermediateTextures = false;
+	bool showPerformanceMetrics = false;
 
 	void toggleMenu();
 	void updateMouse();

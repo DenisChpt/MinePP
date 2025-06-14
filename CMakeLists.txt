@@ -44,6 +44,7 @@ set(MinePPHeaders
     src/Application/Application.hpp
     src/Application/Window.hpp
     src/Core/Assets.hpp
+    src/Core/PerformanceMonitor.hpp
     src/Game/Behaviors.hpp
     src/Game/Effects.hpp
     src/Math/Math.hpp

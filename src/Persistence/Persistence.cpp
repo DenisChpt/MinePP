@@ -34,7 +34,7 @@ Persistence::Persistence(std::string newPath) : path(std::move(newPath)) {
 		file.read(reinterpret_cast<char*>(&worldPosition[0]), sizeof(glm::ivec2));
 
 		Ref<Chunk> chunk = std::make_shared<Chunk>(worldPosition);
-		file.read(reinterpret_cast<char*>(&chunk->data[0]), sizeof(Chunk::data));
+		file.read(reinterpret_cast<char*>(chunk->data.data()), sizeof(Chunk::data));
 
 		chunks[worldPosition] = chunk;
 	}
@@ -56,7 +56,7 @@ Persistence::~Persistence() {
 		TRACE_SCOPE("Persistence::~Persistence::saveChunk");
 		glm::ivec2 worldPosition = key;
 		file.write(reinterpret_cast<char*>(&worldPosition[0]), sizeof(glm::ivec2));
-		file.write(reinterpret_cast<char*>(&chunk->data[0]), sizeof(Chunk::data));
+		file.write(reinterpret_cast<char*>(chunk->data.data()), sizeof(Chunk::data));
 	}
 #endif
 }

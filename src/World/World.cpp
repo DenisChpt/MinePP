@@ -4,6 +4,7 @@
 
 #include "../Application/Window.hpp"
 #include "../Core/Assets.hpp"
+#include "../Core/PerformanceMonitor.hpp"
 #include "ChunkRegion.hpp"
 #include "../Rendering/Buffers.hpp"
 #include "../Rendering/ColorRenderPass.hpp"
@@ -99,6 +100,7 @@ void World::unloadChunk(const Ref<Chunk>& chunk) {
 
 void World::update(const glm::vec3& playerPosition, float deltaTime) {
 	TRACE_FUNCTION();
+	PERF_TIMER("World::update");
 
 	// On incrémente le "temps" pour l'animation
 	textureAnimation += deltaTime * TextureAnimationSpeed;
@@ -174,10 +176,29 @@ void World::rebuildChunks(const Ref<ChunkIndexVector>& chunkIndices, const Frust
 
 void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum& frustum) {
 	TRACE_FUNCTION();
+	PERF_TIMER("World::renderOpaque");
 
 	// 1) Hierarchical culling
 	static std::vector<Ref<Chunk>> visibleChunks;
-	int32_t culledChunks = performHierarchicalCulling(frustum, visibleChunks);
+	int32_t culledChunks;
+	{
+		PERF_TIMER("World::hierarchicalCulling");
+		culledChunks = performHierarchicalCulling(frustum, visibleChunks);
+	}
+	
+	// Record metrics
+	PerformanceMonitor::getInstance().recordCount("Chunks Visible", visibleChunks.size());
+	PerformanceMonitor::getInstance().recordCount("Chunks Culled", culledChunks);
+	PerformanceMonitor::getInstance().recordCount("Chunks Loaded", chunks.size());
+	PerformanceMonitor::getInstance().recordCount("Chunk Pool Size", chunkPool.size());
+	
+	// Calculate memory usage
+	size_t totalVertexMemory = 0;
+	for (const auto& [pos, chunk] : chunks) {
+		auto [capacity, peak] = chunk->getMemoryStats();
+		totalVertexMemory += capacity * sizeof(BlockVertex);
+	}
+	PerformanceMonitor::getInstance().recordCount("Vertex Memory (MB)", totalVertexMemory / (1024 * 1024));
 	
 	// 2) Sort visible chunks by distance
 	glm::vec2 playerXZ = glm::vec2(playerPos.x, playerPos.z);
@@ -188,15 +209,19 @@ void World::renderOpaque(glm::mat4 transform, glm::vec3 playerPos, const Frustum
 	
 	// 3) Rebuild meshes for visible chunks that need it
 	uint32_t meshesRebuilt = 0;
-	for (const auto& chunk : visibleChunks) {
-		if (meshesRebuilt > MaxRebuildsAllowedPerFrame) {
-			break;
-		}
-		if (chunk->needsMeshRebuild()) {
-			chunk->rebuildMesh(*this);
-			meshesRebuilt++;
+	{
+		PERF_TIMER("World::meshRebuild");
+		for (const auto& chunk : visibleChunks) {
+			if (meshesRebuilt > MaxRebuildsAllowedPerFrame) {
+				break;
+			}
+			if (chunk->needsMeshRebuild()) {
+				chunk->rebuildMesh(*this);
+				meshesRebuilt++;
+			}
 		}
 	}
+	PerformanceMonitor::getInstance().recordCount("Meshes Rebuilt", meshesRebuilt);
 
 	int totalFrames = 32;
 	int32_t currentFrame = static_cast<int32_t>(textureAnimation) % totalFrames;
