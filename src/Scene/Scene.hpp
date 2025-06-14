@@ -10,7 +10,7 @@
 #include "../Rendering/Mesh.hpp"
 #include "../World/World.hpp"
 #include "../Common.hpp"
-#include "Effects/PostProcessEffects.hpp" // Un seul include pour tous les effets
+#include "../Game/Effects.hpp" // Un seul include pour tous les effets
 #include "Player.hpp"
 
 class Context;
