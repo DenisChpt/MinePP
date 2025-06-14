@@ -11,6 +11,52 @@
 #include "Behaviors/ParticleBehaviors.hpp"
 #include "../Core/Context.hpp"
 #include "../Application/Window.hpp"
+#include "../Core/Assets.hpp"
+
+// Implémentation de Skybox
+Scene::Skybox::Skybox(Assets& assets)
+{
+	cubeMap = assets.loadCubeMap(
+		"assets/textures/skybox/empty.png;"
+		"assets/textures/skybox/empty.png;"
+		"assets/textures/skybox/sun.png;"
+		"assets/textures/skybox/moon.png;"
+		"assets/textures/skybox/empty.png;"
+		"assets/textures/skybox/empty.png");
+	shader = assets.loadShaderProgram("assets/shaders/skybox");
+}
+
+void Scene::Skybox::update(const glm::mat4 &projection, const glm::mat4 &cameraView, float deltaTime)
+{
+	rotation += rotationSpeed * deltaTime;
+	transform = projection * glm::mat4(glm::mat3(cameraView));
+}
+
+void Scene::Skybox::render()
+{
+	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_CULL_FACE);
+
+	shader->bind();
+	shader->setTexture("cubeMap", cubeMap, 1);
+	shader->setMat4("transform", transform * glm::rotate(rotation, glm::vec3(1, 0, 0)));
+	vertexArray.renderIndexed();
+
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+}
+
+// Implémentation de BlockOutline
+Scene::BlockOutline::BlockOutline(Ref<const CubeMesh> blockMesh, Assets& assets)
+	: outlinedBlockShader(assets.loadShaderProgram("assets/shaders/outline")),
+	  blockMesh(std::move(blockMesh)) {}
+
+void Scene::BlockOutline::render(const glm::mat4 &transform) const
+{
+	outlinedBlockShader->bind();
+	outlinedBlockShader->setMat4("MVP", transform);
+	blockMesh->render();
+}
 
 Scene::Scene(Context& context, const std::string &savePath)
 	: context(context),

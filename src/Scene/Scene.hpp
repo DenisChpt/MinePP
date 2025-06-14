@@ -1,4 +1,4 @@
-// Scene.hpp refactorisé - mise à jour des includes
+// Scene.hpp refactorisé - intégration de Skybox et BlockOutline
 #pragma once
 
 #include <utility>
@@ -7,14 +7,14 @@
 #include "../Rendering/Shaders.hpp"
 #include "../Rendering/Textures.hpp"
 #include "../Rendering/Buffers.hpp"
+#include "../Rendering/Mesh.hpp"
 #include "../World/World.hpp"
 #include "../Common.hpp"
-#include "BlockOutline.hpp"
 #include "Effects/PostProcessEffects.hpp" // Un seul include pour tous les effets
 #include "Player.hpp"
-#include "Skybox.hpp"
 
 class Context;
+class Assets;
 
 class Scene
 {
@@ -22,14 +22,52 @@ class Scene
 	Ref<Persistence> persistence;
 	Ref<World> world;
 
-	Skybox skybox;
+	// Skybox intégré
+	struct Skybox {
+		glm::mat4 transform{1};
+		VertexArray vertexArray{
+			std::vector<glm::vec3>{
+				{1, 1, 1},
+				{1, 1, -1},
+				{1, -1, 1},
+				{1, -1, -1},
+				{-1, 1, 1},
+				{-1, 1, -1},
+				{-1, -1, 1},
+				{-1, -1, -1},
+			},
+			std::vector<VertexAttribute>{{3, VertexAttribute::Float, 0}},
+			std::vector<uint8_t>{0, 1, 5, 4, 0, 5, 2, 1, 0, 1, 2, 3, 7, 4, 5, 4, 7, 6,
+								 1, 3, 7, 1, 7, 5, 4, 6, 0, 2, 0, 6, 3, 2, 6, 7, 3, 6},
+		};
+		Ref<const Texture> cubeMap;
+		Ref<const ShaderProgram> shader;
+		float rotation = 0;
+		float rotationSpeed = 0.01;
+		
+		Skybox(Assets& assets);
+		float getRotationSpeed() const { return rotationSpeed; }
+		void setRotationSpeed(float speed) { rotationSpeed = speed; }
+		void update(const glm::mat4 &projection, const glm::mat4 &cameraView, float deltaTime);
+		void render();
+	} skybox;
+	
 	Player player;
 
 	const float zNear = 0.1f;
 	const float zFar = 1000.0f;
 	glm::mat4 projectionMatrix = glm::mat4(1);
 	float deltaTime = 1.0f;
-	BlockOutline outline;
+	
+	// BlockOutline intégré
+	struct BlockOutline {
+		Ref<const ShaderProgram> outlinedBlockShader;
+		Ref<const CubeMesh> blockMesh;
+		
+		BlockOutline(Ref<const CubeMesh> blockMesh, Assets& assets);
+		void render(const glm::mat4 &transform) const;
+	} outline;
+	
 	std::vector<Ref<PostProcessEffect>> postProcessingEffects;
 
 	bool isMenuOpen = false;
