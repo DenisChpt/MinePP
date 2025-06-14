@@ -18,6 +18,8 @@
 #include "../MinePP.hpp"
 #include "Image.hpp"
 
+class AssetManager;
+
 class Texture
 {
 	uint32_t id = 0;
@@ -49,9 +51,9 @@ public:
 	void buffer2DArrayRGBAData(std::span<const Image> images);
 	void bufferCubeMapRGBAData(std::span<Ref<const Image>, 6> images);
 
-	static Ref<const Texture> loadTexture2D(const std::string &name);
-	static Ref<const Texture> loadTexture2DArray(const std::string &name);
-	static Ref<const Texture> loadCubeMapTexture(const std::string &name);
+	static Ref<const Texture> loadTexture2D(const std::string &name, AssetManager& assetManager);
+	static Ref<const Texture> loadTexture2DArray(const std::string &name, AssetManager& assetManager);
+	static Ref<const Texture> loadCubeMapTexture(const std::string &name, AssetManager& assetManager);
 
 	static Ref<const Texture> loadTexture2DArrayFromImages(const std::vector<Image>& images, int tileWidth, int tileHeight);
 

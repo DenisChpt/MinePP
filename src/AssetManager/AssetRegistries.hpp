@@ -8,6 +8,8 @@
 #include "../Rendering/Texture.hpp"
 #include "../Util/Util.hpp"
 
+class AssetManager;
+
 class TextRegistry : public AssetRegistry<std::string>
 {
 	Ref<const std::string> loadAsset(const std::string &name) override { return Util::readBinaryFile(name); }
@@ -30,25 +32,45 @@ class ImageRegistry : public AssetRegistry<Image>
 
 class TextureRegistry : public AssetRegistry<Texture>
 {
-	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadTexture2D(name); }
+	AssetManager& assetManager;
+
+public:
+	TextureRegistry(AssetManager& assetManager) : assetManager(assetManager) {}
+	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadTexture2D(name, assetManager); }
 };
 
 class TextureArrayRegistry : public AssetRegistry<Texture>
 {
-	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadTexture2DArray(name); }
+	AssetManager& assetManager;
+
+public:
+	TextureArrayRegistry(AssetManager& assetManager) : assetManager(assetManager) {}
+	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadTexture2DArray(name, assetManager); }
 };
 
 class CubeMapRegistry : public AssetRegistry<Texture>
 {
-	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadCubeMapTexture(name); }
+	AssetManager& assetManager;
+
+public:
+	CubeMapRegistry(AssetManager& assetManager) : assetManager(assetManager) {}
+	Ref<const Texture> loadAsset(const std::string &name) override { return Texture::loadCubeMapTexture(name, assetManager); }
 };
 
 class ShaderRegistry : public AssetRegistry<Shader>
 {
-	Ref<const Shader> loadAsset(const std::string &name) override { return std::make_shared<Shader>(name); }
+	AssetManager& assetManager;
+
+public:
+	ShaderRegistry(AssetManager& assetManager) : assetManager(assetManager) {}
+	Ref<const Shader> loadAsset(const std::string &name) override { return std::make_shared<Shader>(name, assetManager); }
 };
 
 class ShaderProgramRegistry : public AssetRegistry<ShaderProgram>
 {
-	Ref<const ShaderProgram> loadAsset(const std::string &name) override { return std::make_shared<ShaderProgram>(name); }
+	AssetManager& assetManager;
+
+public:
+	ShaderProgramRegistry(AssetManager& assetManager) : assetManager(assetManager) {}
+	Ref<const ShaderProgram> loadAsset(const std::string &name) override { return std::make_shared<ShaderProgram>(name, assetManager); }
 };

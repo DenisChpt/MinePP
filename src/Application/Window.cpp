@@ -4,13 +4,9 @@
 #include "../Rendering/ColorRenderPass.hpp"
 #include "Application.hpp"
 
-Window *Window::instancePtr = nullptr;
-
 Window::Window()
 {
 	TRACE_FUNCTION();
-	assert(instancePtr == nullptr && "The window is already instantiated");
-	instancePtr = this;
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -42,7 +38,6 @@ Window::Window()
 Window::~Window()
 {
 	TRACE_FUNCTION();
-	instancePtr = nullptr;
 	glfwTerminate();
 }
 
@@ -51,44 +46,59 @@ void Window::onWindowError(int32_t errorCode, const char *description)
 	std::cerr << "GLFW: **ERROR** error=" << errorCode << " description=" << description << std::endl;
 }
 
-void Window::onKeyEvent(GLFWwindow *, int32_t key, int32_t scancode, int32_t action, int32_t mode)
+void Window::onKeyEvent(GLFWwindow *glfwWindow, int32_t key, int32_t scancode, int32_t action, int32_t mode)
 {
 	TRACE_FUNCTION();
-	Application::instance().onKeyEvent(key, scancode, action, mode);
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+	if (window && window->applicationPtr) {
+		window->applicationPtr->onKeyEvent(key, scancode, action, mode);
+	}
 }
 
-void Window::onResized(GLFWwindow *, int32_t width, int32_t height)
+void Window::onResized(GLFWwindow *glfwWindow, int32_t width, int32_t height)
 {
 	TRACE_FUNCTION();
-	Application &app = Application::instance();
-	Window &window = app.getWindow();
-	window.setWindowHeight(height);
-	window.setWindowWidth(width);
-
-	app.onResized(width, height);
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+	if (window) {
+		window->setWindowHeight(height);
+		window->setWindowWidth(width);
+		if (window->applicationPtr) {
+			window->applicationPtr->onResized(width, height);
+		}
+	}
 }
 
-void Window::onMouseButtonEvent(GLFWwindow *, int32_t button, int32_t action, int32_t mods)
+void Window::onMouseButtonEvent(GLFWwindow *glfwWindow, int32_t button, int32_t action, int32_t mods)
 {
 	TRACE_FUNCTION();
-	Application::instance().onMouseButtonEvent(button, action, mods);
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+	if (window && window->applicationPtr) {
+		window->applicationPtr->onMouseButtonEvent(button, action, mods);
+	}
 }
 
-void Window::onCursorPosition(GLFWwindow *, double x, double y)
+void Window::onCursorPosition(GLFWwindow *glfwWindow, double x, double y)
 {
 	TRACE_FUNCTION();
-	Application::instance().onCursorPositionEvent(x, y);
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+	if (window && window->applicationPtr) {
+		window->applicationPtr->onCursorPositionEvent(x, y);
+	}
 }
 
-void Window::onRefreshWindow(GLFWwindow *)
+void Window::onRefreshWindow(GLFWwindow *glfwWindow)
 {
 	TRACE_FUNCTION();
-	Application::instance().onRefreshWindow();
+	Window* window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+	if (window && window->applicationPtr) {
+		window->applicationPtr->onRefreshWindow();
+	}
 }
 
 void Window::setupCallbacks()
 {
 	TRACE_FUNCTION();
+	glfwSetWindowUserPointer(window, this);
 	glfwSetKeyCallback(window, onKeyEvent);
 	glfwSetMouseButtonCallback(window, onMouseButtonEvent);
 	glfwSetCursorPosCallback(window, onCursorPosition);
@@ -171,7 +181,10 @@ void Window::finalizeFrame()
 	TRACE_FUNCTION();
 	assert(framebufferStack->size() == 1);
 
-	ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0));
+	// TODO: Window needs access to AssetManager for this call
+	// ColorRenderPass::renderTexture(framebufferStack->pop()->getColorAttachment(0), assetManager);
+	// For now, just pop the framebuffer without rendering
+	framebufferStack->pop();
 }
 
 void Window::swapBuffers()

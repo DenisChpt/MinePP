@@ -30,9 +30,9 @@ ShaderProgram::ShaderProgram(const Ref<const Shader> &vertexShader, const Ref<co
 	}
 }
 
-ShaderProgram::ShaderProgram(const std::string &name)
-	: ShaderProgram(AssetManager::instance().loadShader(name + ".vert"),
-					AssetManager::instance().loadShader(name + ".frag")) {}
+ShaderProgram::ShaderProgram(const std::string &name, AssetManager& assetManager)
+	: ShaderProgram(assetManager.loadShader(name + ".vert"),
+					assetManager.loadShader(name + ".frag")) {}
 
 ShaderProgram::~ShaderProgram()
 {

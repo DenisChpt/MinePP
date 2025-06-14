@@ -14,8 +14,11 @@
 #include "Player.hpp"
 #include "Skybox.hpp"
 
+class Context;
+
 class Scene
 {
+	Context& context;
 	Ref<Persistence> persistence;
 	Ref<World> world;
 
@@ -26,11 +29,8 @@ class Scene
 	const float zFar = 1000.0f;
 	glm::mat4 projectionMatrix = glm::mat4(1);
 	float deltaTime = 1.0f;
-	BlockOutline outline{std::make_shared<CubeMesh>()};
-	std::vector<Ref<PostProcessEffect>> postProcessingEffects = {
-		std::make_shared<CrosshairEffect>(true), std::make_shared<ChromaticAberrationEffect>(false),
-		std::make_shared<InvertEffect>(false), std::make_shared<VignetteEffect>(true),
-		std::make_shared<GammaCorrectionEffect>(true), std::make_shared<GaussianBlurEffect>(false)};
+	BlockOutline outline;
+	std::vector<Ref<PostProcessEffect>> postProcessingEffects;
 
 	bool isMenuOpen = false;
 	bool showIntermediateTextures = false;
@@ -39,7 +39,7 @@ class Scene
 	void updateMouse();
 
 public:
-	explicit Scene(const std::string &savePath);
+	Scene(Context& context, const std::string &savePath);
 
 	void update(float deltaTime);
 

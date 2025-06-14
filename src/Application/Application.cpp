@@ -1,32 +1,30 @@
 #include "Application.hpp"
 
 #include "../Performance/Trace.hpp"
+#include "Window.hpp"
+#include "Gui.hpp"
 
-Application *Application::instancePtr = nullptr;
-
-Application::Application()
+Application::Application(Context& context) : context(context)
 {
-	assert(instancePtr == nullptr && "The application is already instantiated");
-	instancePtr = this;
+	context.getWindow().setApplication(this);
 }
 
 Application::~Application()
 {
-	instancePtr = nullptr;
 }
 
 int32_t Application::run()
 {
 	TRACE_FUNCTION();
-	if (!scene || !window.isValid())
+	if (!scene || !context.getWindow().isValid())
 	{
 		return -1;
 	}
 
 	lastTick = Clock::now();
-	while (!window.shouldClose())
+	while (!context.getWindow().shouldClose())
 	{
-		window.pollEvents();
+		context.getWindow().pollEvents();
 		updateAndRender();
 	}
 	return 0;
@@ -42,18 +40,18 @@ void Application::updateAndRender()
 
 	scene->update(deltaTime);
 
-	if (window.shouldRender())
+	if (context.getWindow().shouldRender())
 	{
 		TRACE_SCOPE("Window::render");
-		window.beginFrame();
+		context.getWindow().beginFrame();
 		scene->render();
-		window.finalizeFrame();
+		context.getWindow().finalizeFrame();
 
-		gui.beginFrame();
+		context.getGui().beginFrame();
 		scene->renderGui();
-		gui.finalizeFrame();
+		context.getGui().finalizeFrame();
 
-		window.swapBuffers();
+		context.getWindow().swapBuffers();
 	}
 }
 

@@ -1,14 +1,16 @@
 #include "AssetManager.hpp"
 
-AssetManager *AssetManager::instancePtr = nullptr;
-
 AssetManager::AssetManager()
+	: textRegistry(),
+	  imageRegistry(),
+	  textureRegistry(*this),
+	  textureArrayRegistry(*this),
+	  cubeMapRegistry(*this),
+	  shaderRegistry(*this),
+	  shaderProgramRegistry(*this)
 {
-	assert(instancePtr == nullptr && "The asset manager is already instantiated");
-	instancePtr = this;
 };
 
 AssetManager::~AssetManager()
 {
-	instancePtr = nullptr;
 };

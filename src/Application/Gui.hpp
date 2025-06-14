@@ -13,16 +13,13 @@
 
 #include "../MinePP.hpp"
 
+class Window;
+
 class Gui
 {
-private:
-	static Gui *instancePtr;
-
 public:
-	Gui();
+	Gui(Window& window);
 	~Gui();
-
-	static Gui &instance() { return *instancePtr; }
 
 	void beginFrame();
 	void finalizeFrame();

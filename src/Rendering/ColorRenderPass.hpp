@@ -12,6 +12,8 @@
 #include "FullscreenQuad.hpp"
 #include "ShaderProgram.hpp"
 
+class AssetManager;
+
 class ColorRenderPass
 {
 	Ref<const ShaderProgram> shader;
@@ -23,5 +25,5 @@ public:
 	void render();
 
 	static void renderTextureWithEffect(const Ref<Texture> &texture, const Ref<const ShaderProgram> &effect);
-	static void renderTexture(const Ref<Texture> &texture);
+	static void renderTexture(const Ref<Texture> &texture, AssetManager& assetManager);
 };

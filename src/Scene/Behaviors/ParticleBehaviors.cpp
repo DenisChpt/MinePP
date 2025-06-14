@@ -3,8 +3,8 @@
 #include "../../AssetManager/AssetManager.hpp"
 
 // BlockBreakParticleSystem
-BlockBreakParticleSystem::BlockBreakParticleSystem()
-	: cubeShader(AssetManager::instance().loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
+BlockBreakParticleSystem::BlockBreakParticleSystem(AssetManager& assetManager)
+	: cubeShader(assetManager.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
 
 void BlockBreakParticleSystem::render(glm::mat4 MVP)
 {
@@ -19,8 +19,8 @@ void BlockBreakParticleSystem::render(glm::mat4 MVP)
 }
 
 // LavaParticleSystem
-LavaParticleSystem::LavaParticleSystem()
-	: cubeShader(AssetManager::instance().loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
+LavaParticleSystem::LavaParticleSystem(AssetManager& assetManager)
+	: cubeShader(assetManager.loadShaderProgram("assets/shaders/colored_cube_opaque")) {}
 
 void LavaParticleSystem::render(glm::mat4 MVP)
 {

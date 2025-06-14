@@ -125,10 +125,10 @@ void Texture::unbind() const
 	glBindTexture(target, 0);
 }
 
-Ref<const Texture> Texture::loadTexture2D(const std::string &name)
+Ref<const Texture> Texture::loadTexture2D(const std::string &name, AssetManager& assetManager)
 {
 	TRACE_FUNCTION();
-	Ref<const Image> image = AssetManager::instance().loadImage(name);
+	Ref<const Image> image = assetManager.loadImage(name);
 	if (image == nullptr)
 	{
 		return nullptr;
@@ -139,10 +139,10 @@ Ref<const Texture> Texture::loadTexture2D(const std::string &name)
 	return texture;
 }
 
-Ref<const Texture> Texture::loadTexture2DArray(const std::string &name)
+Ref<const Texture> Texture::loadTexture2DArray(const std::string &name, AssetManager& assetManager)
 {
 	TRACE_FUNCTION();
-	Ref<const Image> image = AssetManager::instance().loadImage(name);
+	Ref<const Image> image = assetManager.loadImage(name);
 	if (image == nullptr)
 	{
 		return nullptr;
@@ -165,14 +165,13 @@ Ref<const Texture> Texture::loadTexture2DArray(const std::string &name)
 	texture->buffer2DArrayRGBAData(subImages);
 	return texture;
 }
-Ref<const Texture> Texture::loadCubeMapTexture(const std::string &name)
+Ref<const Texture> Texture::loadCubeMapTexture(const std::string &name, AssetManager& assetManager)
 {
 	TRACE_FUNCTION();
 	std::stringstream parts(name);
 
 	std::array<Ref<const Image>, 6> images{};
 	std::string imageName;
-	AssetManager &assetManager = AssetManager::instance();
 	for (int32_t i = 0; i < 6; i++)
 	{
 		if (!std::getline(parts, imageName, ';'))

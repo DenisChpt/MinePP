@@ -4,6 +4,8 @@
 #include "../Rendering/VertexArray.hpp"
 #include "../MinePP.hpp"
 
+class AssetManager;
+
 class Skybox
 {
 	glm::mat4 transform{1};
@@ -29,7 +31,7 @@ class Skybox
 	float rotationSpeed = 0.01;
 
 public:
-	Skybox();
+	Skybox(AssetManager& assetManager);
 
 	[[nodiscard]] float getRotationSpeed() const { return rotationSpeed; };
 	void setRotationSpeed(float speed) { rotationSpeed = speed; };

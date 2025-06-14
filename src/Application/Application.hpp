@@ -14,8 +14,7 @@
 
 #include "../Scene/Scene.hpp"
 #include "../MinePP.hpp"
-#include "Gui.hpp"
-#include "Window.hpp"
+#include "../Core/Context.hpp"
 
 class Application
 {
@@ -23,13 +22,9 @@ private:
 	using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 	using Clock = std::chrono::steady_clock;
 
-	Window window;
-	Gui gui;
-	AssetManager assetManager;
+	Context& context;
 	Ref<Scene> scene;
 	TimePoint lastTick = Clock::now();
-
-	static Application *instancePtr;
 
 	void onKeyEvent(int32_t key, int32_t scancode, int32_t action, int32_t mode);
 	void onMouseButtonEvent(int32_t button, int32_t action, int32_t mods);
@@ -42,15 +37,13 @@ private:
 	friend Window;
 
 public:
-	Application();
+	Application(Context& context);
 	~Application();
 
-	static Application &instance() { return *instancePtr; };
-
 	void setScene(const Ref<Scene> &newScene) { scene = newScene; };
-	int32_t getWindowWidth() { return window.getWindowWidth(); }
-	int32_t getWindowHeight() { return window.getWindowHeight(); }
-	Window &getWindow() { return window; };
+	int32_t getWindowWidth() { return context.getWindow().getWindowWidth(); }
+	int32_t getWindowHeight() { return context.getWindow().getWindowHeight(); }
+	Window &getWindow() { return context.getWindow(); };
 	int32_t run();
 
 	Application(const Application &) = delete;

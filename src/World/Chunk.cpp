@@ -1,6 +1,7 @@
 #include "Chunk.hpp"
 
 #include "../AssetManager/AssetManager.hpp"
+#include "../Core/Context.hpp"
 #include "World.hpp"
 
 Chunk::Chunk(const glm::ivec2 &worldPosition) : worldPosition(worldPosition), aabb(glm::vec3(0), glm::vec3(0))
@@ -151,7 +152,7 @@ void Chunk::rebuildMesh(const World &world)
 						{
 							BlockVertex vert = vertex;
 							vert.offset(x, y, z);
-							vert.setType(offset, type);
+							vert.setType(offset, type, world.getContext().getTextureAtlas());
 
 							uint8_t occlusionLevel = 3;
 							if (useAmbientOcclusion)

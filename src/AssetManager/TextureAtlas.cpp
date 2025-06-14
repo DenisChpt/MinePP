@@ -13,13 +13,8 @@
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
 
-TextureAtlas &TextureAtlas::instance()
-{
-	static TextureAtlas instance;
-	return instance;
-}
-
-TextureAtlas::TextureAtlas() : tileWidth(16), tileHeight(16), padding(2)
+TextureAtlas::TextureAtlas(AssetManager& assetManager) 
+	: assetManager(assetManager), tileWidth(16), tileHeight(16), padding(2)
 {
 	// Charge l'atlas depuis le fichier JSON par défaut
 	loadAtlas("assets/textures/textures.json");
@@ -70,7 +65,7 @@ void TextureAtlas::loadAtlas(const std::string &jsonPath)
 		}
 
 		// On tente de charger l'image
-		Ref<const Image> img = AssetManager::instance().loadImage(path);
+		Ref<const Image> img = assetManager.loadImage(path);
 		if (!img)
 		{
 			std::cerr << "Échec du chargement de l'image : " << path << std::endl;

@@ -18,16 +18,17 @@
 #include "../Rendering/FramebufferStack.hpp"
 #include "../MinePP.hpp"
 
+class Application;
+
 class Window
 {
-	static Window *instancePtr;
-
 	const char *name = "MinePP";
 	int32_t windowWidth = 1200;
 	int32_t windowHeight = 900;
 	GLFWwindow *window = nullptr;
 	glm::vec4 clearColor = {0, 0, 0, 1};
 	Ref<FramebufferStack> framebufferStack = std::make_shared<FramebufferStack>();
+	Application* applicationPtr = nullptr;
 
 	void setupCallbacks();
 	static bool setupGlad();
@@ -51,7 +52,7 @@ public:
 	Window();
 	~Window();
 
-	static Window &instance() { return *instancePtr; }
+	void setApplication(Application* app) { applicationPtr = app; }
 
 	[[nodiscard]] inline int32_t getWindowWidth() const { return windowWidth; }
 	void setWindowWidth(int32_t width) { windowWidth = width; }

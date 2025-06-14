@@ -21,6 +21,7 @@
 #include "Chunk.hpp"
 #include "WorldGenerator.hpp"
 
+class Context;
 class Framebuffer;
 class World
 {
@@ -33,6 +34,7 @@ class World
 	Ref<const ShaderProgram> blendShader;
 	bool useAmbientOcclusion = true;
 
+	Context& context;
 	Ref<Persistence> persistence;
 	WorldGenerator generator;
 
@@ -48,7 +50,9 @@ class World
 	void rebuildChunks(const Ref<ChunkIndexVector> &chunkIndices, const Frustum &frustum);
 
 public:
-	explicit World(const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed);
+	World(Context& context, const Ref<Persistence> &persistence, std::vector<Ref<WorldBehavior>> behaviors, int32_t seed);
+	Context& getContext() { return context; }
+	const Context& getContext() const { return context; }
 
 	Ref<Chunk> getChunk(glm::ivec2 position);
 	void addChunk(glm::ivec2 position, const Ref<Chunk> &chunk);

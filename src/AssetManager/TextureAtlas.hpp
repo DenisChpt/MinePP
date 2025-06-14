@@ -28,11 +28,12 @@ struct BlockTextureData
 	float frame_duration;
 };
 
+class AssetManager;
+
 class TextureAtlas
 {
 public:
-	// Singleton
-	static TextureAtlas &instance();
+	TextureAtlas(AssetManager& assetManager);
 
 	// Charge l'atlas à partir du fichier JSON donné (par défaut "assets/textures/textures.json")
 	void loadAtlas(const std::string &jsonPath);
@@ -44,7 +45,7 @@ public:
 	BlockTextureData getBlockTextureData(BlockData::BlockType type) const;
 
 private:
-	TextureAtlas();
+	AssetManager& assetManager;
 
 	Ref<const Texture> atlasTexture;
 	int tileWidth;

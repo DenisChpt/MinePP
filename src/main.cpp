@@ -15,26 +15,25 @@
 
 #include "Application/Application.hpp"
 #include "Performance/Trace.hpp"
+#include "Core/Context.hpp"
 #include "MinePP.hpp"
 
 int main(int argc, char **argv)
 {
 	START_TRACE("startup.json");
-	auto *app = new Application;
+	
+	Context context;
+	Application app(context);
+	
 	END_TRACE();
 
 	START_TRACE("scene-creation.json");
 	std::string savePath = argc > 1 ? argv[1] : "default.glc";
-	app->setScene(std::make_shared<Scene>(savePath));
+	app.setScene(std::make_shared<Scene>(context, savePath));
 	END_TRACE();
 
 	START_TRACE("runtime.json");
-	int result;
-	result = app->run();
-	END_TRACE();
-
-	START_TRACE("shutdown.json");
-	delete app;
+	int result = app.run();
 	END_TRACE();
 
 	return result;

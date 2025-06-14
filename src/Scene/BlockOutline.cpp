@@ -2,8 +2,8 @@
 
 #include "../AssetManager/AssetManager.hpp"
 
-BlockOutline::BlockOutline(Ref<const CubeMesh> blockMesh)
-	: outlinedBlockShader(AssetManager::instance().loadShaderProgram("assets/shaders/outline")),
+BlockOutline::BlockOutline(Ref<const CubeMesh> blockMesh, AssetManager& assetManager)
+	: outlinedBlockShader(assetManager.loadShaderProgram("assets/shaders/outline")),
 	  blockMesh(std::move(blockMesh)) {}
 
 void BlockOutline::render(const glm::mat4 &transform) const

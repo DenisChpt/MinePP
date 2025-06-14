@@ -13,13 +13,15 @@
 
 #include "../MinePP.hpp"
 
+class AssetManager;
+
 class Shader
 {
 	uint32_t id;
 
 public:
 	Shader(const std::string &source, uint32_t type);
-	explicit Shader(const std::string &name);
+	Shader(const std::string &name, AssetManager& assetManager);
 	~Shader();
 
 	[[nodiscard]] bool isValid() const { return id != 0; };

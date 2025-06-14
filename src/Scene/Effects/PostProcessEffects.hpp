@@ -5,6 +5,9 @@
 #include "../../Application/Window.hpp"			// Ajouté pour CrosshairEffect
 #include "../../Rendering/ProceduralShader.hpp" // Ajouté pour GaussianBlurEffect
 
+class AssetManager;
+class Context;
+
 // ChromaticAberrationEffect
 class ChromaticAberrationEffect : public PostProcessEffect
 {
@@ -14,8 +17,8 @@ class ChromaticAberrationEffect : public PostProcessEffect
 	float aberrationBOffset = -0.005;
 
 public:
-	ChromaticAberrationEffect(bool enabled)
-		: PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
+	ChromaticAberrationEffect(AssetManager& assetManager, bool enabled)
+		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/chromatic_aberration_effect"), enabled) {}
 
 	void renderGui() override
 	{
@@ -46,8 +49,8 @@ class CrosshairEffect : public PostProcessEffect
 	float crosshairHorizontalWidth = 0.15f;
 
 public:
-	CrosshairEffect(bool enabled)
-		: PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/crosshair"), enabled) {}
+	CrosshairEffect(AssetManager& assetManager, bool enabled)
+		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/crosshair"), enabled) {}
 
 	void renderGui() override
 	{
@@ -62,9 +65,10 @@ public:
 
 	void update() override
 	{
-		auto &window = Window::instance();
-		auto width = window.getWindowWidth();
-		auto height = window.getWindowHeight();
+		// TODO: Receive window reference via constructor or context
+		// auto &window = Window::instance();
+		auto width = 1200; // temporary hardcoded
+		auto height = 900; // temporary hardcoded
 		float aspectRatio = width == 0 || height == 0 ? 0 : static_cast<float>(width) / static_cast<float>(height);
 
 		shader->setFloat("size", crosshairSize);
@@ -80,8 +84,8 @@ class GammaCorrectionEffect : public PostProcessEffect
 	float power = 0.85;
 
 public:
-	GammaCorrectionEffect(bool enabled)
-		: PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/gamma_correction"), enabled) {};
+	GammaCorrectionEffect(AssetManager& assetManager, bool enabled)
+		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/gamma_correction"), enabled) {};
 
 	void update() override { shader->setFloat("power", power); }
 
@@ -196,8 +200,8 @@ public:
 class InvertEffect : public PostProcessEffect
 {
 public:
-	InvertEffect(bool enabled)
-		: PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
+	InvertEffect(AssetManager& assetManager, bool enabled)
+		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/invert_effect"), enabled) {}
 
 	void update() override {}
 
@@ -214,8 +218,8 @@ class VignetteEffect : public PostProcessEffect
 	float vignetteStart = 2;
 
 public:
-	VignetteEffect(bool enabled)
-		: PostProcessEffect(AssetManager::instance().loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
+	VignetteEffect(AssetManager& assetManager, bool enabled)
+		: PostProcessEffect(assetManager.loadShaderProgram("assets/shaders/vignette_effect"), enabled) {}
 
 	void update() override
 	{

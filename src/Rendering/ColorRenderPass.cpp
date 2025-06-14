@@ -29,16 +29,20 @@ void ColorRenderPass::renderTextureWithEffect(const Ref<Texture> &texture, const
 	ColorRenderPass renderPass(effect);
 
 	effect->bind();
-	effect->setInt("screenHeight", Window::instance().getWindowHeight());
+	// TODO: Fix this - need window reference
+	effect->setInt("screenHeight", 900); // temporary hardcoded
 	renderPass.setTexture("colorTexture", texture, 0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	renderPass.render();
 }
 
-void ColorRenderPass::renderTexture(const Ref<Texture> &texture)
+void ColorRenderPass::renderTexture(const Ref<Texture> &texture, AssetManager& assetManager)
 {
 	TRACE_FUNCTION();
-	static Ref<const ShaderProgram> colorIdentity = AssetManager::instance().loadShaderProgram("assets/shaders/identity");
+	static Ref<const ShaderProgram> colorIdentity = nullptr;
+	if (!colorIdentity) {
+		colorIdentity = assetManager.loadShaderProgram("assets/shaders/identity");
+	}
 	renderTextureWithEffect(texture, colorIdentity);
 }

@@ -8,8 +8,6 @@
 
 class AssetManager
 {
-	static AssetManager *instancePtr;
-
 	TextRegistry textRegistry;
 	ImageRegistry imageRegistry;
 	TextureRegistry textureRegistry;
@@ -22,7 +20,6 @@ public:
 	AssetManager();
 	~AssetManager();
 
-	static AssetManager &instance() { return *instancePtr; };
 
 	void removeTextFromRegistry(const std::string &name) { textRegistry.remove(name); }
 	void removeImageFromRegistry(const std::string &name) { imageRegistry.remove(name); }

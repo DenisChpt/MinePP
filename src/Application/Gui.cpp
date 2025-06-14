@@ -3,15 +3,11 @@
 #include "../Performance/Trace.hpp"
 #include "Window.hpp"
 
-Gui *Gui::instancePtr = nullptr;
-
-Gui::Gui()
+Gui::Gui(Window& window)
 {
 	TRACE_FUNCTION();
-	assert(instancePtr == nullptr && "The GUI is already instantiated");
-	instancePtr = this;
 
-	const auto context = Window::instance().getContext();
+	const auto context = window.getContext();
 	if (context == nullptr)
 	{
 		return;
@@ -27,7 +23,6 @@ Gui::Gui()
 Gui::~Gui()
 {
 	TRACE_FUNCTION();
-	instancePtr = nullptr;
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();

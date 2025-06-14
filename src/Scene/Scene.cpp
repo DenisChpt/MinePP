@@ -8,18 +8,35 @@
 #include "../Performance/Trace.hpp"
 #include "../World/BlockName.hpp"
 #include "Behaviors/ParticleBehaviors.hpp"
+#include "../Core/Context.hpp"
+#include "../Application/Window.hpp"
 
-Scene::Scene(const std::string &savePath)
-	: persistence(std::make_shared<Persistence>(savePath)),
+Scene::Scene(Context& context, const std::string &savePath)
+	: context(context),
+	  persistence(std::make_shared<Persistence>(savePath)),
 	  world(std::make_shared<World>(
+		  context,
 		  persistence,
-		  std::vector{std::static_pointer_cast<WorldBehavior>(std::make_shared<LavaParticleBehavior>()),
-					  std::static_pointer_cast<WorldBehavior>(std::make_shared<BlockBreakParticleBehavior>())},
+		  std::vector{std::static_pointer_cast<WorldBehavior>(std::make_shared<LavaParticleBehavior>(context.getAssetManager())),
+					  std::static_pointer_cast<WorldBehavior>(std::make_shared<BlockBreakParticleBehavior>(context.getAssetManager()))},
 		  1337)),
-	  player(world, persistence)
+	  skybox(context.getAssetManager()),
+	  player(world, persistence),
+	  outline(std::make_shared<CubeMesh>(), context.getAssetManager())
 {
 	TRACE_FUNCTION();
-	onResized(Application::instance().getWindowWidth(), Application::instance().getWindowHeight());
+	
+	// Initialize post-processing effects
+	postProcessingEffects = {
+		std::make_shared<CrosshairEffect>(context.getAssetManager(), true),
+		std::make_shared<ChromaticAberrationEffect>(context.getAssetManager(), false),
+		std::make_shared<InvertEffect>(context.getAssetManager(), false),
+		std::make_shared<VignetteEffect>(context.getAssetManager(), true),
+		std::make_shared<GammaCorrectionEffect>(context.getAssetManager(), true),
+		std::make_shared<GaussianBlurEffect>(false)
+	};
+	
+	onResized(context.getWindow().getWindowWidth(), context.getWindow().getWindowHeight());
 	updateMouse();
 }
 
@@ -44,11 +61,11 @@ void Scene::updateMouse()
 	if (isMenuOpen)
 	{
 		player.resetMousePosition();
-		Window::instance().unlockMouse();
+		context.getWindow().unlockMouse();
 	}
 	else
 	{
-		Window::instance().lockMouse();
+		context.getWindow().lockMouse();
 	}
 }
 
@@ -61,8 +78,8 @@ void Scene::render()
 	Frustum frustum(mvp);
 
 	const Camera &camera = player.getCamera();
-	const int32_t width = Window::instance().getWindowWidth();
-	const int32_t height = Window::instance().getWindowHeight();
+	const int32_t width = context.getWindow().getWindowWidth();
+	const int32_t height = context.getWindow().getWindowHeight();
 
 	static Ref<Framebuffer> framebuffer = nullptr;
 	if (framebuffer == nullptr || framebuffer->getWidth() != width || framebuffer->getHeight() != height)
@@ -70,11 +87,11 @@ void Scene::render()
 		framebuffer = std::make_shared<Framebuffer>(width, height, true, 1);
 	}
 
-	Window::instance().getFramebufferStack()->push(framebuffer);
+	context.getWindow().getFramebufferStack()->push(framebuffer);
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	world->renderOpaque(mvp, camera.getPosition(), frustum);
-	auto opaqueRender = Window::instance().getFramebufferStack()->pop();
+	auto opaqueRender = context.getWindow().getFramebufferStack()->pop();
 
 	world->renderTransparent(mvp, camera.getPosition(), frustum, zNear, zFar, opaqueRender);
 
@@ -114,7 +131,7 @@ void Scene::renderMenu()
 
 		if (ImGui::Checkbox("Show intermediate textures", &showIntermediateTextures))
 		{
-			Window::instance().getFramebufferStack()->setKeepIntermediateTextures(showIntermediateTextures);
+			context.getWindow().getFramebufferStack()->setKeepIntermediateTextures(showIntermediateTextures);
 		}
 
 		ImGui::Spacing();
@@ -205,7 +222,7 @@ void Scene::renderMenu()
 			ImGui::InputText("Custom texture atlas path", textureAtlasPath, pathLength);
 			if (ImGui::Button("Load texture atlas"))
 			{
-				Ref<const Texture> atlas = AssetManager::instance().loadTexture(textureAtlasPath);
+				Ref<const Texture> atlas = context.getAssetManager().loadTexture(textureAtlasPath);
 				if (atlas != nullptr)
 				{
 					world->setTextureAtlas(atlas);
@@ -223,7 +240,8 @@ void Scene::renderMenu()
 			{
 				if (std::filesystem::exists(textureAtlasPath))
 				{
-					Application::instance().setScene(std::make_shared<Scene>(textureAtlasPath));
+					// TODO: Implement proper scene switching with context
+					// Application::instance().setScene(std::make_shared<Scene>(textureAtlasPath));
 				}
 			}
 		}
@@ -237,7 +255,7 @@ void Scene::renderIntermediateTextures()
 	TRACE_FUNCTION();
 	if (ImGui::Begin("Intermediate Textures"))
 	{
-		for (const auto &texture : Window::instance().getFramebufferStack()->getIntermediateTextures())
+		for (const auto &texture : context.getWindow().getFramebufferStack()->getIntermediateTextures())
 		{
 			ImGui::Text("%u", texture->getId());
 			ImGui::Image(reinterpret_cast<ImTextureID>(texture->getId()), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
